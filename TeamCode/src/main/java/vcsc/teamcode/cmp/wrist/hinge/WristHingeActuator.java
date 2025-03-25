@@ -1,15 +1,18 @@
 package vcsc.teamcode.cmp.wrist.hinge;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-import vcsc.core.abstracts.actuator.Actuator;
-import vcsc.core.abstracts.actuator.RotatorActuator;
-import vcsc.core.abstracts.state.State;
+import vcsc.core.abstracts.templates.rotator.RotatorActuator;
 
-public class WristHingeActuator extends RotatorActuator {
+public class WristHingeActuator extends RotatorActuator<WristHingeState, WristHingePose> {
 
     public WristHingeActuator(HardwareMap hardwareMap) {
         super(hardwareMap, "wristHinge");
+    }
+
+    @Override
+    public void loop() {
+        double rotPosition = angle / 370.0; // Convert angle to a value between 0 and 1 for the servo
+        servo.setPosition(angle);
     }
 }

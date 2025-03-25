@@ -17,8 +17,7 @@ public class ServoTest extends OpMode {
     ServoImplEx[] servos;
     public static double wristHingePos = 0.5;
     public static double wristTwistPos = 0.5;
-    public static double elbow1Pos = 0.5;
-    public static double elbow2Pos = 0.5;
+    public static double elbowPos = 0.5;
     public static double clawPos = 0.5;
 
     @Override
@@ -34,8 +33,8 @@ public class ServoTest extends OpMode {
     public void loop() {
         wristHinge.setPosition(wristHingePos);
         wristTwist.setPosition(wristTwistPos);
-        elbow1.setPosition(elbow1Pos);
-        elbow2.setPosition(elbow2Pos);
+        elbow1.setPosition(elbowPos);
+        elbow2.setPosition(elbowPos);
         claw.setPosition(clawPos);
     }
 }

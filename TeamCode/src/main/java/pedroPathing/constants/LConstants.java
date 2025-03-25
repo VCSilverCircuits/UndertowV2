@@ -1,7 +1,7 @@
 package pedroPathing.constants;
 
-import com.pedropathing.localization.*;
-import com.pedropathing.localization.constants.*;
+import com.pedropathing.localization.GoBildaPinpointDriver;
+import com.pedropathing.localization.constants.PinpointConstants;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -18,6 +18,7 @@ public class LConstants {
         PinpointConstants.encoderResolution = GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
         PinpointConstants.forwardEncoderDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
         PinpointConstants.strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+
     }
 }
 

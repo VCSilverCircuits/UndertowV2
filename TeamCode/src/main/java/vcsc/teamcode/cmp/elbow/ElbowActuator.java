@@ -1,15 +1,19 @@
 package vcsc.teamcode.cmp.elbow;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-import vcsc.core.abstracts.actuator.Actuator;
-import vcsc.core.abstracts.actuator.RotatorActuator;
-import vcsc.core.abstracts.state.State;
+import vcsc.core.abstracts.templates.rotator.RotatorActuator;
 
-public class ElbowActuator extends RotatorActuator {
+public class ElbowActuator extends RotatorActuator<ElbowState, ElbowPose> {
     public ElbowActuator(HardwareMap hardwareMap) {
-        super(hardwareMap, "elbow");
+        // TODO: Use both servos
+        super(hardwareMap, "elbow1");
+    }
+
+    @Override
+    public void loop() {
+        double rotPosition = angle / 370.0; // Convert angle to a value between 0 and 1 for the servo
+        servo.setPosition(angle);
     }
 
 }

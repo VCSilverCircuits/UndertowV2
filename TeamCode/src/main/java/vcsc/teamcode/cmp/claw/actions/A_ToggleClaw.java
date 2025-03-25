@@ -4,11 +4,16 @@ import vcsc.core.abstracts.action.Action;
 import vcsc.teamcode.cmp.claw.ClawPose;
 import vcsc.teamcode.cmp.claw.ClawState;
 
-public class SetClawPose extends Action<ClawState> {
+public class A_ToggleClaw extends Action<ClawState> {
     ClawPose pose;
-    public SetClawPose(ClawPose pose) {
+
+    public A_ToggleClaw() {
         super(ClawState.class);
-        this.pose = pose;
+        if (state.getPose() == ClawPose.CLOSED) {
+            this.pose = ClawPose.OPEN;
+        } else {
+            this.pose = ClawPose.CLOSED;
+        }
     }
 
     @Override
@@ -18,7 +23,7 @@ public class SetClawPose extends Action<ClawState> {
             return false; // If the action cannot start, return false
         }
         this.state.setPose(this, pose);
-        return false;
+        return true;
     }
 
     @Override

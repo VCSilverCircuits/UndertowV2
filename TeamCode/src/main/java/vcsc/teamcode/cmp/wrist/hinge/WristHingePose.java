@@ -1,9 +1,11 @@
 package vcsc.teamcode.cmp.wrist.hinge;
 
-import vcsc.core.abstracts.pose.RotatorPose;
+import vcsc.core.abstracts.templates.rotator.RotatorPose;
+import vcsc.teamcode.config.SetPositions;
 
 public enum WristHingePose implements RotatorPose {
-    STOW(0);
+    STOW(0),
+    DEPOSIT_SAMPLE(SetPositions.DEPOSIT_SAMPLE.getWristHingeAngle());
 
     final double angle;
 

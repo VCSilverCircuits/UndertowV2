@@ -1,13 +1,14 @@
-package vcsc.teamcode.cmp.elbow.actions;
+package vcsc.teamcode.cmp.claw.actions;
 
 import vcsc.core.abstracts.action.Action;
-import vcsc.teamcode.cmp.elbow.ElbowPose;
-import vcsc.teamcode.cmp.elbow.ElbowState;
+import vcsc.teamcode.cmp.claw.ClawPose;
+import vcsc.teamcode.cmp.claw.ClawState;
 
-public class SetElbowPose extends Action<ElbowState> {
-    ElbowPose pose;
-    public SetElbowPose(ElbowPose pose) {
-        super(ElbowState.class);
+public class A_SetClawPose extends Action<ClawState> {
+    ClawPose pose;
+
+    public A_SetClawPose(ClawPose pose) {
+        super(ClawState.class);
         this.pose = pose;
     }
 
@@ -17,9 +18,8 @@ public class SetElbowPose extends Action<ElbowState> {
         if (!started) {
             return false; // If the action cannot start, return false
         }
-        // Set the angle to a default value (e.g., 0 degrees)
         this.state.setPose(this, pose);
-        return false;
+        return true;
     }
 
     @Override
