@@ -5,7 +5,7 @@ import com.pedropathing.localization.Localizers;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class FConstants {
-    static {
+    static { // 13.7:1 gear ratio
         FollowerConstants.localizers = Localizers.THREE_WHEEL;
 
         FollowerConstants.leftFrontMotorName = "leftFront";

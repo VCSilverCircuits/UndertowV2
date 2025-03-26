@@ -12,12 +12,7 @@ public class ArmRotationState extends PoweredPIDFState<ArmRotationState, ArmRota
         this.power = 0;
     }
 
-    @Override
-    public double getRealPosition() {
-        return super.getRealPosition() * DEGREES_PER_TICK;
-    }
-
-    public double getAngle() {
+    public double getTargetAngle() {
         return getTargetPosition() * DEGREES_PER_TICK;
     }
 

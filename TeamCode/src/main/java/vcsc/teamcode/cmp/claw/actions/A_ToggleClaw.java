@@ -35,4 +35,9 @@ public class A_ToggleClaw extends Action<ClawState> {
     public boolean isFinished() {
         return true;
     }
+
+    @Override
+    public void cancel() {
+        end();
+    }
 }

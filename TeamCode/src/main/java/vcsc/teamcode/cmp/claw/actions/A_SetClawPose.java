@@ -24,11 +24,18 @@ public class A_SetClawPose extends Action<ClawState> {
 
     @Override
     public void loop() {
-
+        if (state.idle() && state.getPosition() == pose.getPos()) {
+            end(); // End the action if the pose is reached
+        }
     }
 
     @Override
     public boolean isFinished() {
         return true;
+    }
+
+    @Override
+    public void cancel() {
+        end();
     }
 }

@@ -9,7 +9,7 @@ public enum SetPositions {
     PREGRAB_SAMPLE(null, null, null, null, null, ClawPose.OPEN),
     INTAKE_SAMPLE(null, null, null, null, null, null),
     INTAKE_SPECIMEN(null, null, null, null, null, null),
-    DEPOSIT_SAMPLE(null, null, null, null, null, null),
+    DEPOSIT_SAMPLE(72.0, 90.0, 0.45, 0.6, 0.92, null),
     DEPOSIT_SPECIMEN(null, null, null, null, null, null);
     private final double armExtensionLength;
     private final double armRotationAngle;

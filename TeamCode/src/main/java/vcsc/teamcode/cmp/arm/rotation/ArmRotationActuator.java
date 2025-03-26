@@ -5,6 +5,7 @@ import static vcsc.teamcode.config.GlobalConfig.TPR;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
@@ -16,16 +17,17 @@ import vcsc.core.util.GlobalTelemetry;
 
 public class ArmRotationActuator extends PoweredPIDFActuator<ArmRotationState, ArmRotationPose> {
     // Three 4:1 ultraplanetary gearboxes
-    public static final double MOTOR_GEAR_RATIO = 3.61 * 3.61 * 3.61;
+    public static final double MOTOR_GEAR_RATIO = 71.2;
     // Gear ratio of driven gears
-    public static final double DRIVE_GEAR_RATIO = 52.0 / 24.0;
+    public static final double DRIVE_GEAR_RATIO = 52.0 / 28.0; // 48 to... 28?
     public static final double DEGREES_PER_TICK = 360.0 / (TPR * MOTOR_GEAR_RATIO * DRIVE_GEAR_RATIO);
     DcMotorGroup motors;
-    private double maxSpeed = 0.75;
+    private double maxSpeed = 1.0;
 
     public ArmRotationActuator(HardwareMap hardwareMap, PIDFCoefficients coefficients) {
         super(coefficients);
         DcMotorEx rotation = hardwareMap.get(DcMotorEx.class, "armRotation");
+        rotation.setDirection(DcMotorSimple.Direction.REVERSE);
         motors = new DcMotorGroup(rotation);
         motors.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -42,7 +44,11 @@ public class ArmRotationActuator extends PoweredPIDFActuator<ArmRotationState, A
 
     @Override
     public double getPosition() {
-        return -motors.getCurrentPosition();
+        return motors.getCurrentPosition();
+    }
+
+    public double getAngle() {
+        return getPosition() * DEGREES_PER_TICK;
     }
 
     public void reset() {
@@ -75,6 +81,8 @@ public class ArmRotationActuator extends PoweredPIDFActuator<ArmRotationState, A
     protected void loopPID() {
         MultipleTelemetry telemetry = GlobalTelemetry.getInstance();
         double outputPower = controller.calculate(getPosition());
+        telemetry.addData("ArmRotation Set point", controller.getSetPoint());
+        telemetry.addData("ArmRotation output power", outputPower);
 //        telemetry.addData("Run Position", controller.getSetPoint());
 //        telemetry.addData("At Position", controller.atSetPoint());
 //        telemetry.addData("Output Power", outputPower);

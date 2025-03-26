@@ -19,12 +19,11 @@ import vcsc.core.util.GlobalTelemetry;
 
 public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState, ArmExtensionPose> {
     // Three 5:1 ultraplanetary gearbox
-    public static final double MOTOR_GEAR_RATIO = 2.89 * 2.89; // 3.61
+    public static final double MOTOR_GEAR_RATIO = 5.2; // 3.61
     // Gear ratio of driven gears
-    public static final double DRIVE_GEAR_RATIO = 60.0 / 56.0;
+    public static final double DRIVE_GEAR_RATIO = 1.0;
 
-    // 20 mm pulley
-    public static final double PULLEY_DIAMETER = 30;
+    public static final double PULLEY_DIAMETER = 16;
     public static final double CM_PER_TICK = PULLEY_DIAMETER * Math.PI / (10.0 * DRIVE_GEAR_RATIO * MOTOR_GEAR_RATIO * TPR);
     public static final double MAX_EXTENSION_POWER = 1.0;
     DcMotorGroup motors;
@@ -36,7 +35,8 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
         DcMotorEx extensionCenter = hardwareMap.get(DcMotorEx.class, "armExtensionCenter");
         DcMotorEx extensionRight = hardwareMap.get(DcMotorEx.class, "armExtensionRight");
 //        touchSensor = hardwareMap.get(TouchSensor.class, "slideLimitSensor");
-        extensionRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        extensionLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        extensionCenter.setDirection(DcMotorSimple.Direction.REVERSE);
         motors = new DcMotorGroup(extensionLeft, extensionCenter, extensionRight);
         motors.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -82,7 +82,7 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
 
     @Override
     public double getPosition() {
-        return -motors.getCurrentPosition();
+        return motors.getCurrentPosition();
     }
 
     @Override
