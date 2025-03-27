@@ -8,6 +8,7 @@ import vcsc.core.abstracts.actuator.Actuator;
 import vcsc.core.abstracts.state.State;
 
 public class ClawActuator extends Actuator<ClawState> {
+    final double delay = 50;
     Servo servo;
     double targetPosition;
 
@@ -25,4 +26,10 @@ public class ClawActuator extends Actuator<ClawState> {
         ClawState clawState = (ClawState) newState;
         targetPosition = clawState.getPosition();
     }
+
+    public double getDelay() {
+        return delay;
+    }
+
+
 }

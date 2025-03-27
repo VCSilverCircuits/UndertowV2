@@ -30,6 +30,11 @@ public class ClawState extends State<ClawState> {
     public ClawPose getPose() {
         return pose;
     }
+
+    public double getDelay() {
+        ClawActuator clawActuator = (ClawActuator) this.actuators.get(0);
+        return clawActuator.getDelay();
+    }
 }
 
 

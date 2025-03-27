@@ -1,0 +1,53 @@
+package vcsc.teamcode.bx;
+
+import vcsc.core.abstracts.behavior.Behavior;
+import vcsc.core.abstracts.state.State;
+import vcsc.teamcode.abstracts.GlobalState;
+import vcsc.teamcode.actions.A_SetGlobalPose;
+import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
+import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
+import vcsc.teamcode.cmp.claw.ClawState;
+import vcsc.teamcode.cmp.elbow.ElbowState;
+import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
+import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
+import vcsc.teamcode.config.GlobalPose;
+
+public class B_SetGlobalPose extends Behavior {
+    SetPosition pose;
+
+    public B_SetGlobalPose(SetPosition pose) {
+        super();
+        this.pose = pose;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean start() {
+        addRequirement(ElbowState.class);
+        addRequirement(WristHingeState.class);
+        addRequirement(WristTwistState.class);
+        addRequirement(ArmExtensionState.class);
+        addRequirement(ArmRotationState.class);
+        addRequirement(ClawState.class);
+
+        for (Class<? extends State<?>> stateClass : requirements) {
+            if (GlobalState.class.isAssignableFrom(stateClass)) {
+                A_SetGlobalPose<?> setGlobalPose = new A_SetGlobalPose<>((Class<GlobalState>) stateClass, pose);
+                setGlobalPose.start();
+            } else {
+                throw new IllegalArgumentException("State class " + stateClass.getName() + " does not implement GlobalPose.");
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public void loop() {
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
+    }
+}
