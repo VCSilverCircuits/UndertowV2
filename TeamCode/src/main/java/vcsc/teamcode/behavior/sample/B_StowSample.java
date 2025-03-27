@@ -37,6 +37,7 @@ public class B_StowSample extends Behavior {
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.STOW_SAMPLE);
         A_SetElbowPose elbowStraight = new A_SetElbowPose(ElbowPose.STRAIGHT);
         A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.STOW_SAMPLE);
+        A_SetWristHingePose hingeStraight = new A_SetWristHingePose(WristHingePose.STRAIGHT);
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SAMPLE);
 
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SAMPLE);
@@ -44,11 +45,11 @@ public class B_StowSample extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(elbowStraight).then(
+        // TODO: Make this depend on robot mode
+        _taskSequence.then(elbowStraight, hingeStraight).then(
                 extendSlides,
-                hingeBack,
                 twist
-        ).then(rotateArmBack, elbowOut);
+        ).then(rotateArmBack, elbowOut, hingeBack);
     }
 
     @Override

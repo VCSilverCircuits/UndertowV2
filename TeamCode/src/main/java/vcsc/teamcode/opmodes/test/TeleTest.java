@@ -203,7 +203,7 @@ public class TeleTest extends BaseOpMode {
     @Override
     public void loop() {
         super.loop();
-        if (RobotState.getInstance().getMode() == GlobalPose.INTAKE_SAMPLE_HOVER) {
+        if (RobotState.getInstance().getMode() == GlobalPose.INTAKE_SAMPLE_HOVER && gamepad2.right_stick_x > 0) {
             double newAngle = wristTwistState.getAngle() + gamepad2.right_stick_x * wristRotateSpeed;
             newAngle = Math.min(Math.max(newAngle, WristTwistPose.MIN), WristTwistPose.MAX);
             A_SetWristTwistAngle setWristTwistAngle = new A_SetWristTwistAngle(newAngle);

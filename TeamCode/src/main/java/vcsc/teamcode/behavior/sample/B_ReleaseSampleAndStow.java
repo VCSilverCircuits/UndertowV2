@@ -41,6 +41,7 @@ public class B_ReleaseSampleAndStow extends Behavior {
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.STOW_SAMPLE);
         A_SetElbowPose elbowStraight = new A_SetElbowPose(ElbowPose.STRAIGHT);
         A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.STOW_SAMPLE);
+        A_SetWristHingePose hingeStraight = new A_SetWristHingePose(WristHingePose.STRAIGHT);
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SAMPLE);
         A_SetClawPose openClaw = new A_SetClawPose(ClawPose.OPEN);
 
@@ -49,11 +50,10 @@ public class B_ReleaseSampleAndStow extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(openClaw).then(elbowStraight).then(
+        _taskSequence.then(openClaw).then(elbowStraight, hingeStraight).then(
                 retractSlides,
-                hingeBack,
                 twist
-        ).then(rotateArmDown, elbowOut);
+        ).then(rotateArmDown, elbowOut, hingeBack);
     }
 
     @Override
