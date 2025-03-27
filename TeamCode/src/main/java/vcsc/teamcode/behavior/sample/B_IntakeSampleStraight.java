@@ -2,7 +2,6 @@ package vcsc.teamcode.behavior.sample;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.task.TaskSequence;
-import vcsc.teamcode.cmp.RobotState;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPose;
@@ -12,6 +11,7 @@ import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
+import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
 import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingePose;
@@ -54,7 +54,7 @@ public class B_IntakeSampleStraight extends Behavior {
 
     @Override
     public boolean start() {
-        RobotState.getInstance().setMode(GlobalPose.DEPOSIT_SAMPLE_LOWER);
+        RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_STRAIGHT);
         return _taskSequence.start();
     }
 

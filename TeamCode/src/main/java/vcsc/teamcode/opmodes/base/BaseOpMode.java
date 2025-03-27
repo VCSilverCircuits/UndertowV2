@@ -13,7 +13,6 @@ import vcsc.core.util.GlobalTelemetry;
 import vcsc.core.util.gamepad.BindingManager;
 import vcsc.core.util.gamepad.BindingSet;
 import vcsc.core.util.gamepad.GamepadWrapper;
-import vcsc.teamcode.cmp.RobotState;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionActuator;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationActuator;
@@ -22,6 +21,7 @@ import vcsc.teamcode.cmp.claw.ClawActuator;
 import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.elbow.ElbowActuator;
 import vcsc.teamcode.cmp.elbow.ElbowState;
+import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeActuator;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistActuator;
@@ -103,6 +103,7 @@ public class BaseOpMode extends OpMode {
 
     @Override
     public void loop() {
+        System.out.println("==============");
         taskManager.loop();
 
         gw1.loop();

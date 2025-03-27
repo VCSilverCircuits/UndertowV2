@@ -1,8 +1,9 @@
-package vcsc.teamcode.cmp;
+package vcsc.teamcode.cmp.robot;
 
+import vcsc.core.abstracts.state.State;
 import vcsc.teamcode.config.GlobalPose;
 
-public class RobotState {
+public class RobotState extends State<RobotState> {
     private static final RobotState instance = new RobotState();
     double driveSpeed = 1.0;
     double turnSpeed = 0.5;

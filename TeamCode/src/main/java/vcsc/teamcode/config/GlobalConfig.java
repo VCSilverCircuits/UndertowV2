@@ -7,5 +7,5 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class GlobalConfig {
     public static double TPR = 28;
     public static PIDFCoefficients rotationCoeffs = new PIDFCoefficients(0.01, 0, 0, 0);
-    public static PIDFCoefficients extensionCoeffs = new PIDFCoefficients(0.01, 0, 0, 0);
+    public static PIDFCoefficients extensionCoeffs = new PIDFCoefficients(0.02, 0, 0, 0);
 }

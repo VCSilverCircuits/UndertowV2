@@ -2,7 +2,6 @@ package vcsc.teamcode.behavior.sample;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.task.TaskSequence;
-import vcsc.teamcode.cmp.RobotState;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPose;
@@ -15,6 +14,7 @@ import vcsc.teamcode.cmp.claw.actions.A_SetClawPose;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
+import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
 import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingePose;
@@ -39,22 +39,21 @@ public class B_ReleaseSampleAndStow extends Behavior {
 
         // Establish needed actions
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.STOW_SAMPLE);
+        A_SetElbowPose elbowStraight = new A_SetElbowPose(ElbowPose.STRAIGHT);
         A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.STOW_SAMPLE);
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SAMPLE);
         A_SetClawPose openClaw = new A_SetClawPose(ClawPose.OPEN);
 
-        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SAMPLE);
-        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.STOW_SAMPLE);
+        A_SetArmExtensionPose retractSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SAMPLE);
+        A_SetArmRotationPose rotateArmDown = new A_SetArmRotationPose(ArmRotationPose.STOW_SAMPLE);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(openClaw).then(
-                rotateArmBack,
-                extendSlides,
-                elbowOut,
+        _taskSequence.then(openClaw).then(elbowStraight).then(
+                retractSlides,
                 hingeBack,
                 twist
-        );
+        ).then(rotateArmDown, elbowOut);
     }
 
     @Override

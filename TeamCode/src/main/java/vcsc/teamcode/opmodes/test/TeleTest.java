@@ -3,6 +3,7 @@ package vcsc.teamcode.opmodes.test;
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.gamepad.BindingSet;
 import vcsc.core.util.gamepad.GamepadButton;
 import vcsc.teamcode.behavior.global.B_CancelAll;
@@ -20,11 +21,16 @@ import vcsc.teamcode.behavior.specimen.B_DepositSpecimen;
 import vcsc.teamcode.behavior.specimen.B_IntakeSpecimen;
 import vcsc.teamcode.behavior.specimen.B_ReleaseSpecimenAndStow;
 import vcsc.teamcode.behavior.specimen.B_StowAfterIntakeSpecimen;
+import vcsc.teamcode.cmp.robot.RobotState;
+import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
+import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistAngle;
 import vcsc.teamcode.config.GlobalPose;
 import vcsc.teamcode.opmodes.base.BaseOpMode;
 
 @TeleOp(name = "Tele Test", group = "Test")
 public class TeleTest extends BaseOpMode {
+    double wristRotateSpeed = 0.03;
+
     @Override
     public void init() {
         super.init();
@@ -50,8 +56,11 @@ public class TeleTest extends BaseOpMode {
         GP1_defaultBindings.bindTask(GamepadButton.RIGHT_BUMPER, new B_IntakeSpecimen());
         GP1_defaultBindings.bindTask(GamepadButton.LEFT_BUMPER, new B_DepositSpecimen());
 
+        TaskSequence cancelAndStow = new TaskSequence();
+        cancelAndStow.then(new B_CancelAll()).then(new B_StowSample());
+
         // Cancel Button
-        GP1_defaultBindings.bindTasks(GamepadButton.B, new B_CancelAll(), new B_StowSample());
+        GP1_defaultBindings.bindTasks(GamepadButton.B, cancelAndStow);
 
         //endregion
 
@@ -71,7 +80,7 @@ public class TeleTest extends BaseOpMode {
         */
 
         BindingSet GP1_intakeSampleBindings = new BindingSet(GP1_defaultBindings);
-        GP1_intakeSampleBindings.bindTask(GamepadButton.RIGHT_TRIGGER, new B_StowSample());
+        GP1_intakeSampleBindings.bindTask(GamepadButton.RIGHT_TRIGGER, new B_StowSampleAfterIntake());
         GP1_intakeSampleBindings.bindTask(GamepadButton.A, new B_IntakeSampleGrab());
 
         bindingManager.setGamepad1Bindings(GlobalPose.INTAKE_SAMPLE_HOVER, GP1_intakeSampleBindings);
@@ -123,9 +132,9 @@ public class TeleTest extends BaseOpMode {
 
         //region Deposit Specimen Bindings
 
-        /* ===================
+        /* ======================
         DEPOSIT SPECIMEN BINDINGS
-        ======================
+        =========================
 
         Inherits From: Default Bindings
 
@@ -178,7 +187,7 @@ public class TeleTest extends BaseOpMode {
         GP2_intakeSampleBindings.bindTask(GamepadButton.LEFT_BUMPER, new B_IntakeSampleGrab());
         GP2_intakeSampleBindings.bindTask(GamepadButton.RIGHT_TRIGGER, new B_StowSampleAfterIntake());
 
-        bindingManager.setGamepad2Bindings(GlobalPose.INTAKE_SAMPLE_HOVER, GP1_intakeSampleBindings);
+        bindingManager.setGamepad2Bindings(GlobalPose.INTAKE_SAMPLE_HOVER, GP2_intakeSampleBindings);
         bindingManager.setGamepad2Bindings(GlobalPose.INTAKE_SAMPLE_STRAIGHT, GP2_intakeSampleBindings);
         bindingManager.setGamepad2Bindings(GlobalPose.INTAKE_SAMPLE_CAMERA_SEARCH, GP2_intakeSampleBindings);
         bindingManager.setGamepad2Bindings(GlobalPose.INTAKE_SAMPLE_GRAB, GP2_intakeSampleBindings);
@@ -189,6 +198,19 @@ public class TeleTest extends BaseOpMode {
 
         follower.setStartingPose(new Pose(0, 0, 0));
         taskManager.runTask(new B_StowSample());
+    }
+
+    @Override
+    public void loop() {
+        super.loop();
+        if (RobotState.getInstance().getMode() == GlobalPose.INTAKE_SAMPLE_HOVER) {
+            double newAngle = wristTwistState.getAngle() + gamepad2.right_stick_x * wristRotateSpeed;
+            newAngle = Math.min(Math.max(newAngle, WristTwistPose.MIN), WristTwistPose.MAX);
+            A_SetWristTwistAngle setWristTwistAngle = new A_SetWristTwistAngle(newAngle);
+            setWristTwistAngle.start();
+            setWristTwistAngle.loop();
+        }
+
     }
 
     @Override

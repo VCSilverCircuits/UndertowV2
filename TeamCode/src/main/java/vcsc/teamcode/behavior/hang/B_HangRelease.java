@@ -2,13 +2,13 @@ package vcsc.teamcode.behavior.hang;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.task.TaskSequence;
-import vcsc.teamcode.cmp.RobotState;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
+import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.config.GlobalPose;
 
 public class B_HangRelease extends Behavior {

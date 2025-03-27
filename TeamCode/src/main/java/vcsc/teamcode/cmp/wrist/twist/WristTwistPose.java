@@ -20,7 +20,10 @@ public enum WristTwistPose implements RotatorPose {
     HANG_LV2_P2(GlobalPose.HANG_LV2_P2),
     HANG_RELEASE(GlobalPose.HANG_RELEASE);
 
+    public static final double MIN = 0.1;
+    public static final double MAX = 0.67;
     final Double angle;
+
 
     WristTwistPose(Double ang) {
         this.angle = ang;

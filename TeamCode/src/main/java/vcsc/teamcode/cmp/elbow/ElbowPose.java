@@ -4,6 +4,7 @@ import vcsc.core.abstracts.templates.rotator.RotatorPose;
 import vcsc.teamcode.config.GlobalPose;
 
 public enum ElbowPose implements RotatorPose {
+    STRAIGHT(0.4),
     STOW_SAMPLE(GlobalPose.STOW_SAMPLE),
     STOW_SPECIMEN(GlobalPose.STOW_SPECIMEN),
     INTAKE_SAMPLE_STRAIGHT(GlobalPose.INTAKE_SAMPLE_STRAIGHT),

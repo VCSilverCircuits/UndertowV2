@@ -2,7 +2,7 @@ package vcsc.teamcode.behavior.hang;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.task.TaskSequence;
-import vcsc.teamcode.cmp.RobotState;
+import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.config.GlobalPose;
 
 public class B_HangLv2Both extends Behavior {

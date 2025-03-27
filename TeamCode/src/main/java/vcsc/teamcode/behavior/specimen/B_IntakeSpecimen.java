@@ -2,7 +2,6 @@ package vcsc.teamcode.behavior.specimen;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.task.TaskSequence;
-import vcsc.teamcode.cmp.RobotState;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPose;
@@ -15,6 +14,7 @@ import vcsc.teamcode.cmp.claw.actions.A_SetClawPose;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
+import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
 import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingePose;
@@ -43,7 +43,7 @@ public class B_IntakeSpecimen extends Behavior {
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.INTAKE_SPECIMEN);
         A_SetClawPose clawOpen = new A_SetClawPose(ClawPose.INTAKE_SPECIMEN);
 
-        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.INTAKE_SAMPLE_HOVER);
+        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.INTAKE_SPECIMEN);
         A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.INTAKE_SPECIMEN);
 
         // Create Task Sequence

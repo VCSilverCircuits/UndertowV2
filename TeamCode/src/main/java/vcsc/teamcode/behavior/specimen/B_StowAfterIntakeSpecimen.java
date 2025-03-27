@@ -2,7 +2,6 @@ package vcsc.teamcode.behavior.specimen;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.task.TaskSequence;
-import vcsc.teamcode.cmp.RobotState;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPose;
@@ -15,6 +14,7 @@ import vcsc.teamcode.cmp.claw.actions.A_SetClawPose;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
+import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
 import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingePose;
@@ -38,20 +38,19 @@ public class B_StowAfterIntakeSpecimen extends Behavior {
 
 
         // Establish needed actions
-        A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.INTAKE_SPECIMEN);
-        A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.INTAKE_SPECIMEN);
-        A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.INTAKE_SPECIMEN);
+        A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.STOW_SPECIMEN);
+        A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.STOW_SPECIMEN);
+        A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SPECIMEN);
         A_SetClawPose closeClaw = new A_SetClawPose(ClawPose.CLOSED);
 
-        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.INTAKE_SAMPLE_HOVER);
-        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.INTAKE_SPECIMEN);
+        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SPECIMEN);
+        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.STOW_SPECIMEN);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(closeClaw).then(
+        _taskSequence.then(closeClaw).then(elbowOut).thenDelay(20).then(
                 rotateArmBack,
                 extendSlides,
-                elbowOut,
                 hingeBack,
                 twist
         );
