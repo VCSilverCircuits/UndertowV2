@@ -2,13 +2,13 @@ package vcsc.teamcode.actions;
 
 import vcsc.core.abstracts.action.Action;
 import vcsc.core.abstracts.state.State;
-import vcsc.teamcode.abstracts.GlobalState;
 import vcsc.teamcode.config.GlobalPose;
 
-public class A_SetGlobalPose extends Action<State<?>> {
-    SetPosition pose;
+public class A_SetGlobalPose<S extends State<S>> extends Action<S> {
+    protected Action<?> action;
+    GlobalPose pose;
 
-    public A_SetGlobalPose(GlobalState stateClass, SetPosition pose) {
+    public A_SetGlobalPose(Class<S> stateClass, GlobalPose pose) {
         super(stateClass);
         this.pose = pose;
     }
@@ -16,22 +16,21 @@ public class A_SetGlobalPose extends Action<State<?>> {
     @Override
     public boolean start() {
         super.start();
-        state.setGlobalPose(this, pose);
-        return true;
+        return action.start();
     }
 
     @Override
     public void loop() {
-
+        action.loop();
     }
 
     @Override
     public boolean isFinished() {
-        return false;
+        return action.isFinished();
     }
 
     @Override
     public void cancel() {
-
+        action.cancel();
     }
 }

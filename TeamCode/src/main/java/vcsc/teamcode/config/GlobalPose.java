@@ -1,6 +1,8 @@
 package vcsc.teamcode.config;
 
 import vcsc.core.util.gamepad.RobotMode;
+import vcsc.teamcode.cmp.claw.ClawPose;
+import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
 
 
 public enum GlobalPose implements RobotMode {
@@ -10,63 +12,63 @@ public enum GlobalPose implements RobotMode {
             0.0,
             0.28,
             0.8,
-            0.95,
-            1.0
+            WristTwistPose.FORWARD,
+            ClawPose.OPEN
     ),
     STOW_SPECIMEN(
             0.0,
             60.0,
             0.5,
             0.5,
-            0.95,
-            1.0
+            WristTwistPose.FORWARD,
+            ClawPose.OPEN
     ),
     INTAKE_SAMPLE_STRAIGHT(
             35.0,
             0.0,
             0.4,
             0.46,
-            0.95,
-            1.0
+            WristTwistPose.FORWARD,
+            ClawPose.OPEN
     ),
     INTAKE_SAMPLE_CAMERA_SEARCH(
             35.0,
             0.0,
             0.47,
             0.42,
-            0.95,
-            1.0
+            WristTwistPose.FORWARD,
+            ClawPose.OPEN
     ),
     INTAKE_SAMPLE_HOVER(
             35.0,
             0.0,
             0.4,
             0.11,
-            0.95,
-            1.0
+            WristTwistPose.FORWARD,
+            ClawPose.OPEN
     ),
     INTAKE_SAMPLE_GRAB(
             35.0,
             0.0,
             0.31,
             0.20,
-            0.95,
-            0.0
+            WristTwistPose.FORWARD,
+            ClawPose.CLOSED
     ),
     INTAKE_SPECIMEN(
             0.0,
             50.0,
             0.88,
             0.45,
-            0.38,
-            1.0
+            WristTwistPose.BACKWARD,
+            ClawPose.OPEN
     ),
     DEPOSIT_SAMPLE_UPPER(
             68.0,
             90.0,
             0.45,
             0.5,
-            0.95,
+            WristTwistPose.FORWARD,
             null
     ),
     DEPOSIT_SAMPLE_LOWER(
@@ -74,7 +76,7 @@ public enum GlobalPose implements RobotMode {
             90.0,
             0.45,
             0.6,
-            0.95,
+            WristTwistPose.FORWARD,
             null
     ),
     DEPOSIT_SPECIMEN(
@@ -82,7 +84,7 @@ public enum GlobalPose implements RobotMode {
             65.0,
             0.18,
             0.7,
-            0.95,
+            WristTwistPose.FORWARD,
             null
     ),
     HANG_PRE(
@@ -90,39 +92,39 @@ public enum GlobalPose implements RobotMode {
             110.0,
             0.38,
             0.13,
-            0.95,
-            1.0
+            WristTwistPose.FORWARD,
+            ClawPose.OPEN
     ),
     HANG_LV2_P2(
             0.0,
             50.0,
             0.38,
             0.15,
-            0.95,
-            1.0
+            WristTwistPose.FORWARD,
+            ClawPose.OPEN
     ),
     HANG_RELEASE(
             6.0,
             50.0,
             0.38,
             0.15,
-            0.95,
-            1.0
+            WristTwistPose.FORWARD,
+            ClawPose.OPEN
     );
     private final Double armExtensionLength;
     private final Double armRotationAngle;
     private final Double elbowAngle;
     private final Double wristHingeAngle;
-    private final Double wristTwistAngle;
-    private final Double clawPosition;
+    private final WristTwistPose wristTwistPose;
+    private final ClawPose clawPose;
 
-    GlobalPose(Double armExtensionLength, Double armRotationAngle, Double elbowAngle, Double wristHingeAngle, Double wristTwistAngle, Double clawPosition) {
+    GlobalPose(Double armExtensionLength, Double armRotationAngle, Double elbowAngle, Double wristHingeAngle, WristTwistPose wristTwistPose, ClawPose clawPose) {
         this.armExtensionLength = armExtensionLength;
         this.armRotationAngle = armRotationAngle;
         this.elbowAngle = elbowAngle;
         this.wristHingeAngle = wristHingeAngle;
-        this.wristTwistAngle = wristTwistAngle;
-        this.clawPosition = clawPosition;
+        this.wristTwistPose = wristTwistPose;
+        this.clawPose = clawPose;
     }
 
     GlobalPose() {
@@ -130,8 +132,8 @@ public enum GlobalPose implements RobotMode {
         this.armRotationAngle = null;
         this.elbowAngle = null;
         this.wristHingeAngle = null;
-        this.wristTwistAngle = null;
-        this.clawPosition = null;
+        this.wristTwistPose = null;
+        this.clawPose = null;
     }
 
     public Double getArmExtensionLength() {
@@ -150,12 +152,12 @@ public enum GlobalPose implements RobotMode {
         return wristHingeAngle;
     }
 
-    public Double getWristTwistAngle() {
-        return wristTwistAngle;
+    public WristTwistPose getWristTwistPose() {
+        return wristTwistPose;
     }
 
-    public Double getClawPosition() {
-        return clawPosition;
+    public ClawPose getClawPose() {
+        return clawPose;
     }
 
 
