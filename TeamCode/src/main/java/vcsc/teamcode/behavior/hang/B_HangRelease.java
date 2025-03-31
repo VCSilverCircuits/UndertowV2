@@ -2,10 +2,12 @@ package vcsc.teamcode.behavior.hang;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.task.TaskSequence;
+import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
-import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionGlobalPose;
+import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPose;
+import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
-import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationGlobalPose;
+import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.config.GlobalPose;
 
@@ -19,8 +21,8 @@ public class B_HangRelease extends Behavior {
         addRequirement(ArmRotationState.class);
 
         // Establish needed actions
-        A_SetArmExtensionGlobalPose extendSlides = new A_SetArmExtensionGlobalPose(GlobalPose.HANG_RELEASE);
-        A_SetArmRotationGlobalPose rotateArmBack = new A_SetArmRotationGlobalPose(GlobalPose.HANG_RELEASE);
+        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.HANG_RELEASE);
+        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.HANG_RELEASE);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();

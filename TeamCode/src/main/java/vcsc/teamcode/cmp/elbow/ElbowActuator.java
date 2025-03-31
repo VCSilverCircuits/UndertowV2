@@ -11,7 +11,7 @@ public class ElbowActuator extends RotatorActuator<ElbowState, ElbowPose> {
     public ElbowActuator(HardwareMap hardwareMap) {
         // TODO: Use both servos
         super(hardwareMap, "elbow1");
-        servo2 = hardwareMap.get(ServoImplEx.class, "elbow2");
+        servo2 = servo = hardwareMap.get(ServoImplEx.class, "elbow2");
     }
 
     public void loop() {
