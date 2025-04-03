@@ -21,7 +21,7 @@ public class B_HangLv2Both extends Behavior {
         _taskSequence = new TaskSequence();
         _taskSequence.thenAsync(
                 hangLv2P2
-        ).thenDelay(2000).then(hangRelease);
+        ).thenDelay(1700).then(hangRelease);
     }
 
     @Override

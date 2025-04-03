@@ -23,13 +23,13 @@ public class B_HangRelease extends Behavior {
         // Establish needed actions
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.HANG_RELEASE);
         A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.HANG_RELEASE);
+        A_SetArmRotationPose rotateArmLv2 = new A_SetArmRotationPose(ArmRotationPose.HANG_LV2_P2);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(
-                rotateArmBack,
-                extendSlides
-        );
+        _taskSequence.thenAsync(
+                rotateArmBack
+        ).thenDelay(300).thenAsync(rotateArmLv2).thenDelay(800).then(extendSlides);
     }
 
     @Override

@@ -107,12 +107,14 @@ public class TeleTest extends BaseOpMode {
 
         */
 
-        BindingSet GP1_depositSampleBindings = new BindingSet(GP1_defaultBindings);
-        GP1_depositSampleBindings.bindTask(GamepadButton.LEFT_TRIGGER, new B_ReleaseSampleAndStow());
-        GP1_depositSampleBindings.bindTask(GamepadButton.Y, new B_ReleaseSampleAndStow());
+        BindingSet GP1_depositSampleUpperBindings = new BindingSet(GP1_defaultBindings);
+        GP1_depositSampleUpperBindings.bindTask(GamepadButton.LEFT_TRIGGER, new B_ReleaseSampleAndStow());
 
-        bindingManager.setGamepad1Bindings(GlobalPose.DEPOSIT_SAMPLE_UPPER, GP1_depositSampleBindings);
-        bindingManager.setGamepad1Bindings(GlobalPose.DEPOSIT_SAMPLE_LOWER, GP1_depositSampleBindings);
+        BindingSet GP1_depositSampleLowerBindings = new BindingSet(GP1_depositSampleUpperBindings);
+        GP1_depositSampleLowerBindings.bindTask(GamepadButton.Y, new B_ReleaseSampleAndStow());
+
+        bindingManager.setGamepad1Bindings(GlobalPose.DEPOSIT_SAMPLE_UPPER, GP1_depositSampleUpperBindings);
+        bindingManager.setGamepad1Bindings(GlobalPose.DEPOSIT_SAMPLE_LOWER, GP1_depositSampleLowerBindings);
 
         //endregion
 
@@ -208,7 +210,7 @@ public class TeleTest extends BaseOpMode {
     @Override
     public void loop() {
         super.loop();
-        
+
         if (RobotState.getInstance().getMode() == GlobalPose.INTAKE_SAMPLE_HOVER && Math.abs(gamepad2.right_stick_x) > 0) {
             double newAngle = wristTwistState.getAngle() + gamepad2.right_stick_x * wristRotateSpeed;
             newAngle = Math.min(Math.max(newAngle, WristTwistPose.MIN), WristTwistPose.MAX);
