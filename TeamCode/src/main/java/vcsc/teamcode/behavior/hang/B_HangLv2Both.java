@@ -19,13 +19,14 @@ public class B_HangLv2Both extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(
+        _taskSequence.thenAsync(
                 hangLv2P2
-        ).then(hangRelease);
+        ).thenDelay(2000).then(hangRelease);
     }
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.HANG_LV2_P2);
         return _taskSequence.start();
     }

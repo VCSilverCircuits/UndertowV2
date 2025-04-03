@@ -18,7 +18,7 @@ public class B_HangLv2P2 extends Behavior {
         super();
 
         addRequirement(ArmExtensionState.class);
-        addRequirement(ArmRotationState.class);
+//        addRequirement(ArmRotationState.class);
 
         // Establish needed actions
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.HANG_LV2_P2);
@@ -26,14 +26,14 @@ public class B_HangLv2P2 extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(
-                rotateArmBack,
+        _taskSequence.thenAsync(
                 extendSlides
         );
     }
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.HANG_LV2_P2);
         return _taskSequence.start();
     }

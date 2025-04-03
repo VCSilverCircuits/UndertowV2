@@ -103,12 +103,24 @@ public class BaseOpMode extends OpMode {
 
     @Override
     public void loop() {
-        System.out.println("==============");
+        System.out.println("===================================");
+        System.out.println("Overall States:");
+        System.out.println("Robot Mode: " + robotState.getMode());
+        System.out.println("Claw Pose: " + clawState.getPose());
+        System.out.println("Arm Extension Pose: " + armExtState.getTargetPose());
+        System.out.println("Arm Rotation Pose: " + armRotState.getTargetPose());
+        System.out.println("Elbow Pose: " + elbowState.getPose());
+        System.out.println("Wrist Hinge Pose: " + wristHingeState.getPose());
+        System.out.println("Wrist Twist Pose: " + wristTwistState.getPose());
+        System.out.println("---------- Task Manager -------------");
         taskManager.loop();
+        System.out.println("----------- Bindings ------------");
 
         gw1.loop();
         gw2.loop();
         bindingManager.loop(gw1, gw2, robotState.getMode());
+
+        System.out.println("----------- Actuators ------------");
 
         clawActuator.loop();
         armExtActuator.loop();
@@ -116,6 +128,8 @@ public class BaseOpMode extends OpMode {
         elbowActuator.loop();
         wristHingeActuator.loop();
         wristTwistActuator.loop();
+
+        System.out.println("---------- Misc -------------");
 
         follower.setTeleOpMovementVectors(
                 -gamepad1.left_stick_y * robotState.getDriveSpeed(),

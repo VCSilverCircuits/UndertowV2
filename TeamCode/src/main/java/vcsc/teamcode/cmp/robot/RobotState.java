@@ -22,6 +22,7 @@ public class RobotState extends State<RobotState> {
     }
 
     public void setMode(GlobalPose mode) {
+        System.out.println("[RobotState::setMode] Setting mode to " + mode);
         this.mode = mode;
     }
 

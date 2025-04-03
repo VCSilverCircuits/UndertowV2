@@ -4,8 +4,8 @@ import vcsc.core.abstracts.templates.rotator.RotatorPose;
 import vcsc.teamcode.config.GlobalPose;
 
 public enum WristTwistPose implements RotatorPose {
-    FORWARD(0.95),
-    BACKWARD(0.38),
+    FORWARD(0.37),
+    BACKWARD(0.95),
     STOW_SAMPLE(GlobalPose.STOW_SAMPLE),
     STOW_SPECIMEN(GlobalPose.STOW_SPECIMEN),
     INTAKE_SAMPLE_STRAIGHT(GlobalPose.INTAKE_SAMPLE_STRAIGHT),
@@ -20,8 +20,8 @@ public enum WristTwistPose implements RotatorPose {
     HANG_LV2_P2(GlobalPose.HANG_LV2_P2),
     HANG_RELEASE(GlobalPose.HANG_RELEASE);
 
-    public static final double MIN = 0.1;
-    public static final double MAX = 0.67;
+    public static final double MIN = 0.08;
+    public static final double MAX = 0.645;
     final Double angle;
 
 

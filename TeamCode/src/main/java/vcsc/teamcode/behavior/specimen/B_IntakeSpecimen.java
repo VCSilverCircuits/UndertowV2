@@ -60,6 +60,7 @@ public class B_IntakeSpecimen extends Behavior {
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.INTAKE_SPECIMEN);
         return _taskSequence.start();
     }

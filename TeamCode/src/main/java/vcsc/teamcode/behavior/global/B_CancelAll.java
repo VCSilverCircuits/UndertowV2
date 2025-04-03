@@ -29,6 +29,7 @@ public class B_CancelAll extends Behavior {
 
     @Override
     public boolean start() {
+        super.start();
         cancelExtension.start();
         cancelRotation.start();
         cancelElbow.start();

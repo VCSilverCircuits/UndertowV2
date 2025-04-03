@@ -25,6 +25,7 @@ public class B_IntakeSample extends Behavior {
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_HOVER);
         return _taskSequence.start();
     }

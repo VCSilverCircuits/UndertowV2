@@ -39,11 +39,12 @@ public class B_DepositSampleUpper extends Behavior {
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.DEPOSIT_SAMPLE_UPPER);
 
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.DEPOSIT_SAMPLE_UPPER);
+        A_SetArmExtensionPose slidesIn = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SAMPLE);
         A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.DEPOSIT_SAMPLE_UPPER);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(
+        _taskSequence.then(slidesIn).then(
                 rotateArmBack,
                 elbowOut,
                 hingeBack,
@@ -53,6 +54,7 @@ public class B_DepositSampleUpper extends Behavior {
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.DEPOSIT_SAMPLE_UPPER);
         return _taskSequence.start();
     }

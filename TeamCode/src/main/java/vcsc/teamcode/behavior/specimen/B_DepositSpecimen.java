@@ -45,15 +45,13 @@ public class B_DepositSpecimen extends Behavior {
         _taskSequence = new TaskSequence();
         _taskSequence.then(
                 rotateArmBack,
-                extendSlides,
-                elbowOut,
-                hingeBack,
-                twist
-        );
+                extendSlides
+        ).then(elbowOut,hingeBack,twist);
     }
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.DEPOSIT_SPECIMEN);
         return _taskSequence.start();
     }

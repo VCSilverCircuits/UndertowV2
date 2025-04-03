@@ -52,8 +52,7 @@ public class B_IntakeSampleGrab extends Behavior {
                         rotateArmBack,
                         extendSlides,
                         elbowOut,
-                        hingeBack,
-                        twist
+                        hingeBack
                 )
                 .thenDelay(50)
                 .then(clawClose);
@@ -61,6 +60,7 @@ public class B_IntakeSampleGrab extends Behavior {
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_GRAB);
         return _taskSequence.start();
     }

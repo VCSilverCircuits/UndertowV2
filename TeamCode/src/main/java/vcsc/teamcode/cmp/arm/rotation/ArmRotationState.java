@@ -19,4 +19,8 @@ public class ArmRotationState extends PoweredPIDFState<ArmRotationState, ArmRota
     public void setAngle(Action<ArmRotationState> action, double angle) {
         setTargetPosition(action, angle / DEGREES_PER_TICK);
     }
+
+    public ArmRotationPose getPose() {
+        return currentPose;
+    }
 }

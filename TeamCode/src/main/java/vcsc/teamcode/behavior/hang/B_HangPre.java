@@ -45,16 +45,17 @@ public class B_HangPre extends Behavior {
         _taskSequence = new TaskSequence();
         _taskSequence.then(
                 rotateArmBack,
-                extendSlides
-        ).then(
                 elbowOut,
                 hingeBack,
                 twist
+        ).then(
+                extendSlides
         );
     }
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.HANG_PRE);
         return _taskSequence.start();
     }

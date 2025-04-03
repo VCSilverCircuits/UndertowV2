@@ -39,21 +39,22 @@ public class B_IntakeSampleStraight extends Behavior {
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.INTAKE_SAMPLE_STRAIGHT);
 
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.INTAKE_SAMPLE_STRAIGHT);
+        A_SetArmExtensionPose slidesIn = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SAMPLE);
         A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.INTAKE_SAMPLE_STRAIGHT);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(
+        _taskSequence.then(slidesIn).then(
                 rotateArmBack,
-                extendSlides,
                 elbowOut,
                 hingeBack,
                 twist
-        );
+        ).then(extendSlides);
     }
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_STRAIGHT);
         return _taskSequence.start();
     }

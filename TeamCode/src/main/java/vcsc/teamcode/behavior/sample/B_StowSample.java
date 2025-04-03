@@ -54,6 +54,7 @@ public class B_StowSample extends Behavior {
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.STOW_SAMPLE);
         return _taskSequence.start();
     }

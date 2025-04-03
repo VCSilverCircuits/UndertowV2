@@ -38,7 +38,7 @@ public class B_ReleaseSampleAndStow extends Behavior {
 
 
         // Establish needed actions
-        A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.STOW_SAMPLE);
+        A_SetElbowPose elbowStow = new A_SetElbowPose(ElbowPose.STOW_SAMPLE);
         A_SetElbowPose elbowStraight = new A_SetElbowPose(ElbowPose.STRAIGHT);
         A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.STOW_SAMPLE);
         A_SetWristHingePose hingeStraight = new A_SetWristHingePose(WristHingePose.STRAIGHT);
@@ -50,14 +50,15 @@ public class B_ReleaseSampleAndStow extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(openClaw).then(elbowStraight, hingeStraight).then(
+        _taskSequence.then(openClaw).thenDelay(500).then(elbowStow, hingeStraight).then(
                 retractSlides,
                 twist
-        ).then(rotateArmDown, elbowOut, hingeBack);
+        ).then(rotateArmDown, hingeBack);
     }
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.STOW_SAMPLE);
         return _taskSequence.start();
     }

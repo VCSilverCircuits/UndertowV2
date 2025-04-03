@@ -36,6 +36,6 @@ public class A_SetClawPosition extends Action<ClawState> {
 
     @Override
     public void cancel() {
-
+        super.cancel();
     }
 }

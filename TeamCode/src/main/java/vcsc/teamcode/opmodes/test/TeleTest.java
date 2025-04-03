@@ -3,6 +3,7 @@ package vcsc.teamcode.opmodes.test;
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import vcsc.core.abstracts.task.LogTask;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.gamepad.BindingSet;
 import vcsc.core.util.gamepad.GamepadButton;
@@ -62,6 +63,9 @@ public class TeleTest extends BaseOpMode {
         // Cancel Button
         GP1_defaultBindings.bindTasks(GamepadButton.B, cancelAndStow);
 
+        // Debug logging
+        GP1_defaultBindings.bindTask(GamepadButton.X, new LogTask("[DEBUG] SOMETHING BAD JUST HAPPENED!!!!!!"));
+
         //endregion
 
         //region Intake Sample Bindings
@@ -105,6 +109,7 @@ public class TeleTest extends BaseOpMode {
 
         BindingSet GP1_depositSampleBindings = new BindingSet(GP1_defaultBindings);
         GP1_depositSampleBindings.bindTask(GamepadButton.LEFT_TRIGGER, new B_ReleaseSampleAndStow());
+        GP1_depositSampleBindings.bindTask(GamepadButton.Y, new B_ReleaseSampleAndStow());
 
         bindingManager.setGamepad1Bindings(GlobalPose.DEPOSIT_SAMPLE_UPPER, GP1_depositSampleBindings);
         bindingManager.setGamepad1Bindings(GlobalPose.DEPOSIT_SAMPLE_LOWER, GP1_depositSampleBindings);
@@ -203,7 +208,8 @@ public class TeleTest extends BaseOpMode {
     @Override
     public void loop() {
         super.loop();
-        if (RobotState.getInstance().getMode() == GlobalPose.INTAKE_SAMPLE_HOVER && gamepad2.right_stick_x > 0) {
+        
+        if (RobotState.getInstance().getMode() == GlobalPose.INTAKE_SAMPLE_HOVER && Math.abs(gamepad2.right_stick_x) > 0) {
             double newAngle = wristTwistState.getAngle() + gamepad2.right_stick_x * wristRotateSpeed;
             newAngle = Math.min(Math.max(newAngle, WristTwistPose.MIN), WristTwistPose.MAX);
             A_SetWristTwistAngle setWristTwistAngle = new A_SetWristTwistAngle(newAngle);

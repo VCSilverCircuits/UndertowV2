@@ -59,6 +59,7 @@ public class B_ReleaseSpecimenAndIntakeSpecimen extends Behavior {
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.INTAKE_SPECIMEN);
         return _taskSequence.start();
     }

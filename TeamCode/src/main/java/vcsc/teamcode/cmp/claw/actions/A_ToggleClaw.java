@@ -54,6 +54,7 @@ public class A_ToggleClaw extends Action<ClawState> {
 
     @Override
     public void cancel() {
+        super.cancel();
         end();
     }
 }

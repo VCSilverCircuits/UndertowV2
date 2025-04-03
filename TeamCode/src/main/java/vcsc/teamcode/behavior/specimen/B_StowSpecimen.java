@@ -53,6 +53,7 @@ public class B_StowSpecimen extends Behavior {
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.STOW_SPECIMEN);
         return _taskSequence.start();
     }

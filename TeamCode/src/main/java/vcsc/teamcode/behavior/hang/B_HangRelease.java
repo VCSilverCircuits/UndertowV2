@@ -34,6 +34,7 @@ public class B_HangRelease extends Behavior {
 
     @Override
     public boolean start() {
+        super.start();
         RobotState.getInstance().setMode(GlobalPose.HANG_RELEASE);
         return _taskSequence.start();
     }
