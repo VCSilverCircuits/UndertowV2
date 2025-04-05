@@ -22,6 +22,7 @@ import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
 import vcsc.teamcode.behavior.sample.B_DepositSampleUpper;
+import vcsc.teamcode.behavior.sample.B_DepositSampleUpperAuto;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAuto;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
@@ -272,7 +273,7 @@ public class ExampleBucketAuto extends OpMode {
 
         auto.thenLog("[AUTO] DepositUpper & Go to scorePreload")
                 // SCORE PRELOAD
-                .then(new B_DepositSampleUpper(), new FollowPathTask(follower, scorePreload))
+                .then(new B_DepositSampleUpperAuto(), new FollowPathTask(follower, scorePreload))
 
                 // GRAB PICKUP 1
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup1")
@@ -283,7 +284,7 @@ public class ExampleBucketAuto extends OpMode {
 
                 // SCORE PICKUP 1
                 .thenLog("[AUTO] Deposit Upper & Go to scorePickup1")
-                .then(new B_DepositSampleUpper(), new FollowPathTask(follower, scorePickup1))
+                .then(new B_DepositSampleUpperAuto(), new FollowPathTask(follower, scorePickup1))
                 .thenDelay(DROP_DELAY)
 
                 // GRAB PICKUP 2
@@ -295,7 +296,7 @@ public class ExampleBucketAuto extends OpMode {
 
                 // SCORE PICKUP 2
                 .thenLog("[AUTO] Deposit Upper & Go to scorePickup2")
-                .then(new B_DepositSampleUpper(), new FollowPathTask(follower, scorePickup2))
+                .then(new B_DepositSampleUpperAuto(), new FollowPathTask(follower, scorePickup2))
                 .thenDelay(DROP_DELAY)
 
                 // GRAB PICKUP 3
@@ -308,7 +309,7 @@ public class ExampleBucketAuto extends OpMode {
 
                 // SCORE PICKUP 3
                 .thenLog("[AUTO] Deposit Upper & Go to scorePickup3")
-                .then(new B_DepositSampleUpper(), new FollowPathTask(follower, scorePickup3))
+                .then(new B_DepositSampleUpperAuto(), new FollowPathTask(follower, scorePickup3))
                 .thenDelay(DROP_DELAY)
 
                 // PARK

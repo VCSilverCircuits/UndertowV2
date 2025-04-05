@@ -37,7 +37,7 @@ public class B_DepositSampleUpperAuto extends Behavior {
 
         // Establish needed actions
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.DEPOSIT_SAMPLE_UPPER);
-        A_SetWristHingeAngle hingeBack = new A_SetWristHingeAngle(0.83);
+        A_SetWristHingeAngle hingeBack = new A_SetWristHingeAngle(0.7);
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.DEPOSIT_SAMPLE_UPPER);
         A_SetWristHingeAngle hingeAway = new A_SetWristHingeAngle(0.35);
 
@@ -53,7 +53,7 @@ public class B_DepositSampleUpperAuto extends Behavior {
                 rotateArmBack,
                 elbowOut,
                 twist
-        ).thenAsync(extendSlides).thenWaitUntil(() -> extState.getRealLength() > extState.getTargetLength() - 5).then(hingeBack);
+        ).then(extendSlides).thenWaitUntil(() -> extState.getRealLength() > extState.getTargetLength() - 5).then(hingeBack);
     }
 
     @Override
