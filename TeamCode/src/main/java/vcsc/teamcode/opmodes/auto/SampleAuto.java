@@ -21,7 +21,6 @@ import vcsc.core.abstracts.task.Task;
 import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
-import vcsc.teamcode.behavior.sample.B_DepositSampleUpper;
 import vcsc.teamcode.behavior.sample.B_DepositSampleUpperAuto;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAuto;
@@ -58,7 +57,7 @@ import vcsc.teamcode.config.GlobalConfig;
  */
 
 @Autonomous(name = "Test Auto", group = "Auto Test")
-public class ExampleBucketAuto extends OpMode {
+public class SampleAuto extends OpMode {
 
     private Follower follower;
     private Timer opmodeTimer;

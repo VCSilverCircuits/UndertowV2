@@ -2,7 +2,6 @@ package vcsc.teamcode.opmodes.test;
 
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import vcsc.core.abstracts.task.LogTask;
 import vcsc.core.abstracts.task.TaskSequence;
@@ -19,10 +18,10 @@ import vcsc.teamcode.behavior.sample.B_IntakeSampleHover;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.behavior.sample.B_StowSampleAfterIntake;
-import vcsc.teamcode.behavior.specimen.B_DepositSpecimen;
+import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
 import vcsc.teamcode.behavior.specimen.B_IntakeSpecimen;
 import vcsc.teamcode.behavior.specimen.B_ReleaseSpecimenAndStow;
-import vcsc.teamcode.behavior.specimen.B_StowAfterIntakeSpecimen;
+import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistAngle;
@@ -57,7 +56,7 @@ public class TeleTest extends BaseOpMode {
 
         // Specimens (bumpers)
         GP1_defaultBindings.bindTask(GamepadButton.RIGHT_BUMPER, new B_IntakeSpecimen());
-        GP1_defaultBindings.bindTask(GamepadButton.LEFT_BUMPER, new B_DepositSpecimen());
+        GP1_defaultBindings.bindTask(GamepadButton.LEFT_BUMPER, new B_DepositSpecimenPose());
 
         TaskSequence cancelAndStow = new TaskSequence();
         cancelAndStow.then(new B_CancelAll()).then(new B_StowSample());
@@ -133,7 +132,7 @@ public class TeleTest extends BaseOpMode {
         */
 
         BindingSet GP1_intakeSpecimenBindings = new BindingSet(GP1_defaultBindings);
-        GP1_intakeSpecimenBindings.bindTask(GamepadButton.RIGHT_BUMPER, new B_StowAfterIntakeSpecimen());
+        GP1_intakeSpecimenBindings.bindTask(GamepadButton.RIGHT_BUMPER, new B_GrabSpecimenAndStow());
 
         bindingManager.setGamepad1Bindings(GlobalPose.INTAKE_SPECIMEN, GP1_intakeSpecimenBindings);
 

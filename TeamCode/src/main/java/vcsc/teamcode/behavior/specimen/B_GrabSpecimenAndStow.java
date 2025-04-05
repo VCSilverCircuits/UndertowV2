@@ -23,10 +23,10 @@ import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistPose;
 import vcsc.teamcode.config.GlobalPose;
 
-public class B_StowAfterIntakeSpecimen extends Behavior {
+public class B_GrabSpecimenAndStow extends Behavior {
     TaskSequence _taskSequence;
 
-    public B_StowAfterIntakeSpecimen() {
+    public B_GrabSpecimenAndStow() {
         super();
 
         addRequirement(ElbowState.class);

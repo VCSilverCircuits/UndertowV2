@@ -31,7 +31,7 @@ public class RobotState extends State<RobotState> {
                 || mode == GlobalPose.INTAKE_SAMPLE_GRAB
                 || mode == GlobalPose.INTAKE_SAMPLE_HOVER) {
             driveSpeed = 0.5;
-            turnSpeed = 0.25;
+            turnSpeed = 0.15;
         } else if (mode == GlobalPose.DEPOSIT_SAMPLE_LOWER
                 || mode == GlobalPose.DEPOSIT_SAMPLE_UPPER) {
             driveSpeed = 0.5;
