@@ -8,7 +8,7 @@ import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
 
 public class A_SetArmRotationAngle extends A_SetPoweredPIDFTargetPosition<ArmRotationState, ArmRotationPose> {
     public A_SetArmRotationAngle(double angle, vcsc.core.abstracts.templates.poweredPIDF.actions.PIDMode PIDMode) {
-        super(ArmRotationState.class, angle / DEGREES_PER_TICK, PIDMode);
+        super(ArmRotationState.class, angle / DEGREES_PER_TICK, PIDMode, 0.0);
     }
 
     public A_SetArmRotationAngle(double angle) {

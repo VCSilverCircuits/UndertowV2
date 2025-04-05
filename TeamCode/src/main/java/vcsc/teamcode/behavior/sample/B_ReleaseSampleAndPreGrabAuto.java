@@ -1,6 +1,7 @@
 package vcsc.teamcode.behavior.sample;
 
 import vcsc.core.abstracts.behavior.Behavior;
+import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
@@ -23,45 +24,51 @@ import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistPose;
 import vcsc.teamcode.config.GlobalPose;
 
-public class B_IntakeSampleGrab extends Behavior {
+public class B_ReleaseSampleAndPreGrabAuto extends Behavior {
     TaskSequence _taskSequence;
 
-    public B_IntakeSampleGrab() {
+    public B_ReleaseSampleAndPreGrabAuto() {
         super();
 
         addRequirement(ElbowState.class);
         addRequirement(WristHingeState.class);
         addRequirement(WristTwistState.class);
-//        addRequirement(ArmExtensionState.class);
+        addRequirement(ArmExtensionState.class);
         addRequirement(ArmRotationState.class);
         addRequirement(ClawState.class);
 
 
         // Establish needed actions
-        A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_GRAB);
-        A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_GRAB);
-        A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.INTAKE_SAMPLE_GRAB);
-        A_SetClawPose clawClose = new A_SetClawPose(ClawPose.INTAKE_SAMPLE_GRAB);
+        A_SetElbowPose elbowStow = new A_SetElbowPose(ElbowPose.STOW_SAMPLE);
+        A_SetElbowPose elbowStraight = new A_SetElbowPose(ElbowPose.STRAIGHT);
+        A_SetElbowPose elbowHover = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_HOVER);
+        A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.STOW_SAMPLE);
+        A_SetWristHingePose hingeStraight = new A_SetWristHingePose(WristHingePose.STRAIGHT);
+        A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SAMPLE);
+        A_SetClawPose openClaw = new A_SetClawPose(ClawPose.OPEN);
 
+        A_SetElbowPose elbowOutPreGrab = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_GRAB);
+        A_SetWristHingePose hingeBackPreGrab = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_GRAB);
+
+        A_SetArmExtensionPose retractSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SAMPLE);
+        A_SetArmRotationPose rotateArmDown = new A_SetArmRotationPose(ArmRotationPose.STOW_SAMPLE);
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.INTAKE_SAMPLE_GRAB);
-        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.INTAKE_SAMPLE_GRAB);
+
+        ArmRotationState rotState = StateRegistry.getInstance().getState(ArmRotationState.class);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(
-                        rotateArmBack,
-//                        extendSlides,
-                        elbowOut,
-                        hingeBack
-                )
-                .thenDelay(50)
-                .then(clawClose);
+        _taskSequence.then(openClaw).then(elbowHover, hingeStraight).then(
+                retractSlides,
+                hingeBackPreGrab,
+                twist
+        ).thenAsync(rotateArmDown).thenWaitUntil(() -> rotState.getRealAngle() < 50).then(extendSlides);
     }
 
     @Override
     public boolean start() {
         super.start();
-        RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_GRAB);
+        RobotState.getInstance().setMode(GlobalPose.STOW_SAMPLE);
         return _taskSequence.start();
     }
 

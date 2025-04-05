@@ -1,6 +1,7 @@
 package vcsc.teamcode.behavior.sample;
 
 import vcsc.core.abstracts.behavior.Behavior;
+import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
@@ -14,6 +15,7 @@ import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
+import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingeAngle;
 import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingePose;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
@@ -37,19 +39,21 @@ public class B_DepositSampleUpper extends Behavior {
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.DEPOSIT_SAMPLE_UPPER);
         A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.DEPOSIT_SAMPLE_UPPER);
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.DEPOSIT_SAMPLE_UPPER);
+        A_SetWristHingeAngle hingeAway = new A_SetWristHingeAngle(0.35);
 
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.DEPOSIT_SAMPLE_UPPER);
         A_SetArmExtensionPose slidesIn = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SAMPLE);
         A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.DEPOSIT_SAMPLE_UPPER);
 
+        ArmExtensionState extState = StateRegistry.getInstance().getState(ArmExtensionState.class);
+
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(slidesIn).then(
+        _taskSequence.then(slidesIn, hingeAway).then(
                 rotateArmBack,
                 elbowOut,
-                hingeBack,
                 twist
-        ).then(extendSlides);
+        ).thenAsync(extendSlides).thenWaitUntil(() -> extState.getRealLength() > extState.getTargetLength() - 5).then(hingeBack);
     }
 
     @Override

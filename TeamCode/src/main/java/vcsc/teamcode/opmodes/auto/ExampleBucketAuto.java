@@ -1,26 +1,50 @@
 package vcsc.teamcode.opmodes.auto;
 
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.abstracts.task.FollowPathTask;
 import vcsc.core.abstracts.task.Task;
+import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.abstracts.task.TaskSequence;
+import vcsc.core.util.GlobalTelemetry;
 import vcsc.teamcode.behavior.sample.B_DepositSampleUpper;
-import vcsc.teamcode.behavior.sample.B_IntakeSample;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
+import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAuto;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
+import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAutoShort;
+import vcsc.teamcode.cmp.arm.extension.ArmExtensionActuator;
+import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
+import vcsc.teamcode.cmp.arm.rotation.ArmRotationActuator;
+import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
+import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
+import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
+import vcsc.teamcode.cmp.claw.ClawActuator;
+import vcsc.teamcode.cmp.claw.ClawState;
+import vcsc.teamcode.cmp.claw.actions.A_CloseClaw;
+import vcsc.teamcode.cmp.elbow.ElbowActuator;
+import vcsc.teamcode.cmp.elbow.ElbowPose;
+import vcsc.teamcode.cmp.elbow.ElbowState;
+import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
+import vcsc.teamcode.cmp.robot.RobotState;
+import vcsc.teamcode.cmp.wrist.hinge.WristHingeActuator;
+import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
+import vcsc.teamcode.cmp.wrist.twist.WristTwistActuator;
+import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
+import vcsc.teamcode.config.GlobalConfig;
 
 /**
  * This is an example auto that showcases movement and control of two servos autonomously.
@@ -38,6 +62,22 @@ public class ExampleBucketAuto extends OpMode {
     private Follower follower;
     private Timer opmodeTimer;
 
+    protected MultipleTelemetry telem;
+    protected TaskManager taskManager = TaskManager.getInstance();
+    protected RobotState robotState = RobotState.getInstance();
+    protected ClawState clawState;
+    protected ArmExtensionState armExtState;
+    protected ArmRotationState armRotState;
+    protected ElbowState elbowState;
+    protected WristHingeState wristHingeState;
+    protected WristTwistState wristTwistState;
+    ClawActuator clawActuator;
+    ArmExtensionActuator armExtActuator;
+    ArmRotationActuator armRotActuator;
+    ElbowActuator elbowActuator;
+    WristHingeActuator wristHingeActuator;
+    WristTwistActuator wristTwistActuator;
+
 
     /* Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
@@ -52,23 +92,24 @@ public class ExampleBucketAuto extends OpMode {
     private final Pose startPose = new Pose(9, 111, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(14, 129, Math.toRadians(315));
+    private final Pose scorePose = new Pose(14, 127.5, Math.toRadians(315));
+    private final Pose scorePosePreload = new Pose(startPose.getX(), 126, Math.toRadians(270));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(37, 121, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(35, 120.5, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(43, 130, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(35, 129.5, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(49, 135, Math.toRadians(0));
+    private final Pose pickup3Pose = new Pose(24, 134.5, Math.toRadians(10));
 
     /** Park Pose for our robot, after we do all of the scoring. */
-    private final Pose parkPose = new Pose(60, 98, Math.toRadians(90));
+    private final Pose parkPose = new Pose(60, 98, Math.toRadians(270));
 
     /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
      * The Robot will not go to this pose, it is used a control point for our bezier curve. */
-    private final Pose parkControlPose = new Pose(60, 98, Math.toRadians(90));
+    private final Pose parkControlPose = new Pose(60, 125, Math.toRadians(270));
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private PathChain scorePreload, park, grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
@@ -96,8 +137,8 @@ public class ExampleBucketAuto extends OpMode {
 
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
         scorePreload = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(startPose), new Point(scorePose)))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .addPath(new BezierLine(new Point(startPose), new Point(scorePosePreload)))
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePosePreload.getHeading())
                 .build();
 
         /* Here is an example for Constant Interpolation
@@ -147,29 +188,76 @@ public class ExampleBucketAuto extends OpMode {
     }
 
 
-
-    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
-    @Override
-    public void loop() {
-        // These loop the movements of the robot
+    public void normalLoop() {
         follower.update();
-
-        auto.loop();
+        taskManager.loop();
+        clawActuator.loop();
+        armExtActuator.loop();
+        armRotActuator.loop();
+        elbowActuator.loop();
+        wristHingeActuator.loop();
+        wristTwistActuator.loop();
 
         // Feedback to Driver Hub
         telemetry.addLine("Current tasks:");
         for (Task task : auto.getTasks()) {
             telemetry.addLine("     " + task.getClass().getSimpleName());
         }
+    }
+
+    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
+    @Override
+    public void loop() {
+        normalLoop();
+        auto.loop();
+
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.update();
     }
 
+    public void normalInit() {
+        GlobalTelemetry.init(telemetry);
+
+        telem = GlobalTelemetry.getInstance();
+
+        StateRegistry reg = StateRegistry.getInstance();
+        clawState = new ClawState();
+        clawActuator = new ClawActuator(hardwareMap);
+        clawState.registerActuator(clawActuator);
+
+        armExtState = new ArmExtensionState();
+        armExtActuator = new ArmExtensionActuator(hardwareMap, new PIDFCoefficients(0.015, 0, 0, 0));
+        armExtState.registerActuator(armExtActuator);
+
+        armRotState = new ArmRotationState();
+        armRotActuator = new ArmRotationActuator(hardwareMap, GlobalConfig.rotationCoeffs);
+        armRotState.registerActuator(armRotActuator);
+
+        elbowState = new ElbowState();
+        elbowActuator = new ElbowActuator(hardwareMap);
+        elbowState.registerActuator(elbowActuator);
+
+        wristHingeState = new WristHingeState();
+        wristHingeActuator = new WristHingeActuator(hardwareMap);
+        wristHingeState.registerActuator(wristHingeActuator);
+
+        wristTwistState = new WristTwistState();
+        wristTwistActuator = new WristTwistActuator(hardwareMap);
+        wristTwistState.registerActuator(wristTwistActuator);
+
+        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState);
+    }
+
     /** This method is called once at the init of the OpMode. **/
     @Override
     public void init() {
+        normalInit();
+        A_CloseClaw closeClaw = new A_CloseClaw();
+        A_SetArmRotationPose rotateSlidesUp = new A_SetArmRotationPose(ArmRotationPose.DEPOSIT_SAMPLE_UPPER);
+        taskManager.runTask(new TaskSequence(closeClaw, rotateSlidesUp));
+
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
@@ -178,43 +266,50 @@ public class ExampleBucketAuto extends OpMode {
         follower.setStartingPose(startPose);
         buildPaths();
 
+        long DROP_DELAY = 100;
+        long GRAB_DELAY = 0;
+
+
         auto.thenLog("[AUTO] DepositUpper & Go to scorePreload")
                 // SCORE PRELOAD
                 .then(new B_DepositSampleUpper(), new FollowPathTask(follower, scorePreload))
-                .thenDelay(1000)
+                .thenDelay(DROP_DELAY)
 
                 // GRAB PICKUP 1
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup1")
-                .then(new TaskSequence(new B_ReleaseSampleAndStow(), new B_IntakeSample()), new FollowPathTask(follower, grabPickup1))
+                .then(new B_ReleaseSampleAndPreGrabAutoShort(), new FollowPathTask(follower, grabPickup1))
+                .thenDelay(GRAB_DELAY)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
 
                 // SCORE PICKUP 1
                 .thenLog("[AUTO] Deposit Upper & Go to scorePickup1")
                 .then(new B_DepositSampleUpper(), new FollowPathTask(follower, scorePickup1))
-                .thenDelay(1000)
+                .thenDelay(DROP_DELAY)
 
                 // GRAB PICKUP 2
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup2")
-                .then(new TaskSequence(new B_ReleaseSampleAndStow(), new B_IntakeSample()), new FollowPathTask(follower, grabPickup2))
+                .then(new B_ReleaseSampleAndPreGrabAutoShort(), new FollowPathTask(follower, grabPickup2))
+                .thenDelay(GRAB_DELAY)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
 
                 // SCORE PICKUP 2
                 .thenLog("[AUTO] Deposit Upper & Go to scorePickup2")
                 .then(new B_DepositSampleUpper(), new FollowPathTask(follower, scorePickup2))
-                .thenDelay(1000)
+                .thenDelay(DROP_DELAY)
 
                 // GRAB PICKUP 3
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup3")
-                .then(new TaskSequence(new B_ReleaseSampleAndStow(), new B_IntakeSample()), new FollowPathTask(follower, grabPickup3))
+                .then(new B_ReleaseSampleAndPreGrabAuto(), new FollowPathTask(follower, grabPickup3))
+                .thenDelay(GRAB_DELAY)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
 
                 // SCORE PICKUP 3
                 .thenLog("[AUTO] Deposit Upper & Go to scorePickup3")
                 .then(new B_DepositSampleUpper(), new FollowPathTask(follower, scorePickup3))
-                .thenDelay(1000)
+                .thenDelay(DROP_DELAY)
 
                 // PARK
                 .thenLog("[AUTO] (Stow then Intake) & Go to park")
@@ -223,13 +318,19 @@ public class ExampleBucketAuto extends OpMode {
 
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
-    public void init_loop() {}
+    public void init_loop() {
+        armRotActuator.loop();
+        clawActuator.loop();
+        taskManager.loop();
+    }
 
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/
     @Override
     public void start() {
         opmodeTimer.resetTimer();
+        A_SetElbowPose stowElbow = new A_SetElbowPose(ElbowPose.STOW_SAMPLE);
+        taskManager.runTask(stowElbow);
         auto.start();
     }
 

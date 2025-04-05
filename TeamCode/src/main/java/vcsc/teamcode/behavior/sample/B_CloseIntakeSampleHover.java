@@ -23,10 +23,10 @@ import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistPose;
 import vcsc.teamcode.config.GlobalPose;
 
-public class B_IntakeSampleGrab extends Behavior {
+public class B_CloseIntakeSampleHover extends Behavior {
     TaskSequence _taskSequence;
 
-    public B_IntakeSampleGrab() {
+    public B_CloseIntakeSampleHover() {
         super();
 
         addRequirement(ElbowState.class);
@@ -38,30 +38,29 @@ public class B_IntakeSampleGrab extends Behavior {
 
 
         // Establish needed actions
-        A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_GRAB);
-        A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_GRAB);
-        A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.INTAKE_SAMPLE_GRAB);
-        A_SetClawPose clawClose = new A_SetClawPose(ClawPose.INTAKE_SAMPLE_GRAB);
+        A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_HOVER);
+        A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_HOVER);
+        A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.INTAKE_SAMPLE_HOVER);
+        A_SetClawPose clawOpen = new A_SetClawPose(ClawPose.INTAKE_SAMPLE_HOVER);
 
-        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.INTAKE_SAMPLE_GRAB);
-        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.INTAKE_SAMPLE_GRAB);
+        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.INTAKE_SAMPLE_HOVER);
+        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.INTAKE_SAMPLE_HOVER);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
         _taskSequence.then(
-                        rotateArmBack,
-//                        extendSlides,
-                        elbowOut,
-                        hingeBack
-                )
-                .thenDelay(50)
-                .then(clawClose);
+                rotateArmBack,
+//                extendSlides,
+                elbowOut,
+                hingeBack,
+//                twist,
+                clawOpen
+        );
     }
 
     @Override
     public boolean start() {
-        super.start();
-        RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_GRAB);
+        RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_HOVER);
         return _taskSequence.start();
     }
 

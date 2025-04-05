@@ -3,7 +3,6 @@ package vcsc.teamcode.behavior.sample;
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
-import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
@@ -23,10 +22,10 @@ import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistPose;
 import vcsc.teamcode.config.GlobalPose;
 
-public class B_IntakeSampleGrab extends Behavior {
+public class B_CloseIntakeSamplePreGrab extends Behavior {
     TaskSequence _taskSequence;
 
-    public B_IntakeSampleGrab() {
+    public B_CloseIntakeSamplePreGrab() {
         super();
 
         addRequirement(ElbowState.class);
@@ -50,12 +49,9 @@ public class B_IntakeSampleGrab extends Behavior {
         _taskSequence = new TaskSequence();
         _taskSequence.then(
                         rotateArmBack,
-//                        extendSlides,
                         elbowOut,
                         hingeBack
-                )
-                .thenDelay(50)
-                .then(clawClose);
+                );
     }
 
     @Override
