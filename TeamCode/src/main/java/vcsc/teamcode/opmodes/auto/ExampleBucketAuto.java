@@ -96,10 +96,10 @@ public class ExampleBucketAuto extends OpMode {
     private final Pose scorePosePreload = new Pose(startPose.getX(), 126, Math.toRadians(270));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(35, 120.5, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(36, 120.5, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(35, 129.5, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(36, 129.5, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
     private final Pose pickup3Pose = new Pose(24, 134.5, Math.toRadians(10));
@@ -267,13 +267,12 @@ public class ExampleBucketAuto extends OpMode {
         buildPaths();
 
         long DROP_DELAY = 100;
-        long GRAB_DELAY = 0;
+        long GRAB_DELAY = 30;
 
 
         auto.thenLog("[AUTO] DepositUpper & Go to scorePreload")
                 // SCORE PRELOAD
                 .then(new B_DepositSampleUpper(), new FollowPathTask(follower, scorePreload))
-                .thenDelay(DROP_DELAY)
 
                 // GRAB PICKUP 1
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup1")
@@ -302,9 +301,10 @@ public class ExampleBucketAuto extends OpMode {
                 // GRAB PICKUP 3
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup3")
                 .then(new B_ReleaseSampleAndPreGrabAuto(), new FollowPathTask(follower, grabPickup3))
-                .thenDelay(GRAB_DELAY)
+                .thenDelay(500)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
+                .thenDelay(300)
 
                 // SCORE PICKUP 3
                 .thenLog("[AUTO] Deposit Upper & Go to scorePickup3")

@@ -14,6 +14,7 @@ import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.claw.actions.A_SetClawPose;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
+import vcsc.teamcode.cmp.elbow.actions.A_SetElbowAngle;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
@@ -42,6 +43,7 @@ public class B_ReleaseSampleAndPreGrabAuto extends Behavior {
         A_SetElbowPose elbowStow = new A_SetElbowPose(ElbowPose.STOW_SAMPLE);
         A_SetElbowPose elbowStraight = new A_SetElbowPose(ElbowPose.STRAIGHT);
         A_SetElbowPose elbowHover = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_HOVER);
+//        A_SetElbowAngle elbowHover = new A_SetElbowAngle(ElbowPose.INTAKE_SAMPLE_HOVER);
         A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.STOW_SAMPLE);
         A_SetWristHingePose hingeStraight = new A_SetWristHingePose(WristHingePose.STRAIGHT);
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SAMPLE);
@@ -62,7 +64,9 @@ public class B_ReleaseSampleAndPreGrabAuto extends Behavior {
                 retractSlides,
                 hingeBackPreGrab,
                 twist
-        ).thenAsync(rotateArmDown).thenWaitUntil(() -> rotState.getRealAngle() < 50).then(extendSlides);
+        ).thenAsync(rotateArmDown)
+                .thenWaitUntil(() -> rotState.getRealAngle() < 60)
+                .then(extendSlides);
     }
 
     @Override
