@@ -13,9 +13,13 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
+import vcsc.core.abstracts.power.PowerManager;
+import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.abstracts.templates.poweredPIDF.PoweredPIDFActuator;
 import vcsc.core.util.DcMotorGroup;
 import vcsc.core.util.GlobalTelemetry;
+import vcsc.teamcode.cmp.robot.RobotState;
+import vcsc.teamcode.config.GlobalPose;
 
 public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState, ArmExtensionPose> {
     // Three 5:1 ultraplanetary gearbox
@@ -59,7 +63,12 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
 
     @Override
     protected void loopPower() {
-        motors.setPower(power);
+        PowerManager powerManager = StateRegistry.getInstance().getState(PowerManager.class);
+        if (powerManager.isThrottled() && !RobotState.getInstance().isHanging()) {
+            motors.setPower(Math.min(power, 0.8));
+        } else {
+            motors.setPower(power);
+        }
     }
 
     public void reset() {

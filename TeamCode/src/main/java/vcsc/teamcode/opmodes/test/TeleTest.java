@@ -22,6 +22,7 @@ import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
 import vcsc.teamcode.behavior.specimen.B_IntakeSpecimen;
 import vcsc.teamcode.behavior.specimen.B_ReleaseSpecimenAndStow;
 import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
+import vcsc.teamcode.cmp.claw.actions.A_ToggleClaw;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistAngle;
@@ -172,6 +173,7 @@ public class TeleTest extends BaseOpMode {
 
         GP2_defaultBindings.bindTask(GamepadButton.Y, new B_HangPre());
         GP2_defaultBindings.bindTask(GamepadButton.A, new B_HangLv2Both());
+        GP2_defaultBindings.bindTask(GamepadButton.LEFT_TRIGGER, new A_ToggleClaw());
 
         //endregion
 

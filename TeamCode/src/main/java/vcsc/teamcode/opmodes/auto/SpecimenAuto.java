@@ -43,6 +43,7 @@ import vcsc.teamcode.cmp.elbow.ElbowActuator;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
+import vcsc.teamcode.cmp.robot.FollowerWrapper;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeActuator;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
@@ -60,7 +61,7 @@ import vcsc.teamcode.config.GlobalConfig;
  * @version 2.0, 11/28/2024
  */
 
-@Autonomous(name = "Test Auto", group = "Auto Test")
+@Autonomous(name = "Specimen Auto", group = "Auto Test")
 public class SpecimenAuto extends OpMode {
 
     private Follower follower;
@@ -324,6 +325,7 @@ public class SpecimenAuto extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
+        FollowerWrapper.setFollower(follower);
         buildPaths();
 
         auto.then(new B_DepositSpecimenPose(), scoreSpecimenFollowPathTask(startPose))

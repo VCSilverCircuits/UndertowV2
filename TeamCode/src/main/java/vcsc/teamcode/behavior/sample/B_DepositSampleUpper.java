@@ -1,5 +1,8 @@
 package vcsc.teamcode.behavior.sample;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.abstracts.task.TaskSequence;
@@ -24,6 +27,7 @@ import vcsc.teamcode.config.GlobalPose;
 
 public class B_DepositSampleUpper extends Behavior {
     TaskSequence _taskSequence;
+    Pose initialPose;
 
     public B_DepositSampleUpper() {
         super();
@@ -46,15 +50,17 @@ public class B_DepositSampleUpper extends Behavior {
         A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.DEPOSIT_SAMPLE_UPPER);
 
         ArmExtensionState extState = StateRegistry.getInstance().getState(ArmExtensionState.class);
+        ArmRotationState rotState = StateRegistry.getInstance().getState(ArmRotationState.class);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(slidesIn, hingeAway).then(
+        _taskSequence.then(slidesIn, hingeAway).thenAsync(
                 rotateArmBack,
                 elbowOut,
                 twist
-        ).thenAsync(extendSlides).thenWaitUntil(() -> extState.getRealLength() > extState.getTargetLength() - 5).then(hingeBack);
+        ).thenWaitUntil(() -> rotState.getRealAngle() > 80).thenAsync(extendSlides).thenWaitUntil(() -> extState.getRealLength() > extState.getTargetLength() - 5).then(hingeBack);
     }
+
 
     @Override
     public boolean start() {

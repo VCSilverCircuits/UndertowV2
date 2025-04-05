@@ -39,6 +39,7 @@ import vcsc.teamcode.cmp.elbow.ElbowActuator;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
+import vcsc.teamcode.cmp.robot.FollowerWrapper;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeActuator;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
@@ -56,7 +57,7 @@ import vcsc.teamcode.config.GlobalConfig;
  * @version 2.0, 11/28/2024
  */
 
-@Autonomous(name = "Test Auto", group = "Auto Test")
+@Autonomous(name = "Sample Auto", group = "Auto Test")
 public class SampleAuto extends OpMode {
 
     private Follower follower;
@@ -93,7 +94,7 @@ public class SampleAuto extends OpMode {
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
     private final Pose scorePose = new Pose(14, 127.5, Math.toRadians(315));
-    private final Pose scorePosePreload = new Pose(startPose.getX(), 126, Math.toRadians(270));
+    private final Pose scorePosePreload = new Pose(startPose.getX(), 125, Math.toRadians(270));
 
     /** Lowest (First) Sample from the Spike Mark */
     private final Pose pickup1Pose = new Pose(36, 120.5, Math.toRadians(0));
@@ -264,6 +265,7 @@ public class SampleAuto extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
+        FollowerWrapper.setFollower(follower);
         buildPaths();
 
         long DROP_DELAY = 100;

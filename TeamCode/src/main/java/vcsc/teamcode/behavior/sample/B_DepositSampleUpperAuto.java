@@ -46,6 +46,7 @@ public class B_DepositSampleUpperAuto extends Behavior {
         A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.DEPOSIT_SAMPLE_UPPER);
 
         ArmExtensionState extState = StateRegistry.getInstance().getState(ArmExtensionState.class);
+        ArmRotationState rotState = StateRegistry.getInstance().getState(ArmRotationState.class);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
@@ -53,7 +54,7 @@ public class B_DepositSampleUpperAuto extends Behavior {
                 rotateArmBack,
                 elbowOut,
                 twist
-        ).then(extendSlides).thenWaitUntil(() -> extState.getRealLength() > extState.getTargetLength() - 5).then(hingeBack);
+        ).thenWaitUntil(() -> rotState.getRealAngle() > 80).thenAsync(extendSlides).thenWaitUntil(() -> extState.getRealLength() > extState.getTargetLength() - 5).then(hingeBack);
     }
 
     @Override

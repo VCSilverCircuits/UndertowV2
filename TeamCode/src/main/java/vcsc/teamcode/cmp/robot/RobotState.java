@@ -1,6 +1,8 @@
 package vcsc.teamcode.cmp.robot;
 
+import vcsc.core.abstracts.power.PowerManager;
 import vcsc.core.abstracts.state.State;
+import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.teamcode.config.GlobalPose;
 
 public class RobotState extends State<RobotState> {
@@ -45,6 +47,18 @@ public class RobotState extends State<RobotState> {
             driveSpeed = BASE_DRIVE_SPEED;
             turnSpeed = BASE_TURN_SPEED;
         }
+
+        PowerManager powerManager = StateRegistry.getInstance().getState(PowerManager.class);
+        if (powerManager.isThrottled()) {
+            driveSpeed = Math.min(driveSpeed, 0.3);
+            turnSpeed = Math.min(turnSpeed, 0.15);
+        }
+    }
+
+    public boolean isHanging() {
+        return mode == GlobalPose.HANG_PRE
+                || mode == GlobalPose.HANG_LV2_P2
+                || mode == GlobalPose.HANG_RELEASE;
     }
 
     public double getDriveSpeed() {

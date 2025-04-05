@@ -14,6 +14,6 @@ public class A_SetArmExtensionLength extends A_SetPoweredPIDFTargetPosition<ArmE
     }
 
     public A_SetArmExtensionLength(double length) {
-        this(length / CM_PER_TICK, PIDMode.EXCEED, 5.0);
+        this(length, PIDMode.EXCEED, 5.0);
     }
 }

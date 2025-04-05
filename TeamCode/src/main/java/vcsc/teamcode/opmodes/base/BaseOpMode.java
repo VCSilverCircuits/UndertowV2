@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import vcsc.core.abstracts.power.PowerManager;
 import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.util.GlobalTelemetry;
@@ -21,6 +22,7 @@ import vcsc.teamcode.cmp.claw.ClawActuator;
 import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.elbow.ElbowActuator;
 import vcsc.teamcode.cmp.elbow.ElbowState;
+import vcsc.teamcode.cmp.robot.FollowerWrapper;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeActuator;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
@@ -40,6 +42,7 @@ public class BaseOpMode extends OpMode {
     protected ElbowState elbowState;
     protected WristHingeState wristHingeState;
     protected WristTwistState wristTwistState;
+    protected PowerManager powerManager;
     protected Follower follower;
     ClawActuator clawActuator;
     ArmExtensionActuator armExtActuator;
@@ -57,6 +60,8 @@ public class BaseOpMode extends OpMode {
         telem = GlobalTelemetry.getInstance();
 
         StateRegistry reg = StateRegistry.getInstance();
+        reg.clearStates();
+
         clawState = new ClawState();
         clawActuator = new ClawActuator(hardwareMap);
         clawState.registerActuator(clawActuator);
@@ -81,18 +86,21 @@ public class BaseOpMode extends OpMode {
         wristTwistActuator = new WristTwistActuator(hardwareMap);
         wristTwistState.registerActuator(wristTwistActuator);
 
+        powerManager = new PowerManager(hardwareMap);
+
         gw1 = new GamepadWrapper(gamepad1);
         gw2 = new GamepadWrapper(gamepad2);
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
+        FollowerWrapper.setFollower(follower);
 
         bindingManager.setDefaultMode(GlobalPose.DEFAULT);
         bindingManager.setGamepad1Bindings(GlobalPose.DEFAULT, new BindingSet());
         bindingManager.setGamepad2Bindings(GlobalPose.DEFAULT, new BindingSet());
 
         // Register all states
-        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState);
+        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState, powerManager);
     }
 
     @Override
