@@ -86,7 +86,7 @@ public class BaseOpMode extends OpMode {
         wristTwistActuator = new WristTwistActuator(hardwareMap);
         wristTwistState.registerActuator(wristTwistActuator);
 
-        powerManager = new PowerManager(hardwareMap);
+//        powerManager = new PowerManager(hardwareMap);
 
         gw1 = new GamepadWrapper(gamepad1);
         gw2 = new GamepadWrapper(gamepad2);
@@ -100,7 +100,7 @@ public class BaseOpMode extends OpMode {
         bindingManager.setGamepad2Bindings(GlobalPose.DEFAULT, new BindingSet());
 
         // Register all states
-        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState, powerManager);
+        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState);
     }
 
     @Override

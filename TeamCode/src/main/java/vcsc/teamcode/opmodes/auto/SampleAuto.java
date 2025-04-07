@@ -90,20 +90,20 @@ public class SampleAuto extends OpMode {
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(9, 111, Math.toRadians(270));
+    private final Pose startPose = new Pose(6, 112, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(14, 127.5, Math.toRadians(315));
+    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315));
     private final Pose scorePosePreload = new Pose(startPose.getX(), 125, Math.toRadians(270));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(36, 120.5, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(34, 120.5, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(36, 129.5, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(34, 129.5, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(24, 134.5, Math.toRadians(10));
+    private final Pose pickup3Pose = new Pose(22, 134.5, Math.toRadians(10));
 
     /** Park Pose for our robot, after we do all of the scoring. */
     private final Pose parkPose = new Pose(60, 98, Math.toRadians(270));

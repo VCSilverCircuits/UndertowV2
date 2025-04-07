@@ -20,15 +20,16 @@ public class ElbowActuator extends RotatorActuator<ElbowState, ElbowPose> {
     public void loop() {
         double rotPosition = angle; // Convert angle to a value between 0 and 1 for the servo
         servo.setPosition(rotPosition);
+        servo2.setPosition(rotPosition);
 
-        PowerManager powerManager = StateRegistry.getInstance().getState(PowerManager.class);
-
-        if (!powerManager.isThrottled()) {
-            servo2.setPwmEnable();
-            servo2.setPosition(rotPosition);
-        } else {
-            servo2.setPwmDisable();
-        }
+//        PowerManager powerManager = StateRegistry.getInstance().getState(PowerManager.class);
+//
+//        if (!powerManager.isThrottled()) {
+//            servo2.setPwmEnable();
+//            servo2.setPosition(rotPosition);
+//        } else {
+//            servo2.setPwmDisable();
+//        }
     }
 
 }

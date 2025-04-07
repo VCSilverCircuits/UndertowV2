@@ -63,12 +63,14 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
 
     @Override
     protected void loopPower() {
-        PowerManager powerManager = StateRegistry.getInstance().getState(PowerManager.class);
-        if (powerManager.isThrottled() && !RobotState.getInstance().isHanging()) {
-            motors.setPower(Math.min(power, 0.8));
-        } else {
-            motors.setPower(power);
-        }
+//        PowerManager powerManager = StateRegistry.getInstance().getState(PowerManager.class);
+//        if (powerManager.isThrottled() && !RobotState.getInstance().isHanging()) {
+//            motors.setPower(Math.min(power, 0.8));
+//        } else {
+//            motors.setPower(power);
+//        }
+        motors.setPower(power);
+
     }
 
     public void reset() {

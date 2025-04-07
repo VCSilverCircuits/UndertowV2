@@ -50,13 +50,14 @@ public class B_ReleaseSampleAndPreGrabAutoShort extends Behavior {
         A_SetWristHingePose hingeBackPreGrab = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_GRAB);
 
         A_SetArmExtensionPose retractSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SAMPLE);
-//        A_SetArmExtensionLength extendSlides = new A_SetArmExtensionLength(3);
+        A_SetArmExtensionLength extendSlides = new A_SetArmExtensionLength(3);
         A_SetArmRotationPose rotateArmDown = new A_SetArmRotationPose(ArmRotationPose.STOW_SAMPLE);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
         _taskSequence.then(openClaw).then(elbowOutPreGrab, hingeStraight).then(
-                retractSlides,
+//                retractSlides,
+                extendSlides,
                 hingeBackPreGrab,
                 twist
         ).then(rotateArmDown);
