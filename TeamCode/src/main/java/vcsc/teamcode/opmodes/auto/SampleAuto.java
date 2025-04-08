@@ -97,16 +97,16 @@ public class SampleAuto extends OpMode {
     private final Pose scorePosePreload = new Pose(startPose.getX(), 125, Math.toRadians(270));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(34, 120.5, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(30, 120.5, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(34, 129.5, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(30, 129.5, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
     private final Pose pickup3Pose = new Pose(22, 134.5, Math.toRadians(10));
 
     /** Park Pose for our robot, after we do all of the scoring. */
-    private final Pose parkPose = new Pose(60, 98, Math.toRadians(270));
+    private final Pose parkPose = new Pose(60, 105, Math.toRadians(270));
 
     /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
      * The Robot will not go to this pose, it is used a control point for our bezier curve. */
