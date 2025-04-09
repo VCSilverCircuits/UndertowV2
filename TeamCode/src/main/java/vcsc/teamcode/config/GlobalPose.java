@@ -65,7 +65,7 @@ public enum GlobalPose implements RobotMode {
             73.5,
             97.5,
             0.45,
-            0.5,
+            0.55,
             0.38,
             null
     ),
