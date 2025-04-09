@@ -48,7 +48,9 @@ import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
 import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingePose;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistActuator;
+import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
+import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistPose;
 import vcsc.teamcode.config.GlobalConfig;
 
 /**
@@ -93,7 +95,7 @@ public class SpecimenAuto extends OpMode {
      * Lets assume our robot is 18 by 18 inches
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
-    private final double SCORE_X = 35;
+    private final double SCORE_X = 40;
     private final double SCORE_Y_INITIAL = 64;
     private final double SCORE_SPACING = 2;
 
@@ -358,11 +360,13 @@ public class SpecimenAuto extends OpMode {
     public void init() {
         normalInit();
         A_CloseClaw closeClaw = new A_CloseClaw();
-        A_SetArmRotationPose rotateSlidesUp = new A_SetArmRotationPose(ArmRotationPose.STOW_SPECIMEN);
+        A_SetArmRotationPose rotateSlidesUp = new A_SetArmRotationPose(ArmRotationPose.DEPOSIT_SPECIMEN);
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.DEPOSIT_SPECIMEN);
-        A_SetWristHingePose wristHingeOut = new A_SetWristHingePose(WristHingePose.STOW_SAMPLE);
-        taskManager.runTask(new TaskSequence(closeClaw, rotateSlidesUp, elbowOut, wristHingeOut));
-
+        A_SetWristHingePose wristHingeOut = new A_SetWristHingePose(WristHingePose.DEPOSIT_SPECIMEN);
+        A_SetWristTwistPose wristTwistOut = new A_SetWristTwistPose(WristTwistPose.DEPOSIT_SPECIMEN);
+        taskManager.runTask(new TaskSequence(closeClaw)
+            .thenDelay(200)
+            .then(rotateSlidesUp, elbowOut, wristHingeOut, wristTwistOut));
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
@@ -382,6 +386,9 @@ public class SpecimenAuto extends OpMode {
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
     public void init_loop() {
+        elbowActuator.loop();
+        wristHingeActuator.loop();
+        wristTwistActuator.loop();
         armRotActuator.loop();
         clawActuator.loop();
         taskManager.loop();
