@@ -97,10 +97,10 @@ public class SampleAuto extends OpMode {
     private final Pose scorePosePreload = new Pose(startPose.getX(), 125, Math.toRadians(270));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(30, 120.5, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(33, 120.5, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(30, 129.5, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(33, 130, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
     private final Pose pickup3Pose = new Pose(22, 134.5, Math.toRadians(10));
@@ -269,7 +269,8 @@ public class SampleAuto extends OpMode {
         buildPaths();
 
         long DROP_DELAY = 100;
-        long GRAB_DELAY = 30;
+        long PRE_GRAB_DELAY = 80;
+        long POST_GRAB_DELAY = 50;
 
 
         auto.thenLog("[AUTO] DepositUpper & Go to scorePreload")
@@ -279,9 +280,10 @@ public class SampleAuto extends OpMode {
                 // GRAB PICKUP 1
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup1")
                 .then(new B_ReleaseSampleAndPreGrabAutoShort(), new FollowPathTask(follower, grabPickup1))
-                .thenDelay(GRAB_DELAY)
+                .thenDelay(POST_GRAB_DELAY)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
+                .thenDelay(POST_GRAB_DELAY)
 
                 // SCORE PICKUP 1
                 .thenLog("[AUTO] Deposit Upper & Go to scorePickup1")
@@ -291,9 +293,10 @@ public class SampleAuto extends OpMode {
                 // GRAB PICKUP 2
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup2")
                 .then(new B_ReleaseSampleAndPreGrabAutoShort(), new FollowPathTask(follower, grabPickup2))
-                .thenDelay(GRAB_DELAY)
+                .thenDelay(POST_GRAB_DELAY)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
+                .thenDelay(POST_GRAB_DELAY)
 
                 // SCORE PICKUP 2
                 .thenLog("[AUTO] Deposit Upper & Go to scorePickup2")

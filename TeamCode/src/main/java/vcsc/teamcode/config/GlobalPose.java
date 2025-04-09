@@ -80,8 +80,8 @@ public enum GlobalPose implements RobotMode {
     DEPOSIT_SPECIMEN(
             26.0,
             65.0,
-            0.17,
-            0.65,
+            0.15,
+            0.70,
             0.38,
             null
     ),

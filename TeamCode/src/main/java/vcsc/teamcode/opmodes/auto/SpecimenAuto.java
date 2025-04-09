@@ -24,7 +24,6 @@ import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
 import vcsc.teamcode.behavior.sample.B_IntakeSample;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
-import vcsc.teamcode.behavior.sample.B_IntakeSampleHover;
 import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
 import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
 import vcsc.teamcode.behavior.specimen.B_IntakeSpecimen;
@@ -38,7 +37,6 @@ import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 import vcsc.teamcode.cmp.claw.ClawActuator;
 import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.claw.actions.A_CloseClaw;
-import vcsc.teamcode.cmp.claw.actions.A_OpenClaw;
 import vcsc.teamcode.cmp.elbow.ElbowActuator;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
@@ -46,7 +44,9 @@ import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
 import vcsc.teamcode.cmp.robot.FollowerWrapper;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeActuator;
+import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
+import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingePose;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistActuator;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
 import vcsc.teamcode.config.GlobalConfig;
@@ -93,31 +93,31 @@ public class SpecimenAuto extends OpMode {
      * Lets assume our robot is 18 by 18 inches
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
-    private final double SCORE_X = 45;
+    private final double SCORE_X = 35;
     private final double SCORE_Y_INITIAL = 64;
     private final double SCORE_SPACING = 2;
 
     private int specimenNum = 0;
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(7, 66, Math.toRadians(180));
+    private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
     private final Pose scorePosePreload = new Pose(startPose.getX(), 126, Math.toRadians(270));
 
-    private final Pose grabSpikeMark1Pose = new Pose(24, 35, Math.toRadians(145));
-    private final Pose grabSpikeMark1ControlPoint = new Pose(24, 56, Math.toRadians(145));
-    private final Pose grabSpikeMark2Pose = new Pose(24, 24, Math.toRadians(145));
-    private final Pose dropSpikeMarkPose = new Pose(grabSpikeMark2Pose.getX(), grabSpikeMark2Pose.getY(), Math.toRadians(145));
+    private final Pose grabSpikeMark1Pose = new Pose(24, 35, Math.toRadians(325));
+    private final Pose grabSpikeMark1ControlPoint = new Pose(24, 56, Math.toRadians(325));
+    private final Pose grabSpikeMark2Pose = new Pose(24, 24, Math.toRadians(325));
+    private final Pose dropSpikeMarkPose = new Pose(grabSpikeMark2Pose.getX(), grabSpikeMark2Pose.getY(), Math.toRadians(325));
 
-    private final Pose setupPushPose = new Pose(58, 6.25, Math.toRadians(180));
-    private final Pose setupPushControlPoint = new Pose(50, 24, Math.toRadians(180));
-    private final Pose pushedPose = new Pose(21, setupPushPose.getY(), Math.toRadians(180));
+    private final Pose setupPushPose = new Pose(58, 6.25, Math.toRadians(0));
+    private final Pose setupPushControlPoint = new Pose(50, 24, Math.toRadians(0));
+    private final Pose pushedPose = new Pose(21, setupPushPose.getY(), Math.toRadians(0));
 
-    private final Pose intakePose = new Pose(7, 33, Math.toRadians(180));
-    private final Pose intake1ControlPoint = new Pose(25, 26, Math.toRadians(180));
+    private final Pose intakePose = new Pose(7, 33, Math.toRadians(0));
+    private final Pose intake1ControlPoint = new Pose(25, 26, Math.toRadians(0));
 
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
-    PathChain ONE_spikeMark1Path, TWO_spikeMark1Drop, THREE_spikeMark2Path, FOUR_spikeMark2Drop, FIVE_pushPath;
+    PathChain ONE_spikeMark1Path, TWO_spikeMark1Drop, THREE_spikeMark2Path, FOUR_spikeMark2Drop, FIVE_pushPath, pushPop;
 
     TaskSequence auto = new TaskSequence();
 
@@ -152,6 +152,48 @@ public class SpecimenAuto extends OpMode {
         THREE_spikeMark2Path = linearInterpolateLine(dropSpikeMarkPose, grabSpikeMark2Pose);
         FOUR_spikeMark2Drop = linearInterpolateLine(grabSpikeMark2Pose, dropSpikeMarkPose);
 
+            pushPop = follower.pathBuilder()
+//                        .addPath(
+//                                // Line 1
+//                                new BezierLine(
+//                                        new Point(7.000, 66.000, Point.CARTESIAN),
+//                                        new Point(45.000, 64.000, Point.CARTESIAN)
+//                                )
+//                        )
+//                        .setConstantHeadingInterpolation(Math.toRadians(180))
+//                        .addPath(
+//                                // Line 2
+//                                new BezierCurve(
+//                                        new Point(45.000, 64.000, Point.CARTESIAN),
+//                                        new Point(24.000, 56.000, Point.CARTESIAN),
+//                                        new Point(23.883, 35.298, Point.CARTESIAN)
+//                                )
+//                        )
+//                        .setConstantHeadingInterpolation(Math.toRadians(180))
+                    .addPath(new BezierCurve(
+                new Point(23.883, 35.298, Point.CARTESIAN),
+                new Point(101.678, 27.922, Point.CARTESIAN),
+                new Point(24.234, 23.707, Point.CARTESIAN)
+        )
+      )
+      .setConstantHeadingInterpolation(Math.toRadians(180))
+                .addPath(
+                        // Line 4
+                        new BezierCurve(
+                                new Point(24.234, 23.707, Point.CARTESIAN),
+                                new Point(106.946, 21.249, Point.CARTESIAN),
+                                new Point(23.532, 13.171, Point.CARTESIAN)
+                        )
+                )
+                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                    .addPath(
+                            new BezierCurve(
+                                    new Point(23.532, 13.171, Point.CARTESIAN),
+                                    new Point(108.527, 8.429, Point.CARTESIAN),
+                                    new Point(24.410, 9.307, Point.CARTESIAN)
+                            )
+                    )
+                    .setConstantHeadingInterpolation(Math.toRadians(180)).build();
         Path setupPush = new Path(
                 new BezierCurve(
                         dropSpikeMarkPose,
@@ -196,14 +238,14 @@ public class SpecimenAuto extends OpMode {
     }
 
     public Pose getSpecimenScorePose(int specimenNum) {
-        return new Pose(SCORE_X, SCORE_Y_INITIAL + (SCORE_SPACING * specimenNum), Math.toRadians(180));
+        return new Pose(SCORE_X, SCORE_Y_INITIAL + (SCORE_SPACING * specimenNum), Math.toRadians(0));
     }
 
     public PathChain getSpecimenScorePathChain(int specimenNum, Pose startPose) {
         return follower.pathBuilder().addPath(new BezierLine(
                 startPose,
                 getSpecimenScorePose(specimenNum)
-        )).setConstantHeadingInterpolation(Math.toRadians(180)).build();
+        )).setConstantHeadingInterpolation(Math.toRadians(0)).build();
     }
 
     public PathChain getSpecimenScorePathChain(Pose startPose) {
@@ -218,7 +260,7 @@ public class SpecimenAuto extends OpMode {
         return follower.pathBuilder().addPath(new BezierLine(
                 getSpecimenScorePose(specimenNum),
                 intakePose
-        )).setConstantHeadingInterpolation(Math.toRadians(180)).build();
+        )).setConstantHeadingInterpolation(Math.toRadians(0)).build();
     }
 
     public FollowPathTask scoreSpecimenFollowPathTask(Pose startPose) {
@@ -317,7 +359,9 @@ public class SpecimenAuto extends OpMode {
         normalInit();
         A_CloseClaw closeClaw = new A_CloseClaw();
         A_SetArmRotationPose rotateSlidesUp = new A_SetArmRotationPose(ArmRotationPose.STOW_SPECIMEN);
-        taskManager.runTask(new TaskSequence(closeClaw, rotateSlidesUp));
+        A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.DEPOSIT_SPECIMEN);
+        A_SetWristHingePose wristHingeOut = new A_SetWristHingePose(WristHingePose.STOW_SAMPLE);
+        taskManager.runTask(new TaskSequence(closeClaw, rotateSlidesUp, elbowOut, wristHingeOut));
 
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
@@ -329,15 +373,7 @@ public class SpecimenAuto extends OpMode {
         buildPaths();
 
         auto.then(new B_DepositSpecimenPose(), scoreSpecimenFollowPathTask(startPose))
-                .then(new B_IntakeSample(), new FollowPathTask(follower, ONE_spikeMark1Path))
-                .then(new B_IntakeSampleGrab())
-                .thenFollowPath(follower, TWO_spikeMark1Drop)
-                .then(new B_IntakeSampleHover())
-                .thenFollowPath(follower, THREE_spikeMark2Path)
-                .then(new B_IntakeSampleGrab())
-                .thenFollowPath(follower, FOUR_spikeMark2Drop)
-                .then(new A_OpenClaw())
-                .then(new B_IntakeSpecimen(), new FollowPathTask(follower, FIVE_pushPath))
+                .then(new B_IntakeSpecimen(), new FollowPathTask(follower, pushPop))
                 .thenDelay(500)
                 .then(new B_GrabSpecimenAndStow())
                 .then(specimenLoop(4));
