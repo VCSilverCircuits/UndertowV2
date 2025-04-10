@@ -55,6 +55,10 @@
                 name="pinpoint"
                 bus="1"
                 port="0" />
+            <RevTouchSensor
+                name="slideLimitSensor"
+                bus="3"
+                port="0" />
             <goBILDA5202SeriesMotor
                 name="armRotation"
                 port="0" />

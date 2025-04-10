@@ -22,16 +22,20 @@ import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
 import vcsc.teamcode.behavior.sample.B_DepositSampleUpperAuto;
+import vcsc.teamcode.behavior.sample.B_IntakeSample;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
+import vcsc.teamcode.behavior.sample.B_LockOn;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAuto;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAutoShort;
+import vcsc.teamcode.behavior.sample.B_StowSampleAfterIntake;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionActuator;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationActuator;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
+import vcsc.teamcode.cmp.camera.Camera;
 import vcsc.teamcode.cmp.claw.ClawActuator;
 import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.claw.actions.A_CloseClaw;
@@ -248,7 +252,9 @@ public class SampleAuto extends OpMode {
         wristTwistActuator = new WristTwistActuator(hardwareMap);
         wristTwistState.registerActuator(wristTwistActuator);
 
-        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState);
+        Camera camera = new Camera(hardwareMap);
+
+        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState, camera);
     }
 
     /** This method is called once at the init of the OpMode. **/
@@ -318,7 +324,12 @@ public class SampleAuto extends OpMode {
 
                 // PARK
                 .thenLog("[AUTO] (Stow then Intake) & Go to park")
-                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, park));
+                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, park))
+
+                // Intake from submersible
+                .then(new B_IntakeSample())
+                .then(new B_LockOn())
+                .then(new B_StowSampleAfterIntake());
     }
 
     /** This method is called continuously after Init while waiting for "play". **/

@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import vcsc.core.abstracts.state.StateRegistry;
+import vcsc.core.abstracts.task.DelayTask;
 import vcsc.core.abstracts.task.FollowPathTask;
 import vcsc.core.abstracts.task.Task;
 import vcsc.core.abstracts.task.TaskManager;
@@ -24,6 +25,7 @@ import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
 import vcsc.teamcode.behavior.sample.B_IntakeSample;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
+import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
 import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
 import vcsc.teamcode.behavior.specimen.B_IntakeSpecimen;
@@ -95,13 +97,14 @@ public class SpecimenAuto extends OpMode {
      * Lets assume our robot is 18 by 18 inches
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
-    private static final double SCORE_X = 40;
-    private static final double SCORE_Y_INITIAL = 64;
-    private static final double SCORE_SPACING = 2;
+    private static final double SCORE_X = 41;
+    private static final double SCORE_Y_INITIAL = 80;
+    private static final double SCORE_SPACING = -1.5;
 
     private int specimenNum = 0;
 
     private static final double PUSH_X = 24;
+    private static final double PRE_PUSH_X = 57;
 
     /** Start Pose of our robot */
     private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
@@ -110,11 +113,15 @@ public class SpecimenAuto extends OpMode {
 
     private final Pose push1Pose = new Pose(PUSH_X, 24, Math.toRadians(0));
     private final Pose push2Pose = new Pose(PUSH_X, 14, Math.toRadians(0));
-    private final Pose push3Pose = new Pose(PUSH_X, 9, Math.toRadians(0));
+    private final Pose prePush2Pose = new Pose(PRE_PUSH_X, 14, Math.toRadians(0));
+    private final Pose push3Pose = new Pose(PUSH_X, 9.1, Math.toRadians(0));
+    private final Pose prePush3Pose = new Pose(PRE_PUSH_X, 9.3, Math.toRadians(0));
+
+    private boolean over = false;
 
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
-    PathChain pushPop, pushToIntake;
+    PathChain pushPop;
 
     TaskSequence auto = new TaskSequence();
 
@@ -144,33 +151,44 @@ public class SpecimenAuto extends OpMode {
                         new Point(getSpecimenScorePose(0)),
                         new Point(26, 35, Point.CARTESIAN),
                         new Point(28, 30, Point.CARTESIAN),
-                        new Point(120, 28, Point.CARTESIAN),
+                        new Point(105, 28, Point.CARTESIAN),
                         new Point(push1Pose)
         ));
 
-        Path push2 = new Path(
+        Path prePush2 = new Path(
                 new BezierCurve(
                         new Point(push1Pose),
-                        new Point(108, (2*push1Pose.getY() + push2Pose.getY())/3, Point.CARTESIAN),
-                        new Point(push2Pose)
+                            new Point(58, 26, Point.CARTESIAN),
+                        new Point(prePush2Pose)
                 ));
-        Path push3 = new Path(
+
+        Path push2 = linearInterpolateLinePath(prePush2Pose, push2Pose);
+
+        Path prePush3 = new Path(
                 new BezierCurve(
                         new Point(push2Pose),
-                        new Point(108, (2*push2Pose.getY() + push3Pose.getY())/3, Point.CARTESIAN),
-                        new Point(push3Pose)
+                        new Point(60, 15, Point.CARTESIAN),
+                        new Point(prePush3Pose)
                 ));
+
+        Path push3 = linearInterpolateLinePath(prePush3Pose, push3Pose);
+
+        Path push3ToIntake = linearInterpolateLinePath(push3Pose, intakePose);
 
         pushPop = follower.pathBuilder()
                 .addPath(push1)
                 .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(prePush2)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .addPath(push2)
                 .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(prePush3)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .addPath(push3)
-                .setConstantHeadingInterpolation(Math.toRadians(0)).build();
-
-        pushToIntake = linearInterpolateLine(push3Pose, intakePose);
-
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(push3ToIntake)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .build();
     }
 
     private PathChain linearInterpolateLine(Pose start, Pose end) {
@@ -178,6 +196,15 @@ public class SpecimenAuto extends OpMode {
                 new Point(start),
                 new Point(end)
         ).setLinearHeadingInterpolation(start.getHeading(), end.getHeading()).build();
+    }
+
+    private Path linearInterpolateLinePath(Pose start, Pose end) {
+        Path path =  new Path(new BezierLine(
+                new Point(start),
+                new Point(end)
+        ));
+        path.setLinearHeadingInterpolation(start.getHeading(), end.getHeading());
+        return path;
     }
 
     public Pose getSpecimenScorePose(int specimenNum) {
@@ -229,13 +256,19 @@ public class SpecimenAuto extends OpMode {
         for (Task task : auto.getTasks()) {
             telemetry.addLine("     " + task.getClass().getSimpleName());
         }
+
+        if (opmodeTimer.getElapsedTime() > 29500 && !over) {
+            over = true;
+            taskManager.clearTasks();
+            taskManager.runTask(new B_StowSample());
+        }
     }
 
     /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
     @Override
     public void loop() {
         normalLoop();
-        auto.loop();
+//        auto.loop();
 
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -276,16 +309,25 @@ public class SpecimenAuto extends OpMode {
         reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState);
     }
 
-    public TaskSequence scoreSpecimen() {
+    public TaskSequence scoreSpecimen(Pose startPose) {
+        DelayTask delay = new DelayTask(1200);
+        B_DepositSpecimenPose depositSpecimenPose = new B_DepositSpecimenPose();
+        FollowPathTask followPathTask = scoreSpecimenFollowPathTask(startPose);
         return new TaskSequence()
-                .then(scoreSpecimenFollowPathTask(), new B_DepositSpecimenPose())
-                .then(new B_ReleaseSpecimenAndIntakeSpecimen());
+                .thenAsync(followPathTask, depositSpecimenPose, delay)
+                .thenWaitUntil(() -> (delay.isFinished() && follower.getPose().getX() > SCORE_X - 1.5) || followPathTask.isFinished())
+                .thenAsync(new B_ReleaseSpecimenAndIntakeSpecimen()).thenDelay(100);
+    }
+
+    public TaskSequence scoreSpecimen() {
+        return scoreSpecimen(intakePose);
     }
 
     public TaskSequence intakeSpecimen() {
-        return new TaskSequence(new B_IntakeSpecimen(), new FollowPathTask(follower, getIntakePathChain()))
-                .thenDelay(250)
-                .then(new B_GrabSpecimenAndStow()).thenDelay(150);
+        return new TaskSequence()
+                .thenAsync(new B_IntakeSpecimen(), new FollowPathTask(follower, getIntakePathChain()))
+                .thenWaitUntil(() -> follower.getPose().getX() < intakePose.getX() + 1 || !follower.isBusy())
+                .thenAsync(new B_GrabSpecimenAndStow()).thenDelay(100);
     }
 
     public TaskSequence specimenLoop(int count) {
@@ -306,10 +348,9 @@ public class SpecimenAuto extends OpMode {
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.DEPOSIT_SPECIMEN);
         A_SetWristHingePose wristHingeOut = new A_SetWristHingePose(WristHingePose.DEPOSIT_SPECIMEN);
         A_SetWristTwistPose wristTwistOut = new A_SetWristTwistPose(WristTwistPose.DEPOSIT_SPECIMEN);
-        taskManager.runTask(new TaskSequence(closeClaw)
-            .thenDelay(500)
-            .then(rotateSlidesUp,elbowOut)
-            .then(wristHingeOut, wristTwistOut)
+        taskManager.runTask(new TaskSequence(closeClaw, wristHingeOut)
+            .then(rotateSlidesUp, wristTwistOut)
+            .then(elbowOut)
         );
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
@@ -320,23 +361,26 @@ public class SpecimenAuto extends OpMode {
         FollowerWrapper.setFollower(follower);
         buildPaths();
 
-        auto.then(new B_DepositSpecimenPose(), scoreSpecimenFollowPathTask(startPose))
+        auto.then(scoreSpecimen(startPose))
+                // Intake specimen feels like it shouldn't be necessary here, but
+                // maybe the wait for movement isn't working in B_ReleaseSpecAndIntakeSpec
                 .then(new B_IntakeSpecimen(), new FollowPathTask(follower, pushPop))
-                .thenFollowPath(follower, pushToIntake)
-                .thenDelay(250)
+                .thenDelay(150)
                 .then(new B_GrabSpecimenAndStow())
-                .then(specimenLoop(4));
+                .then(specimenLoop(4))
+                .then(intakeSpecimen());
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
     public void init_loop() {
+        taskManager.loop();
+
         elbowActuator.loop();
         wristHingeActuator.loop();
         wristTwistActuator.loop();
         armRotActuator.loop();
         clawActuator.loop();
-        taskManager.loop();
     }
 
     /** This method is called once at the start of the OpMode.
@@ -344,9 +388,7 @@ public class SpecimenAuto extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
-        A_SetElbowPose stowElbow = new A_SetElbowPose(ElbowPose.STOW_SAMPLE);
-        taskManager.runTask(stowElbow);
-        auto.start();
+        taskManager.runTask(auto);
     }
 
     /** We do not use this because everything should automatically disable **/

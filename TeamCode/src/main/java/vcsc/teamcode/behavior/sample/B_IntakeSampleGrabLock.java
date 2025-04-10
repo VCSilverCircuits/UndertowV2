@@ -1,13 +1,11 @@
-package vcsc.teamcode.behavior.specimen;
+package vcsc.teamcode.behavior.sample;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
-import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
-import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationAngle;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 import vcsc.teamcode.cmp.claw.ClawPose;
 import vcsc.teamcode.cmp.claw.ClawState;
@@ -24,47 +22,45 @@ import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistPose;
 import vcsc.teamcode.config.GlobalPose;
 
-public class B_GrabSpecimenAndStow extends Behavior {
+public class B_IntakeSampleGrabLock extends Behavior {
     TaskSequence _taskSequence;
 
-    public B_GrabSpecimenAndStow() {
+    public B_IntakeSampleGrabLock() {
         super();
 
         addRequirement(ElbowState.class);
         addRequirement(WristHingeState.class);
         addRequirement(WristTwistState.class);
-        addRequirement(ArmExtensionState.class);
+//        addRequirement(ArmExtensionState.class);
         addRequirement(ArmRotationState.class);
         addRequirement(ClawState.class);
 
 
         // Establish needed actions
-        A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.STOW_SPECIMEN);
-        A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.STOW_SPECIMEN);
-        A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SPECIMEN);
-        A_SetClawPose closeClaw = new A_SetClawPose(ClawPose.CLOSED);
+        A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_GRAB);
+        A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_GRAB);
+        A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.INTAKE_SAMPLE_GRAB);
+        A_SetClawPose clawClose = new A_SetClawPose(ClawPose.INTAKE_SAMPLE_GRAB);
 
-        A_SetArmRotationAngle rotateArmIntoWall  = new A_SetArmRotationAngle(ArmRotationPose.INTAKE_SPECIMEN.getAngle() + 2);
-        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SPECIMEN);
-        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.STOW_SPECIMEN);
+        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.INTAKE_SAMPLE_GRAB);
+        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.INTAKE_SAMPLE_GRAB);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(closeClaw)
-                .thenDelay(50)
-                .then(elbowOut)
-                .thenDelay(20).then(
-                    rotateArmBack,
-                    extendSlides,
-                    hingeBack,
-                    twist
-        );
+        _taskSequence.thenDelay(300).then(
+                        rotateArmBack,
+//                        extendSlides,
+                        elbowOut,
+                        hingeBack
+                )
+                .thenDelay(150)
+                .then(clawClose);
     }
 
     @Override
     public boolean start() {
         super.start();
-        RobotState.getInstance().setMode(GlobalPose.STOW_SPECIMEN);
+        RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_GRAB);
         return _taskSequence.start();
     }
 

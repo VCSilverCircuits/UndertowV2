@@ -15,6 +15,7 @@ import vcsc.teamcode.behavior.sample.B_DepositSampleUpper;
 import vcsc.teamcode.behavior.sample.B_IntakeSample;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleHover;
+import vcsc.teamcode.behavior.sample.B_LockOn;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.behavior.sample.B_StowSampleAfterIntake;
@@ -88,6 +89,7 @@ public class TeleTest extends BaseOpMode {
         BindingSet GP1_intakeSampleBindings = new BindingSet(GP1_defaultBindings);
         GP1_intakeSampleBindings.bindTask(GamepadButton.RIGHT_TRIGGER, new B_StowSampleAfterIntake());
         GP1_intakeSampleBindings.bindTask(GamepadButton.A, new B_IntakeSampleGrab());
+        GP1_intakeSampleBindings.bindTask(GamepadButton.DPAD_DOWN, new B_LockOn());
 
         bindingManager.setGamepad1Bindings(GlobalPose.INTAKE_SAMPLE_HOVER, GP1_intakeSampleBindings);
         bindingManager.setGamepad1Bindings(GlobalPose.INTAKE_SAMPLE_STRAIGHT, GP1_intakeSampleBindings);

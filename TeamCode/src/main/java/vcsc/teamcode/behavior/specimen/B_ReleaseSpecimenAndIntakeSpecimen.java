@@ -1,5 +1,8 @@
 package vcsc.teamcode.behavior.specimen;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
@@ -14,6 +17,7 @@ import vcsc.teamcode.cmp.claw.actions.A_SetClawPose;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
+import vcsc.teamcode.cmp.robot.FollowerWrapper;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
@@ -25,6 +29,8 @@ import vcsc.teamcode.config.GlobalPose;
 
 public class B_ReleaseSpecimenAndIntakeSpecimen extends Behavior {
     TaskSequence _taskSequence;
+    Pose initialPose;
+    Follower follower;
 
     public B_ReleaseSpecimenAndIntakeSpecimen() {
         super();
@@ -46,21 +52,24 @@ public class B_ReleaseSpecimenAndIntakeSpecimen extends Behavior {
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.INTAKE_SPECIMEN);
         A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.INTAKE_SPECIMEN);
 
+        follower = FollowerWrapper.getFollower();
+
         // Create Task Sequence
         _taskSequence = new TaskSequence();
         _taskSequence.then(openClaw).then(
-                rotateArmBack,
                 extendSlides,
                 elbowOut,
                 hingeBack,
                 twist
-        );
+        ).thenWaitUntil(() -> initialPose.getX() - follower.getPose().getX() > 2)
+                .then(rotateArmBack);
     }
 
     @Override
     public boolean start() {
         super.start();
         RobotState.getInstance().setMode(GlobalPose.INTAKE_SPECIMEN);
+        initialPose = follower.getPose();
         return _taskSequence.start();
     }
 
