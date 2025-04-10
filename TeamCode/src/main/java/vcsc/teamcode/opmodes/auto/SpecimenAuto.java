@@ -95,31 +95,26 @@ public class SpecimenAuto extends OpMode {
      * Lets assume our robot is 18 by 18 inches
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
-    private final double SCORE_X = 40;
-    private final double SCORE_Y_INITIAL = 64;
-    private final double SCORE_SPACING = 2;
+    private static final double SCORE_X = 40;
+    private static final double SCORE_Y_INITIAL = 64;
+    private static final double SCORE_SPACING = 2;
 
     private int specimenNum = 0;
 
+    private static final double PUSH_X = 24;
+
     /** Start Pose of our robot */
     private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
-    private final Pose scorePosePreload = new Pose(startPose.getX(), 126, Math.toRadians(270));
-
-    private final Pose grabSpikeMark1Pose = new Pose(24, 35, Math.toRadians(325));
-    private final Pose grabSpikeMark1ControlPoint = new Pose(24, 56, Math.toRadians(325));
-    private final Pose grabSpikeMark2Pose = new Pose(24, 24, Math.toRadians(325));
-    private final Pose dropSpikeMarkPose = new Pose(grabSpikeMark2Pose.getX(), grabSpikeMark2Pose.getY(), Math.toRadians(325));
-
-    private final Pose setupPushPose = new Pose(58, 6.25, Math.toRadians(0));
-    private final Pose setupPushControlPoint = new Pose(50, 24, Math.toRadians(0));
-    private final Pose pushedPose = new Pose(21, setupPushPose.getY(), Math.toRadians(0));
 
     private final Pose intakePose = new Pose(7, 33, Math.toRadians(0));
-    private final Pose intake1ControlPoint = new Pose(25, 26, Math.toRadians(0));
+
+    private final Pose push1Pose = new Pose(PUSH_X, 24, Math.toRadians(0));
+    private final Pose push2Pose = new Pose(PUSH_X, 14, Math.toRadians(0));
+    private final Pose push3Pose = new Pose(PUSH_X, 9, Math.toRadians(0));
 
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
-    PathChain ONE_spikeMark1Path, TWO_spikeMark1Drop, THREE_spikeMark2Path, FOUR_spikeMark2Drop, FIVE_pushPath, pushPop;
+    PathChain pushPop, pushToIntake;
 
     TaskSequence auto = new TaskSequence();
 
@@ -143,93 +138,39 @@ public class SpecimenAuto extends OpMode {
          * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
 
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-        ONE_spikeMark1Path = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        startPose,
-                        grabSpikeMark1ControlPoint,
-                        grabSpikeMark1Pose
-                )).setLinearHeadingInterpolation(startPose.getHeading(), grabSpikeMark1Pose.getHeading()).build();
 
-        TWO_spikeMark1Drop = linearInterpolateLine(grabSpikeMark1Pose, dropSpikeMarkPose);
-        THREE_spikeMark2Path = linearInterpolateLine(dropSpikeMarkPose, grabSpikeMark2Pose);
-        FOUR_spikeMark2Drop = linearInterpolateLine(grabSpikeMark2Pose, dropSpikeMarkPose);
-
-            pushPop = follower.pathBuilder()
-//                        .addPath(
-//                                // Line 1
-//                                new BezierLine(
-//                                        new Point(7.000, 66.000, Point.CARTESIAN),
-//                                        new Point(45.000, 64.000, Point.CARTESIAN)
-//                                )
-//                        )
-//                        .setConstantHeadingInterpolation(Math.toRadians(180))
-//                        .addPath(
-//                                // Line 2
-//                                new BezierCurve(
-//                                        new Point(45.000, 64.000, Point.CARTESIAN),
-//                                        new Point(24.000, 56.000, Point.CARTESIAN),
-//                                        new Point(23.883, 35.298, Point.CARTESIAN)
-//                                )
-//                        )
-//                        .setConstantHeadingInterpolation(Math.toRadians(180))
-                    .addPath(new BezierCurve(
-                new Point(23.883, 35.298, Point.CARTESIAN),
-                new Point(101.678, 27.922, Point.CARTESIAN),
-                new Point(24.234, 23.707, Point.CARTESIAN)
-        )
-      )
-      .setConstantHeadingInterpolation(Math.toRadians(180))
-                .addPath(
-                        // Line 4
-                        new BezierCurve(
-                                new Point(24.234, 23.707, Point.CARTESIAN),
-                                new Point(106.946, 21.249, Point.CARTESIAN),
-                                new Point(23.532, 13.171, Point.CARTESIAN)
-                        )
-                )
-                    .setConstantHeadingInterpolation(Math.toRadians(180))
-                    .addPath(
-                            new BezierCurve(
-                                    new Point(23.532, 13.171, Point.CARTESIAN),
-                                    new Point(108.527, 8.429, Point.CARTESIAN),
-                                    new Point(24.410, 9.307, Point.CARTESIAN)
-                            )
-                    )
-                    .setConstantHeadingInterpolation(Math.toRadians(180)).build();
-        Path setupPush = new Path(
+        Path push1 = new Path(
                 new BezierCurve(
-                        dropSpikeMarkPose,
-                        setupPushControlPoint,
-                        setupPushPose
-                )
-        );
+                        new Point(getSpecimenScorePose(0)),
+                        new Point(26, 35, Point.CARTESIAN),
+                        new Point(28, 30, Point.CARTESIAN),
+                        new Point(120, 28, Point.CARTESIAN),
+                        new Point(push1Pose)
+        ));
 
-        setupPush.setLinearHeadingInterpolation(dropSpikeMarkPose.getHeading(), setupPushPose.getHeading());
-
-        Path pushPathSegment = new Path(
+        Path push2 = new Path(
                 new BezierCurve(
-                        setupPushPose,
-                        pushedPose
-                )
-        );
-
-        pushPathSegment.setLinearHeadingInterpolation(setupPushPose.getHeading(), pushedPose.getHeading());
-
-        Path setupIntake1 = new Path(
+                        new Point(push1Pose),
+                        new Point(108, (2*push1Pose.getY() + push2Pose.getY())/3, Point.CARTESIAN),
+                        new Point(push2Pose)
+                ));
+        Path push3 = new Path(
                 new BezierCurve(
-                        pushedPose,
-                        intake1ControlPoint,
-                        intakePose
-                )
-        );
+                        new Point(push2Pose),
+                        new Point(108, (2*push2Pose.getY() + push3Pose.getY())/3, Point.CARTESIAN),
+                        new Point(push3Pose)
+                ));
 
-        setupIntake1.setLinearHeadingInterpolation(pushedPose.getHeading(), intakePose.getHeading());
+        pushPop = follower.pathBuilder()
+                .addPath(push1)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(push2)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(push3)
+                .setConstantHeadingInterpolation(Math.toRadians(0)).build();
 
-        FIVE_pushPath = follower.pathBuilder()
-                .addPath(setupPush)
-                .addPath(pushPathSegment)
-                .addPath(setupIntake1)
-                .build();
+        pushToIntake = linearInterpolateLine(push3Pose, intakePose);
+
     }
 
     private PathChain linearInterpolateLine(Pose start, Pose end) {
@@ -336,13 +277,14 @@ public class SpecimenAuto extends OpMode {
     }
 
     public TaskSequence scoreSpecimen() {
-        return new TaskSequence(scoreSpecimenFollowPathTask(), new B_DepositSpecimenPose())
+        return new TaskSequence()
+                .then(scoreSpecimenFollowPathTask(), new B_DepositSpecimenPose())
                 .then(new B_ReleaseSpecimenAndIntakeSpecimen());
     }
 
     public TaskSequence intakeSpecimen() {
         return new TaskSequence(new B_IntakeSpecimen(), new FollowPathTask(follower, getIntakePathChain()))
-                .thenDelay(500)
+                .thenDelay(250)
                 .then(new B_GrabSpecimenAndStow()).thenDelay(150);
     }
 
@@ -365,8 +307,10 @@ public class SpecimenAuto extends OpMode {
         A_SetWristHingePose wristHingeOut = new A_SetWristHingePose(WristHingePose.DEPOSIT_SPECIMEN);
         A_SetWristTwistPose wristTwistOut = new A_SetWristTwistPose(WristTwistPose.DEPOSIT_SPECIMEN);
         taskManager.runTask(new TaskSequence(closeClaw)
-            .thenDelay(200)
-            .then(rotateSlidesUp, elbowOut, wristHingeOut, wristTwistOut));
+            .thenDelay(500)
+            .then(rotateSlidesUp,elbowOut)
+            .then(wristHingeOut, wristTwistOut)
+        );
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
@@ -378,7 +322,8 @@ public class SpecimenAuto extends OpMode {
 
         auto.then(new B_DepositSpecimenPose(), scoreSpecimenFollowPathTask(startPose))
                 .then(new B_IntakeSpecimen(), new FollowPathTask(follower, pushPop))
-                .thenDelay(500)
+                .thenFollowPath(follower, pushToIntake)
+                .thenDelay(250)
                 .then(new B_GrabSpecimenAndStow())
                 .then(specimenLoop(4));
     }
