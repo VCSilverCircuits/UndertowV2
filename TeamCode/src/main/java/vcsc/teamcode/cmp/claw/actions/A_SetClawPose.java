@@ -36,6 +36,9 @@ public class A_SetClawPose extends Action<ClawState> {
         if (state.idle() && state.getPosition() == pose.getPos() && timer.time() > delay) {
             end(); // End the action if the pose is reached
         }
+        if (timer.time() > delay) { // TODO: Make this less scuffed
+            end();
+        }
     }
 
     @Override

@@ -113,12 +113,19 @@ public class BaseOpMode extends OpMode {
     }
 
     @Override
+    public void init_loop() {
+        super.init_loop();
+        this.loop();
+    }
+
+    @Override
     public void loop() {
         System.out.println("===================================");
         System.out.println("Overall States:");
         System.out.println("Robot Mode: " + robotState.getMode());
         System.out.println("Claw Pose: " + clawState.getPose());
         System.out.println("Arm Extension Pose: " + armExtState.getTargetPose());
+        System.out.println("Ext actuator touch sensor: " + armExtActuator.isTouching());
         System.out.println("Arm Rotation Pose: " + armRotState.getTargetPose());
         System.out.println("Elbow Pose: " + elbowState.getPose());
         System.out.println("Wrist Hinge Pose: " + wristHingeState.getPose());

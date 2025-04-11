@@ -57,7 +57,7 @@
                 port="0" />
             <RevTouchSensor
                 name="slideLimitSensor"
-                bus="3"
+                bus="0"
                 port="0" />
             <goBILDA5202SeriesMotor
                 name="armRotation"

@@ -23,8 +23,7 @@ import vcsc.core.abstracts.task.Task;
 import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
-import vcsc.teamcode.behavior.sample.B_IntakeSample;
-import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
+import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
 import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
@@ -68,13 +67,36 @@ import vcsc.teamcode.config.GlobalConfig;
 @Autonomous(name = "Specimen Auto", group = "Auto Test")
 public class SpecimenAuto extends OpMode {
 
-    private Follower follower;
-    private Timer opmodeTimer;
-
+    private static final double SCORE_X = 41;
+    private static final double SCORE_Y_INITIAL = 80;
+    private static final double SCORE_SPACING = -1.5;
+    private static final double PUSH_X = 24;
+    private static final double PRE_PUSH_X = 57;
+    /**
+     * Start Pose of our robot
+     */
+    private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
+    private final Pose intakePose = new Pose(7, 33, Math.toRadians(0));
+    private final Pose push1Pose = new Pose(PUSH_X, 24, Math.toRadians(0));
+    private final Pose push2Pose = new Pose(PUSH_X, 14, Math.toRadians(0));
+    private final Pose prePush2Pose = new Pose(PRE_PUSH_X, 14, Math.toRadians(0));
+    private final Pose push3Pose = new Pose(PUSH_X, 9.1, Math.toRadians(0));
+    private final Pose prePush3Pose = new Pose(PRE_PUSH_X, 9.3, Math.toRadians(0));
+    private final Pose basketScorePose = new Pose(7, 115, Math.toRadians(90));
     protected MultipleTelemetry telem;
     protected TaskManager taskManager = TaskManager.getInstance();
     protected RobotState robotState = RobotState.getInstance();
     protected ClawState clawState;
+
+
+    /* Create and Define Poses + Paths
+     * Poses are built with three constructors: x, y, and heading (in Radians).
+     * Pedro uses 0 - 144 for x and y, with 0, 0 being on the bottom left.
+     * (For Into the Deep, this would be Blue Observation Zone (0,0) to Red Observation Zone (144,144).)
+     * Even though Pedro uses a different coordinate system than RR, you can convert any roadrunner pose by adding +72 both the x and y.
+     * This visualizer is very easy to use to find and create paths/pathchains/poses: <https://pedro-path-generator.vercel.app/>
+     * Lets assume our robot is 18 by 18 inches
+     * Lets assume the Robot is facing the human player and we want to score in the bucket */
     protected ArmExtensionState armExtState;
     protected ArmRotationState armRotState;
     protected ElbowState elbowState;
@@ -86,47 +108,18 @@ public class SpecimenAuto extends OpMode {
     ElbowActuator elbowActuator;
     WristHingeActuator wristHingeActuator;
     WristTwistActuator wristTwistActuator;
-
-
-    /* Create and Define Poses + Paths
-     * Poses are built with three constructors: x, y, and heading (in Radians).
-     * Pedro uses 0 - 144 for x and y, with 0, 0 being on the bottom left.
-     * (For Into the Deep, this would be Blue Observation Zone (0,0) to Red Observation Zone (144,144).)
-     * Even though Pedro uses a different coordinate system than RR, you can convert any roadrunner pose by adding +72 both the x and y.
-     * This visualizer is very easy to use to find and create paths/pathchains/poses: <https://pedro-path-generator.vercel.app/>
-     * Lets assume our robot is 18 by 18 inches
-     * Lets assume the Robot is facing the human player and we want to score in the bucket */
-
-    private static final double SCORE_X = 41;
-    private static final double SCORE_Y_INITIAL = 80;
-    private static final double SCORE_SPACING = -1.5;
-
+    /* These are our Paths and PathChains that we will define in buildPaths() */
+    PathChain pushPop, intakeToBasket;
+    TaskSequence auto = new TaskSequence();
+    private Follower follower;
+    private Timer opmodeTimer;
     private int specimenNum = 0;
-
-    private static final double PUSH_X = 24;
-    private static final double PRE_PUSH_X = 57;
-
-    /** Start Pose of our robot */
-    private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
-
-    private final Pose intakePose = new Pose(7, 33, Math.toRadians(0));
-
-    private final Pose push1Pose = new Pose(PUSH_X, 24, Math.toRadians(0));
-    private final Pose push2Pose = new Pose(PUSH_X, 14, Math.toRadians(0));
-    private final Pose prePush2Pose = new Pose(PRE_PUSH_X, 14, Math.toRadians(0));
-    private final Pose push3Pose = new Pose(PUSH_X, 9.1, Math.toRadians(0));
-    private final Pose prePush3Pose = new Pose(PRE_PUSH_X, 9.3, Math.toRadians(0));
-
     private boolean over = false;
 
-
-    /* These are our Paths and PathChains that we will define in buildPaths() */
-    PathChain pushPop;
-
-    TaskSequence auto = new TaskSequence();
-
-    /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
-     * It is necessary to do this so that all the paths are built before the auto starts. **/
+    /**
+     * Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
+     * It is necessary to do this so that all the paths are built before the auto starts.
+     **/
     public void buildPaths() {
 
         /* There are two major types of paths components: BezierCurves and BezierLines.
@@ -153,12 +146,12 @@ public class SpecimenAuto extends OpMode {
                         new Point(28, 30, Point.CARTESIAN),
                         new Point(105, 28, Point.CARTESIAN),
                         new Point(push1Pose)
-        ));
+                ));
 
         Path prePush2 = new Path(
                 new BezierCurve(
                         new Point(push1Pose),
-                            new Point(58, 26, Point.CARTESIAN),
+                        new Point(58, 26, Point.CARTESIAN),
                         new Point(prePush2Pose)
                 ));
 
@@ -189,6 +182,8 @@ public class SpecimenAuto extends OpMode {
                 .addPath(push3ToIntake)
                 .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
+
+        intakeToBasket = linearInterpolateLine(intakePose, basketScorePose);
     }
 
     private PathChain linearInterpolateLine(Pose start, Pose end) {
@@ -199,7 +194,7 @@ public class SpecimenAuto extends OpMode {
     }
 
     private Path linearInterpolateLinePath(Pose start, Pose end) {
-        Path path =  new Path(new BezierLine(
+        Path path = new Path(new BezierLine(
                 new Point(start),
                 new Point(end)
         ));
@@ -236,6 +231,7 @@ public class SpecimenAuto extends OpMode {
     public FollowPathTask scoreSpecimenFollowPathTask(Pose startPose) {
         return new FollowPathTask(follower, getSpecimenScorePathChain(startPose));
     }
+
     public FollowPathTask scoreSpecimenFollowPathTask() {
         return new FollowPathTask(follower, getSpecimenScorePathChain());
     }
@@ -264,7 +260,9 @@ public class SpecimenAuto extends OpMode {
         }
     }
 
-    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
+    /**
+     * This is the main loop of the OpMode, it will run repeatedly after clicking "Play".
+     **/
     @Override
     public void loop() {
         normalLoop();
@@ -339,7 +337,9 @@ public class SpecimenAuto extends OpMode {
         return sequence;
     }
 
-    /** This method is called once at the init of the OpMode. **/
+    /**
+     * This method is called once at the init of the OpMode.
+     **/
     @Override
     public void init() {
         normalInit();
@@ -349,8 +349,8 @@ public class SpecimenAuto extends OpMode {
         A_SetWristHingePose wristHingeOut = new A_SetWristHingePose(WristHingePose.DEPOSIT_SPECIMEN);
         A_SetWristTwistPose wristTwistOut = new A_SetWristTwistPose(WristTwistPose.DEPOSIT_SPECIMEN);
         taskManager.runTask(new TaskSequence(closeClaw, wristHingeOut)
-            .then(rotateSlidesUp, wristTwistOut)
-            .then(elbowOut)
+                .then(rotateSlidesUp, wristTwistOut)
+                .then(elbowOut)
         );
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
@@ -368,10 +368,16 @@ public class SpecimenAuto extends OpMode {
                 .thenDelay(150)
                 .then(new B_GrabSpecimenAndStow())
                 .then(specimenLoop(4))
+                .then(intakeSpecimen())
+                // TODO: Go to janky pose here...
+                .thenFollowPath(follower, intakeToBasket)
+                .then(new B_ReleaseSampleAndStow())
                 .then(intakeSpecimen());
     }
 
-    /** This method is called continuously after Init while waiting for "play". **/
+    /**
+     * This method is called continuously after Init while waiting for "play".
+     **/
     @Override
     public void init_loop() {
         taskManager.loop();
@@ -383,15 +389,19 @@ public class SpecimenAuto extends OpMode {
         clawActuator.loop();
     }
 
-    /** This method is called once at the start of the OpMode.
-     * It runs all the setup actions, including building paths and starting the path system **/
+    /**
+     * This method is called once at the start of the OpMode.
+     * It runs all the setup actions, including building paths and starting the path system
+     **/
     @Override
     public void start() {
         opmodeTimer.resetTimer();
         taskManager.runTask(auto);
     }
 
-    /** We do not use this because everything should automatically disable **/
+    /**
+     * We do not use this because everything should automatically disable
+     **/
     @Override
     public void stop() {
     }

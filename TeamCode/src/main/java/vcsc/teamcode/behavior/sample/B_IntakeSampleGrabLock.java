@@ -47,14 +47,15 @@ public class B_IntakeSampleGrabLock extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.thenDelay(300).then(
+        _taskSequence.thenDelay(500).then(
                         rotateArmBack,
 //                        extendSlides,
                         elbowOut,
                         hingeBack
                 )
-                .thenDelay(150)
-                .then(clawClose);
+                .thenDelay(230)
+                .then(clawClose)
+                .thenDelay(80);
     }
 
     @Override
@@ -74,5 +75,9 @@ public class B_IntakeSampleGrabLock extends Behavior {
         return _taskSequence.isFinished();
     }
 
-
+    @Override
+    public void cancel() {
+        super.cancel();
+        _taskSequence.cancel();
+    }
 }

@@ -13,13 +13,9 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-import vcsc.core.abstracts.power.PowerManager;
-import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.abstracts.templates.poweredPIDF.PoweredPIDFActuator;
 import vcsc.core.util.DcMotorGroup;
 import vcsc.core.util.GlobalTelemetry;
-import vcsc.teamcode.cmp.robot.RobotState;
-import vcsc.teamcode.config.GlobalPose;
 
 public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState, ArmExtensionPose> {
     // Three 5:1 ultraplanetary gearbox
@@ -38,7 +34,7 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
         DcMotorEx extensionLeft = hardwareMap.get(DcMotorEx.class, "armExtensionLeft");
         DcMotorEx extensionCenter = hardwareMap.get(DcMotorEx.class, "armExtensionCenter");
         DcMotorEx extensionRight = hardwareMap.get(DcMotorEx.class, "armExtensionRight");
-//        touchSensor = hardwareMap.get(TouchSensor.class, "slideLimitSensor");
+        touchSensor = hardwareMap.get(TouchSensor.class, "slideLimitSensor");
         extensionLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         extensionCenter.setDirection(DcMotorSimple.Direction.REVERSE);
         motors = new DcMotorGroup(extensionLeft, extensionCenter, extensionRight);
@@ -76,8 +72,8 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
     public void reset() {
         motors.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motors.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        controller.setSetPoint(0);
     }
+
 
     @Override
     protected void loopPID() {

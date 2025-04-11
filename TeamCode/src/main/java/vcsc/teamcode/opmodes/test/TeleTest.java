@@ -20,9 +20,10 @@ import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.behavior.sample.B_StowSampleAfterIntake;
 import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
+import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
 import vcsc.teamcode.behavior.specimen.B_IntakeSpecimen;
 import vcsc.teamcode.behavior.specimen.B_ReleaseSpecimenAndStow;
-import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
+import vcsc.teamcode.cmp.arm.extension.actions.A_FullyRetractSlides;
 import vcsc.teamcode.cmp.claw.actions.A_ToggleClaw;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
@@ -176,6 +177,7 @@ public class TeleTest extends BaseOpMode {
         GP2_defaultBindings.bindTask(GamepadButton.Y, new B_HangPre());
         GP2_defaultBindings.bindTask(GamepadButton.A, new B_HangLv2Both());
         GP2_defaultBindings.bindTask(GamepadButton.LEFT_TRIGGER, new A_ToggleClaw());
+        GP2_defaultBindings.bindTask(GamepadButton.DPAD_LEFT, new A_FullyRetractSlides(0.7));
 
         //endregion
 
@@ -209,7 +211,7 @@ public class TeleTest extends BaseOpMode {
         //endregion
 
         follower.setStartingPose(new Pose(0, 0, 0));
-        taskManager.runTask(new B_StowSample());
+        taskManager.runTask(new TaskSequence(new A_FullyRetractSlides(0.75)).then(new B_StowSample()));
     }
 
     @Override
@@ -225,6 +227,7 @@ public class TeleTest extends BaseOpMode {
         }
 
     }
+
 
     @Override
     public void start() {
