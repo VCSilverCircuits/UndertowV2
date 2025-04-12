@@ -108,6 +108,14 @@ public enum GlobalPose implements RobotMode {
             0.15,
             0.38,
             1.0
+    ),
+    PRE_LV3_HANG(
+        30.0,
+        0.0,
+        0.38,
+        0.13,
+        0.38,
+        1.0
     );
     private final Double armExtensionLength;
     private final Double armRotationAngle;

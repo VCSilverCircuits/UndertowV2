@@ -8,7 +8,8 @@ import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.gamepad.BindingSet;
 import vcsc.core.util.gamepad.GamepadButton;
 import vcsc.teamcode.behavior.global.B_CancelAll;
-import vcsc.teamcode.behavior.hang.B_HangLv2Both;
+import vcsc.teamcode.behavior.hang.B_Hang_RetractAndRelease;
+import vcsc.teamcode.behavior.hang.B_HangLv3Pre;
 import vcsc.teamcode.behavior.hang.B_HangPre;
 import vcsc.teamcode.behavior.sample.B_DepositSampleLower;
 import vcsc.teamcode.behavior.sample.B_DepositSampleUpper;
@@ -172,7 +173,8 @@ public class TeleTest extends BaseOpMode {
         bindingManager.setGamepad2Bindings(GlobalPose.DEFAULT, GP2_defaultBindings);
 
         GP2_defaultBindings.bindTask(GamepadButton.Y, new B_HangPre());
-        GP2_defaultBindings.bindTask(GamepadButton.A, new B_HangLv2Both());
+        GP2_defaultBindings.bindTask(GamepadButton.A, new B_Hang_RetractAndRelease());
+        GP2_defaultBindings.bindTask(GamepadButton.X, new B_HangLv3Pre());
         GP2_defaultBindings.bindTask(GamepadButton.LEFT_TRIGGER, new A_ToggleClaw());
 
         //endregion

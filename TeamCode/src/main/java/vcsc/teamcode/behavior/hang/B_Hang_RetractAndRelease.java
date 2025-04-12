@@ -5,10 +5,10 @@ import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.config.GlobalPose;
 
-public class B_HangLv2Both extends Behavior {
+public class B_Hang_RetractAndRelease extends Behavior {
     TaskSequence _taskSequence;
 
-    public B_HangLv2Both() {
+    public B_Hang_RetractAndRelease() {
         super();
 
         B_HangLv2P2 hangLv2P2 = new B_HangLv2P2();

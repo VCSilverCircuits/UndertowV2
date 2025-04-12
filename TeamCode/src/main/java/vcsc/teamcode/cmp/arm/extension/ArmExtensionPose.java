@@ -18,7 +18,9 @@ public enum ArmExtensionPose implements PoweredPIDFPose {
     DEPOSIT_SPECIMEN(GlobalPose.DEPOSIT_SPECIMEN),
     HANG_PRE(GlobalPose.HANG_PRE),
     HANG_LV2_P2(GlobalPose.HANG_LV2_P2),
-    HANG_RELEASE(GlobalPose.HANG_RELEASE);
+    HANG_RELEASE(GlobalPose.HANG_RELEASE),
+    PRE_LV3_HANG(GlobalPose.PRE_LV3_HANG);
+
 
     final Double length;
 
