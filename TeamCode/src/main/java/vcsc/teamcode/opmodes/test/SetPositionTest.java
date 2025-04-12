@@ -11,6 +11,7 @@ import vcsc.teamcode.cmp.claw.actions.A_SetClawPosition;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowAngle;
 import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingeAngle;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistAngle;
+import vcsc.teamcode.config.GlobalPose;
 import vcsc.teamcode.opmodes.base.BaseOpMode;
 
 
@@ -24,6 +25,7 @@ public class SetPositionTest extends BaseOpMode {
     public static double wristTwistAngle = 0.5;
     public static boolean clawOpen = true;
     public static double clawPosition = 0.5;
+    public static GlobalPose pose;
 
     A_SetArmExtensionLength armExtensionLengthAction;
     A_SetArmRotationAngle armRotationAngleAction;

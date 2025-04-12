@@ -17,13 +17,14 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import vcsc.core.abstracts.state.StateRegistry;
+import vcsc.core.abstracts.task.DelayTask;
 import vcsc.core.abstracts.task.FollowPathTask;
 import vcsc.core.abstracts.task.Task;
 import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
-import vcsc.teamcode.behavior.sample.B_IntakeSample;
-import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
+import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
+import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
 import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
 import vcsc.teamcode.behavior.specimen.B_IntakeSpecimen;
@@ -66,13 +67,36 @@ import vcsc.teamcode.config.GlobalConfig;
 @Autonomous(name = "Specimen Auto", group = "Auto Test")
 public class SpecimenAuto extends OpMode {
 
-    private Follower follower;
-    private Timer opmodeTimer;
-
+    private static final double SCORE_X = 41;
+    private static final double SCORE_Y_INITIAL = 80;
+    private static final double SCORE_SPACING = -1.5;
+    private static final double PUSH_X = 24;
+    private static final double PRE_PUSH_X = 57;
+    /**
+     * Start Pose of our robot
+     */
+    private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
+    private final Pose intakePose = new Pose(7, 33, Math.toRadians(0));
+    private final Pose push1Pose = new Pose(PUSH_X, 24, Math.toRadians(0));
+    private final Pose push2Pose = new Pose(PUSH_X, 14, Math.toRadians(0));
+    private final Pose prePush2Pose = new Pose(PRE_PUSH_X, 14, Math.toRadians(0));
+    private final Pose push3Pose = new Pose(PUSH_X, 9.1, Math.toRadians(0));
+    private final Pose prePush3Pose = new Pose(PRE_PUSH_X, 9.3, Math.toRadians(0));
+    private final Pose basketScorePose = new Pose(7, 115, Math.toRadians(90));
     protected MultipleTelemetry telem;
     protected TaskManager taskManager = TaskManager.getInstance();
     protected RobotState robotState = RobotState.getInstance();
     protected ClawState clawState;
+
+
+    /* Create and Define Poses + Paths
+     * Poses are built with three constructors: x, y, and heading (in Radians).
+     * Pedro uses 0 - 144 for x and y, with 0, 0 being on the bottom left.
+     * (For Into the Deep, this would be Blue Observation Zone (0,0) to Red Observation Zone (144,144).)
+     * Even though Pedro uses a different coordinate system than RR, you can convert any roadrunner pose by adding +72 both the x and y.
+     * This visualizer is very easy to use to find and create paths/pathchains/poses: <https://pedro-path-generator.vercel.app/>
+     * Lets assume our robot is 18 by 18 inches
+     * Lets assume the Robot is facing the human player and we want to score in the bucket */
     protected ArmExtensionState armExtState;
     protected ArmRotationState armRotState;
     protected ElbowState elbowState;
@@ -84,47 +108,18 @@ public class SpecimenAuto extends OpMode {
     ElbowActuator elbowActuator;
     WristHingeActuator wristHingeActuator;
     WristTwistActuator wristTwistActuator;
-
-
-    /* Create and Define Poses + Paths
-     * Poses are built with three constructors: x, y, and heading (in Radians).
-     * Pedro uses 0 - 144 for x and y, with 0, 0 being on the bottom left.
-     * (For Into the Deep, this would be Blue Observation Zone (0,0) to Red Observation Zone (144,144).)
-     * Even though Pedro uses a different coordinate system than RR, you can convert any roadrunner pose by adding +72 both the x and y.
-     * This visualizer is very easy to use to find and create paths/pathchains/poses: <https://pedro-path-generator.vercel.app/>
-     * Lets assume our robot is 18 by 18 inches
-     * Lets assume the Robot is facing the human player and we want to score in the bucket */
-
-    private final double SCORE_X = 40;
-    private final double SCORE_Y_INITIAL = 64;
-    private final double SCORE_SPACING = 2;
-
-    private int specimenNum = 0;
-
-    /** Start Pose of our robot */
-    private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
-    private final Pose scorePosePreload = new Pose(startPose.getX(), 126, Math.toRadians(270));
-
-    private final Pose grabSpikeMark1Pose = new Pose(24, 35, Math.toRadians(325));
-    private final Pose grabSpikeMark1ControlPoint = new Pose(24, 56, Math.toRadians(325));
-    private final Pose grabSpikeMark2Pose = new Pose(24, 24, Math.toRadians(325));
-    private final Pose dropSpikeMarkPose = new Pose(grabSpikeMark2Pose.getX(), grabSpikeMark2Pose.getY(), Math.toRadians(325));
-
-    private final Pose setupPushPose = new Pose(58, 6.25, Math.toRadians(0));
-    private final Pose setupPushControlPoint = new Pose(50, 24, Math.toRadians(0));
-    private final Pose pushedPose = new Pose(21, setupPushPose.getY(), Math.toRadians(0));
-
-    private final Pose intakePose = new Pose(7, 33, Math.toRadians(0));
-    private final Pose intake1ControlPoint = new Pose(25, 26, Math.toRadians(0));
-
-
     /* These are our Paths and PathChains that we will define in buildPaths() */
-    PathChain ONE_spikeMark1Path, TWO_spikeMark1Drop, THREE_spikeMark2Path, FOUR_spikeMark2Drop, FIVE_pushPath, pushPop;
-
+    PathChain pushPop, intakeToBasket;
     TaskSequence auto = new TaskSequence();
+    private Follower follower;
+    private Timer opmodeTimer;
+    private int specimenNum = 0;
+    private boolean over = false;
 
-    /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
-     * It is necessary to do this so that all the paths are built before the auto starts. **/
+    /**
+     * Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
+     * It is necessary to do this so that all the paths are built before the auto starts.
+     **/
     public void buildPaths() {
 
         /* There are two major types of paths components: BezierCurves and BezierLines.
@@ -143,93 +138,52 @@ public class SpecimenAuto extends OpMode {
          * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
 
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-        ONE_spikeMark1Path = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        startPose,
-                        grabSpikeMark1ControlPoint,
-                        grabSpikeMark1Pose
-                )).setLinearHeadingInterpolation(startPose.getHeading(), grabSpikeMark1Pose.getHeading()).build();
 
-        TWO_spikeMark1Drop = linearInterpolateLine(grabSpikeMark1Pose, dropSpikeMarkPose);
-        THREE_spikeMark2Path = linearInterpolateLine(dropSpikeMarkPose, grabSpikeMark2Pose);
-        FOUR_spikeMark2Drop = linearInterpolateLine(grabSpikeMark2Pose, dropSpikeMarkPose);
-
-            pushPop = follower.pathBuilder()
-//                        .addPath(
-//                                // Line 1
-//                                new BezierLine(
-//                                        new Point(7.000, 66.000, Point.CARTESIAN),
-//                                        new Point(45.000, 64.000, Point.CARTESIAN)
-//                                )
-//                        )
-//                        .setConstantHeadingInterpolation(Math.toRadians(180))
-//                        .addPath(
-//                                // Line 2
-//                                new BezierCurve(
-//                                        new Point(45.000, 64.000, Point.CARTESIAN),
-//                                        new Point(24.000, 56.000, Point.CARTESIAN),
-//                                        new Point(23.883, 35.298, Point.CARTESIAN)
-//                                )
-//                        )
-//                        .setConstantHeadingInterpolation(Math.toRadians(180))
-                    .addPath(new BezierCurve(
-                new Point(23.883, 35.298, Point.CARTESIAN),
-                new Point(101.678, 27.922, Point.CARTESIAN),
-                new Point(24.234, 23.707, Point.CARTESIAN)
-        )
-      )
-      .setConstantHeadingInterpolation(Math.toRadians(180))
-                .addPath(
-                        // Line 4
-                        new BezierCurve(
-                                new Point(24.234, 23.707, Point.CARTESIAN),
-                                new Point(106.946, 21.249, Point.CARTESIAN),
-                                new Point(23.532, 13.171, Point.CARTESIAN)
-                        )
-                )
-                    .setConstantHeadingInterpolation(Math.toRadians(180))
-                    .addPath(
-                            new BezierCurve(
-                                    new Point(23.532, 13.171, Point.CARTESIAN),
-                                    new Point(108.527, 8.429, Point.CARTESIAN),
-                                    new Point(24.410, 9.307, Point.CARTESIAN)
-                            )
-                    )
-                    .setConstantHeadingInterpolation(Math.toRadians(180)).build();
-        Path setupPush = new Path(
+        Path push1 = new Path(
                 new BezierCurve(
-                        dropSpikeMarkPose,
-                        setupPushControlPoint,
-                        setupPushPose
-                )
-        );
+                        new Point(getSpecimenScorePose(0)),
+                        new Point(26, 35, Point.CARTESIAN),
+                        new Point(28, 30, Point.CARTESIAN),
+                        new Point(105, 28, Point.CARTESIAN),
+                        new Point(push1Pose)
+                ));
 
-        setupPush.setLinearHeadingInterpolation(dropSpikeMarkPose.getHeading(), setupPushPose.getHeading());
-
-        Path pushPathSegment = new Path(
+        Path prePush2 = new Path(
                 new BezierCurve(
-                        setupPushPose,
-                        pushedPose
-                )
-        );
+                        new Point(push1Pose),
+                        new Point(58, 26, Point.CARTESIAN),
+                        new Point(prePush2Pose)
+                ));
 
-        pushPathSegment.setLinearHeadingInterpolation(setupPushPose.getHeading(), pushedPose.getHeading());
+        Path push2 = linearInterpolateLinePath(prePush2Pose, push2Pose);
 
-        Path setupIntake1 = new Path(
+        Path prePush3 = new Path(
                 new BezierCurve(
-                        pushedPose,
-                        intake1ControlPoint,
-                        intakePose
-                )
-        );
+                        new Point(push2Pose),
+                        new Point(60, 15, Point.CARTESIAN),
+                        new Point(prePush3Pose)
+                ));
 
-        setupIntake1.setLinearHeadingInterpolation(pushedPose.getHeading(), intakePose.getHeading());
+        Path push3 = linearInterpolateLinePath(prePush3Pose, push3Pose);
 
-        FIVE_pushPath = follower.pathBuilder()
-                .addPath(setupPush)
-                .addPath(pushPathSegment)
-                .addPath(setupIntake1)
+        Path push3ToIntake = linearInterpolateLinePath(push3Pose, intakePose);
+
+        pushPop = follower.pathBuilder()
+                .addPath(push1)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(prePush2)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(push2)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(prePush3)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(push3)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .addPath(push3ToIntake)
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
+
+        intakeToBasket = linearInterpolateLine(intakePose, basketScorePose);
     }
 
     private PathChain linearInterpolateLine(Pose start, Pose end) {
@@ -237,6 +191,15 @@ public class SpecimenAuto extends OpMode {
                 new Point(start),
                 new Point(end)
         ).setLinearHeadingInterpolation(start.getHeading(), end.getHeading()).build();
+    }
+
+    private Path linearInterpolateLinePath(Pose start, Pose end) {
+        Path path = new Path(new BezierLine(
+                new Point(start),
+                new Point(end)
+        ));
+        path.setLinearHeadingInterpolation(start.getHeading(), end.getHeading());
+        return path;
     }
 
     public Pose getSpecimenScorePose(int specimenNum) {
@@ -268,6 +231,7 @@ public class SpecimenAuto extends OpMode {
     public FollowPathTask scoreSpecimenFollowPathTask(Pose startPose) {
         return new FollowPathTask(follower, getSpecimenScorePathChain(startPose));
     }
+
     public FollowPathTask scoreSpecimenFollowPathTask() {
         return new FollowPathTask(follower, getSpecimenScorePathChain());
     }
@@ -288,13 +252,21 @@ public class SpecimenAuto extends OpMode {
         for (Task task : auto.getTasks()) {
             telemetry.addLine("     " + task.getClass().getSimpleName());
         }
+
+        if (opmodeTimer.getElapsedTime() > 29500 && !over) {
+            over = true;
+            taskManager.clearTasks();
+            taskManager.runTask(new B_StowSample());
+        }
     }
 
-    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
+    /**
+     * This is the main loop of the OpMode, it will run repeatedly after clicking "Play".
+     **/
     @Override
     public void loop() {
         normalLoop();
-        auto.loop();
+//        auto.loop();
 
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -335,15 +307,25 @@ public class SpecimenAuto extends OpMode {
         reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState);
     }
 
+    public TaskSequence scoreSpecimen(Pose startPose) {
+        DelayTask delay = new DelayTask(1200);
+        B_DepositSpecimenPose depositSpecimenPose = new B_DepositSpecimenPose();
+        FollowPathTask followPathTask = scoreSpecimenFollowPathTask(startPose);
+        return new TaskSequence()
+                .thenAsync(followPathTask, depositSpecimenPose, delay)
+                .thenWaitUntil(() -> (delay.isFinished() && follower.getPose().getX() > SCORE_X - 1.5) || followPathTask.isFinished())
+                .thenAsync(new B_ReleaseSpecimenAndIntakeSpecimen()).thenDelay(100);
+    }
+
     public TaskSequence scoreSpecimen() {
-        return new TaskSequence(scoreSpecimenFollowPathTask(), new B_DepositSpecimenPose())
-                .then(new B_ReleaseSpecimenAndIntakeSpecimen());
+        return scoreSpecimen(intakePose);
     }
 
     public TaskSequence intakeSpecimen() {
-        return new TaskSequence(new B_IntakeSpecimen(), new FollowPathTask(follower, getIntakePathChain()))
-                .thenDelay(500)
-                .then(new B_GrabSpecimenAndStow()).thenDelay(150);
+        return new TaskSequence()
+                .thenAsync(new B_IntakeSpecimen(), new FollowPathTask(follower, getIntakePathChain()))
+                .thenWaitUntil(() -> follower.getPose().getX() < intakePose.getX() + 1 || !follower.isBusy())
+                .thenAsync(new B_GrabSpecimenAndStow()).thenDelay(100);
     }
 
     public TaskSequence specimenLoop(int count) {
@@ -355,7 +337,9 @@ public class SpecimenAuto extends OpMode {
         return sequence;
     }
 
-    /** This method is called once at the init of the OpMode. **/
+    /**
+     * This method is called once at the init of the OpMode.
+     **/
     @Override
     public void init() {
         normalInit();
@@ -364,9 +348,10 @@ public class SpecimenAuto extends OpMode {
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.DEPOSIT_SPECIMEN);
         A_SetWristHingePose wristHingeOut = new A_SetWristHingePose(WristHingePose.DEPOSIT_SPECIMEN);
         A_SetWristTwistPose wristTwistOut = new A_SetWristTwistPose(WristTwistPose.DEPOSIT_SPECIMEN);
-        taskManager.runTask(new TaskSequence(closeClaw)
-            .thenDelay(200)
-            .then(rotateSlidesUp, elbowOut, wristHingeOut, wristTwistOut));
+        taskManager.runTask(new TaskSequence(closeClaw, wristHingeOut)
+                .then(rotateSlidesUp, wristTwistOut)
+                .then(elbowOut)
+        );
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
@@ -376,35 +361,47 @@ public class SpecimenAuto extends OpMode {
         FollowerWrapper.setFollower(follower);
         buildPaths();
 
-        auto.then(new B_DepositSpecimenPose(), scoreSpecimenFollowPathTask(startPose))
+        auto.then(scoreSpecimen(startPose))
+                // Intake specimen feels like it shouldn't be necessary here, but
+                // maybe the wait for movement isn't working in B_ReleaseSpecAndIntakeSpec
                 .then(new B_IntakeSpecimen(), new FollowPathTask(follower, pushPop))
-                .thenDelay(500)
+                .thenDelay(150)
                 .then(new B_GrabSpecimenAndStow())
-                .then(specimenLoop(4));
+                .then(specimenLoop(4))
+                .then(intakeSpecimen())
+                // TODO: Go to janky pose here...
+                .thenFollowPath(follower, intakeToBasket)
+                .then(new B_ReleaseSampleAndStow())
+                .then(intakeSpecimen());
     }
 
-    /** This method is called continuously after Init while waiting for "play". **/
+    /**
+     * This method is called continuously after Init while waiting for "play".
+     **/
     @Override
     public void init_loop() {
+        taskManager.loop();
+
         elbowActuator.loop();
         wristHingeActuator.loop();
         wristTwistActuator.loop();
         armRotActuator.loop();
         clawActuator.loop();
-        taskManager.loop();
     }
 
-    /** This method is called once at the start of the OpMode.
-     * It runs all the setup actions, including building paths and starting the path system **/
+    /**
+     * This method is called once at the start of the OpMode.
+     * It runs all the setup actions, including building paths and starting the path system
+     **/
     @Override
     public void start() {
         opmodeTimer.resetTimer();
-        A_SetElbowPose stowElbow = new A_SetElbowPose(ElbowPose.STOW_SAMPLE);
-        taskManager.runTask(stowElbow);
-        auto.start();
+        taskManager.runTask(auto);
     }
 
-    /** We do not use this because everything should automatically disable **/
+    /**
+     * We do not use this because everything should automatically disable
+     **/
     @Override
     public void stop() {
     }

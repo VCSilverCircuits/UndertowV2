@@ -54,7 +54,7 @@ public class B_IntakeSampleGrab extends Behavior {
                         elbowOut,
                         hingeBack
                 )
-                .thenDelay(50)
+                .thenDelay(30)
                 .then(clawClose);
     }
 

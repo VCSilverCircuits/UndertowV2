@@ -10,18 +10,13 @@ import vcsc.core.abstracts.actuator.Actuator;
 import vcsc.core.abstracts.state.State;
 import vcsc.teamcode.abstracts.abstracts.Block;
 
-public class Camera extends Actuator {
+public class Camera extends State<Camera> {
     private final Limelight3A limelight;
 
     public Camera(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
         limelight.start();
-    }
-
-    @Override
-    public void loop() {
-
     }
 
     public void takeSnapshot(String name) {
@@ -47,10 +42,5 @@ public class Camera extends Actuator {
             return new Block(Block.COLOR.YELLOW, x, y, angle);
         }
         return null;
-    }
-
-    @Override
-    public void updateState(State newState) {
-
     }
 }

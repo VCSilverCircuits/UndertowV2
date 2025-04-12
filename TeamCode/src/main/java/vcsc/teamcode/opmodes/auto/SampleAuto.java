@@ -23,15 +23,20 @@ import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
 import vcsc.teamcode.behavior.sample.B_DepositSampleUpperAuto;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
+import vcsc.teamcode.behavior.sample.B_IntakeSampleStraight;
+import vcsc.teamcode.behavior.sample.B_LockOn;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAuto;
-import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAutoShort;
+import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
+import vcsc.teamcode.behavior.sample.B_StowSample;
+import vcsc.teamcode.behavior.sample.B_StowSampleAfterIntake;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionActuator;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationActuator;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
+import vcsc.teamcode.cmp.camera.Camera;
 import vcsc.teamcode.cmp.claw.ClawActuator;
 import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.claw.actions.A_CloseClaw;
@@ -60,9 +65,34 @@ import vcsc.teamcode.config.GlobalConfig;
 @Autonomous(name = "Sample Auto", group = "Auto Test")
 public class SampleAuto extends OpMode {
 
-    private Follower follower;
-    private Timer opmodeTimer;
-
+    private final Pose startPose = new Pose(6, 112, Math.toRadians(270));
+    /**
+     * Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle.
+     */
+    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315));
+    private final Pose scorePosePreload = new Pose(startPose.getX(), 125, Math.toRadians(270));
+    /**
+     * Lowest (First) Sample from the Spike Mark
+     */
+    private final Pose pickup1Pose = new Pose(33, 120.5, Math.toRadians(0));
+    /**
+     * Middle (Second) Sample from the Spike Mark
+     */
+    private final Pose pickup2Pose = new Pose(33, 130, Math.toRadians(0));
+    /**
+     * Highest (Third) Sample from the Spike Mark
+     */
+    private final Pose pickup3Pose = new Pose(22, 134.5, Math.toRadians(10));
+    /**
+     * Park Pose for our robot, after we do all of the scoring.
+     */
+    private final Pose submersible = new Pose(60, 105, Math.toRadians(270));
+    private final Pose submersibleExit = new Pose(60, 105, Math.toRadians(270));
+    /**
+     * Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
+     * The Robot will not go to this pose, it is used a control point for our bezier curve.
+     */
+    private final Pose parkControlPose = new Pose(60, 135, Math.toRadians(270));
     protected MultipleTelemetry telem;
     protected TaskManager taskManager = TaskManager.getInstance();
     protected RobotState robotState = RobotState.getInstance();
@@ -72,14 +102,11 @@ public class SampleAuto extends OpMode {
     protected ElbowState elbowState;
     protected WristHingeState wristHingeState;
     protected WristTwistState wristTwistState;
-    ClawActuator clawActuator;
-    ArmExtensionActuator armExtActuator;
-    ArmRotationActuator armRotActuator;
-    ElbowActuator elbowActuator;
-    WristHingeActuator wristHingeActuator;
-    WristTwistActuator wristTwistActuator;
+    /**
+     * Start Pose of our robot
+     */
 
-
+    boolean over = false;
     /* Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
      * Pedro uses 0 - 144 for x and y, with 0, 0 being on the bottom left.
@@ -88,37 +115,22 @@ public class SampleAuto extends OpMode {
      * This visualizer is very easy to use to find and create paths/pathchains/poses: <https://pedro-path-generator.vercel.app/>
      * Lets assume our robot is 18 by 18 inches
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
-
-    /** Start Pose of our robot */
-    private final Pose startPose = new Pose(6, 112, Math.toRadians(270));
-
-    /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315));
-    private final Pose scorePosePreload = new Pose(startPose.getX(), 125, Math.toRadians(270));
-
-    /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(33, 120.5, Math.toRadians(0));
-
-    /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(33, 130, Math.toRadians(0));
-
-    /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(22, 134.5, Math.toRadians(10));
-
-    /** Park Pose for our robot, after we do all of the scoring. */
-    private final Pose parkPose = new Pose(60, 105, Math.toRadians(270));
-
-    /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
-     * The Robot will not go to this pose, it is used a control point for our bezier curve. */
-    private final Pose parkControlPose = new Pose(60, 125, Math.toRadians(270));
-
-    /* These are our Paths and PathChains that we will define in buildPaths() */
-    private PathChain scorePreload, park, grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
-
+    ClawActuator clawActuator;
+    ArmExtensionActuator armExtActuator;
+    ArmRotationActuator armRotActuator;
+    ElbowActuator elbowActuator;
+    WristHingeActuator wristHingeActuator;
+    WristTwistActuator wristTwistActuator;
     TaskSequence auto = new TaskSequence();
+    private Follower follower;
+    private Timer opmodeTimer;
+    /* These are our Paths and PathChains that we will define in buildPaths() */
+    private PathChain scorePreload, park, grabPickup1, submersibleToScore, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
 
-    /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
-     * It is necessary to do this so that all the paths are built before the auto starts. **/
+    /**
+     * Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
+     * It is necessary to do this so that all the paths are built before the auto starts.
+     **/
     public void buildPaths() {
 
         /* There are two major types of paths components: BezierCurves and BezierLines.
@@ -181,11 +193,20 @@ public class SampleAuto extends OpMode {
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .build();
 
+        submersibleToScore = linearInterpolateLine(submersibleExit, scorePose);
+
         /* This is our park path. We are using a BezierCurve with 3 points, which is a curved line that is curved based off of the control point */
         park = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(parkPose)))
-                .setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading())
+                .addPath(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(submersible)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), submersible.getHeading())
                 .build();
+    }
+
+    private PathChain linearInterpolateLine(Pose start, Pose end) {
+        return follower.pathBuilder().addBezierLine(
+                new Point(start),
+                new Point(end)
+        ).setLinearHeadingInterpolation(start.getHeading(), end.getHeading()).build();
     }
 
 
@@ -206,11 +227,20 @@ public class SampleAuto extends OpMode {
         }
     }
 
-    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
+    /**
+     * This is the main loop of the OpMode, it will run repeatedly after clicking "Play".
+     **/
     @Override
     public void loop() {
         normalLoop();
         auto.loop();
+
+        if (opmodeTimer.getElapsedTime() > 29500 && !over) {
+            over = true;
+            taskManager.clearTasks();
+            auto.cancel();
+            taskManager.runTask(new B_StowSample());
+        }
 
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -248,10 +278,15 @@ public class SampleAuto extends OpMode {
         wristTwistActuator = new WristTwistActuator(hardwareMap);
         wristTwistState.registerActuator(wristTwistActuator);
 
-        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState);
+        Camera camera = new Camera(hardwareMap);
+
+        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState, camera);
     }
 
-    /** This method is called once at the init of the OpMode. **/
+
+    /**
+     * This method is called once at the init of the OpMode.
+     **/
     @Override
     public void init() {
         normalInit();
@@ -318,10 +353,37 @@ public class SampleAuto extends OpMode {
 
                 // PARK
                 .thenLog("[AUTO] (Stow then Intake) & Go to park")
+                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, park))
+
+                // Intake from submersible
+                .then(new B_IntakeSampleStraight())
+                .then(new B_LockOn())
+                .then(new B_StowSampleAfterIntake())
+                .thenAsync(new B_DepositSampleUpperAuto())
+                .thenFollowPath(follower, submersibleToScore)
+                .thenDelay(DROP_DELAY)
+                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, park))
+
+                .then(new B_IntakeSampleStraight())
+                .then(new B_LockOn())
+                .then(new B_StowSampleAfterIntake())
+                .thenAsync(new B_DepositSampleUpperAuto())
+                .thenFollowPath(follower, submersibleToScore)
+                .thenDelay(DROP_DELAY)
+                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, park))
+
+                .then(new B_IntakeSampleStraight())
+                .then(new B_LockOn())
+                .then(new B_StowSampleAfterIntake())
+                .thenAsync(new B_DepositSampleUpperAuto())
+                .thenFollowPath(follower, submersibleToScore)
+                .thenDelay(DROP_DELAY)
                 .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, park));
     }
 
-    /** This method is called continuously after Init while waiting for "play". **/
+    /**
+     * This method is called continuously after Init while waiting for "play".
+     **/
     @Override
     public void init_loop() {
         armRotActuator.loop();
@@ -329,8 +391,10 @@ public class SampleAuto extends OpMode {
         taskManager.loop();
     }
 
-    /** This method is called once at the start of the OpMode.
-     * It runs all the setup actions, including building paths and starting the path system **/
+    /**
+     * This method is called once at the start of the OpMode.
+     * It runs all the setup actions, including building paths and starting the path system
+     **/
     @Override
     public void start() {
         opmodeTimer.resetTimer();
@@ -339,7 +403,9 @@ public class SampleAuto extends OpMode {
         auto.start();
     }
 
-    /** We do not use this because everything should automatically disable **/
+    /**
+     * We do not use this because everything should automatically disable
+     **/
     @Override
     public void stop() {
     }

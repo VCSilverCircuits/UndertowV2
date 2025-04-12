@@ -1,6 +1,7 @@
 package vcsc.teamcode.behavior.sample;
 
 import vcsc.core.abstracts.behavior.Behavior;
+import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
@@ -33,6 +34,11 @@ public class B_DepositSampleLower extends Behavior {
         addRequirement(ArmRotationState.class);
 
 
+    }
+
+    @Override
+    public boolean start() {
+        super.start();
         // Establish needed actions
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.DEPOSIT_SAMPLE_LOWER);
         A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.DEPOSIT_SAMPLE_LOWER);
@@ -44,17 +50,18 @@ public class B_DepositSampleLower extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(slidesIn).then(
+        ArmExtensionPose armExtensionPose = StateRegistry.getInstance().getState(ArmExtensionState.class).getPose();
+        if (armExtensionPose != ArmExtensionPose.DEPOSIT_SAMPLE_LOWER && armExtensionPose != ArmExtensionPose.DEPOSIT_SAMPLE_UPPER) {
+            _taskSequence.then(slidesIn);
+        }
+        _taskSequence.then(
                 rotateArmBack,
                 elbowOut,
                 hingeBack,
                 twist
         ).then(extendSlides);
-    }
 
-    @Override
-    public boolean start() {
-        super.start();
+
         RobotState.getInstance().setMode(GlobalPose.DEPOSIT_SAMPLE_LOWER);
         return _taskSequence.start();
     }

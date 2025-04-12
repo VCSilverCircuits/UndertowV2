@@ -24,5 +24,9 @@ public class ArmExtensionState extends PoweredPIDFState<ArmExtensionState, ArmEx
     public ArmExtensionPose getPose() {
         return currentPose;
     }
+
+    public boolean isTouching() {
+        return ((ArmExtensionActuator) primaryActuator).isTouching();
+    }
 }
 

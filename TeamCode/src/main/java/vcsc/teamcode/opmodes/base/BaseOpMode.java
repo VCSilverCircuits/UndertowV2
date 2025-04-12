@@ -18,6 +18,7 @@ import vcsc.teamcode.cmp.arm.extension.ArmExtensionActuator;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationActuator;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
+import vcsc.teamcode.cmp.camera.Camera;
 import vcsc.teamcode.cmp.claw.ClawActuator;
 import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.elbow.ElbowActuator;
@@ -86,6 +87,8 @@ public class BaseOpMode extends OpMode {
         wristTwistActuator = new WristTwistActuator(hardwareMap);
         wristTwistState.registerActuator(wristTwistActuator);
 
+        Camera camera = new Camera(hardwareMap);
+
 //        powerManager = new PowerManager(hardwareMap);
 
         gw1 = new GamepadWrapper(gamepad1);
@@ -100,7 +103,7 @@ public class BaseOpMode extends OpMode {
         bindingManager.setGamepad2Bindings(GlobalPose.DEFAULT, new BindingSet());
 
         // Register all states
-        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState);
+        reg.registerStates(clawState, armExtState, armRotState, elbowState, wristHingeState, wristTwistState, camera);
     }
 
     @Override
@@ -110,12 +113,19 @@ public class BaseOpMode extends OpMode {
     }
 
     @Override
+    public void init_loop() {
+        super.init_loop();
+        this.loop();
+    }
+
+    @Override
     public void loop() {
         System.out.println("===================================");
         System.out.println("Overall States:");
         System.out.println("Robot Mode: " + robotState.getMode());
         System.out.println("Claw Pose: " + clawState.getPose());
         System.out.println("Arm Extension Pose: " + armExtState.getTargetPose());
+        System.out.println("Ext actuator touch sensor: " + armExtActuator.isTouching());
         System.out.println("Arm Rotation Pose: " + armRotState.getTargetPose());
         System.out.println("Elbow Pose: " + elbowState.getPose());
         System.out.println("Wrist Hinge Pose: " + wristHingeState.getPose());
@@ -139,12 +149,14 @@ public class BaseOpMode extends OpMode {
 
         System.out.println("---------- Misc -------------");
 
-        follower.setTeleOpMovementVectors(
-                -gamepad1.left_stick_y * robotState.getDriveSpeed(),
-                -gamepad1.left_stick_x * robotState.getDriveSpeed(),
-                -gamepad1.right_stick_x * robotState.getTurnSpeed(),
-                true
-        );
+        if (robotState.getMode() != GlobalPose.INTAKE_SAMPLE_CAMERA_SEARCH) {
+            follower.setTeleOpMovementVectors(
+                    -gamepad1.left_stick_y * robotState.getDriveSpeed(),
+                    -gamepad1.left_stick_x * robotState.getDriveSpeed(),
+                    -gamepad1.right_stick_x * robotState.getTurnSpeed(),
+                    true
+            );
+        }
 
         follower.update();
 

@@ -16,13 +16,15 @@ import vcsc.teamcode.behavior.sample.B_DepositSampleUpper;
 import vcsc.teamcode.behavior.sample.B_IntakeSample;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleHover;
+import vcsc.teamcode.behavior.sample.B_LockOn;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.behavior.sample.B_StowSampleAfterIntake;
 import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
+import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
 import vcsc.teamcode.behavior.specimen.B_IntakeSpecimen;
 import vcsc.teamcode.behavior.specimen.B_ReleaseSpecimenAndStow;
-import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
+import vcsc.teamcode.cmp.arm.extension.actions.A_FullyRetractSlides;
 import vcsc.teamcode.cmp.claw.actions.A_ToggleClaw;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
@@ -89,6 +91,7 @@ public class TeleTest extends BaseOpMode {
         BindingSet GP1_intakeSampleBindings = new BindingSet(GP1_defaultBindings);
         GP1_intakeSampleBindings.bindTask(GamepadButton.RIGHT_TRIGGER, new B_StowSampleAfterIntake());
         GP1_intakeSampleBindings.bindTask(GamepadButton.A, new B_IntakeSampleGrab());
+        GP1_intakeSampleBindings.bindTask(GamepadButton.DPAD_DOWN, new B_LockOn());
 
         bindingManager.setGamepad1Bindings(GlobalPose.INTAKE_SAMPLE_HOVER, GP1_intakeSampleBindings);
         bindingManager.setGamepad1Bindings(GlobalPose.INTAKE_SAMPLE_STRAIGHT, GP1_intakeSampleBindings);
@@ -176,6 +179,7 @@ public class TeleTest extends BaseOpMode {
         GP2_defaultBindings.bindTask(GamepadButton.A, new B_Hang_RetractAndRelease());
         GP2_defaultBindings.bindTask(GamepadButton.X, new B_HangLv3Pre());
         GP2_defaultBindings.bindTask(GamepadButton.LEFT_TRIGGER, new A_ToggleClaw());
+        GP2_defaultBindings.bindTask(GamepadButton.DPAD_LEFT, new A_FullyRetractSlides(0.7));
 
         //endregion
 
@@ -209,7 +213,7 @@ public class TeleTest extends BaseOpMode {
         //endregion
 
         follower.setStartingPose(new Pose(0, 0, 0));
-        taskManager.runTask(new B_StowSample());
+        taskManager.runTask(new TaskSequence(new A_FullyRetractSlides(0.75)).then(new B_StowSample()));
     }
 
     @Override
@@ -225,6 +229,7 @@ public class TeleTest extends BaseOpMode {
         }
 
     }
+
 
     @Override
     public void start() {
