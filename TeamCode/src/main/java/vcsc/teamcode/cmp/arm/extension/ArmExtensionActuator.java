@@ -23,7 +23,7 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
     // Gear ratio of driven gears
     public static final double DRIVE_GEAR_RATIO = 1.0;
 
-    public static final double PULLEY_DIAMETER = 16;
+    public static final double PULLEY_DIAMETER = 26;
     public static final double CM_PER_TICK = PULLEY_DIAMETER * Math.PI / (10.0 * DRIVE_GEAR_RATIO * MOTOR_GEAR_RATIO * TPR);
     public static final double MAX_EXTENSION_POWER = 1.0;
     DcMotorGroup motors;
