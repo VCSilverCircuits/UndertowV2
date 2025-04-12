@@ -73,8 +73,10 @@ public class ArmRotationActuator extends PoweredPIDFActuator<ArmRotationState, A
 
     @Override
     protected void loopPower() {
-        motors.setPower(power);
-        controller.setSetPoint(getPosition());
+        if (motors.getPower() != power) {
+            motors.setPower(power);
+        }
+//        controller.setSetPoint(getPosition());
     }
 
     @Override
@@ -87,6 +89,9 @@ public class ArmRotationActuator extends PoweredPIDFActuator<ArmRotationState, A
 //        telemetry.addData("At Position", controller.atSetPoint());
 //        telemetry.addData("Output Power", outputPower);
 //        telemetry.addData("Current position", getPosition());
-        motors.setPower(Math.min(Math.abs(outputPower), maxSpeed) * Math.signum(outputPower));
+        double adjustedPower = Math.min(Math.abs(outputPower), maxSpeed) * Math.signum(outputPower);
+        if (motors.getPower() != adjustedPower) {
+            motors.setPower(adjustedPower);
+        }
     }
 }

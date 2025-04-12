@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.ArrayList;
 import java.util.OptionalDouble;
@@ -29,17 +30,18 @@ import vcsc.teamcode.config.GlobalPose;
 
 @Config
 public class B_LockOn extends Behavior {
+    public static final double GRAB_TIMER_OVERRIDE = 3000;
+    public static final double MAX_ROTATE_ANGLE = 45;
     private static final double strafeF = 0.005;
     private static final double driveF = 0.005;
     public static PIDCoefficients xCoeffs = new PIDCoefficients(0.0035, 0, 0.00001);
     public static PIDCoefficients yCoeffsCoarse = new PIDCoefficients(0.003, 0, 0.0001);
     public static PIDCoefficients yCoeffsFine = new PIDCoefficients(0.0018, 0, 0.0001);
     public static PIDCoefficients holdHeadingCoeffs = new PIDCoefficients(1.3, 0, 0.0005);
-    public static PIDCoefficients lockHeadingCoeffs = new PIDCoefficients(0.05, 0, 0.0005);
-
+    public static PIDCoefficients lockHeadingCoeffs = new PIDCoefficients(0.002, 0, 0.0);
     public static boolean USE_STRAFE = false;
     public static double strafeSpeed = 0.15;
-    public static double rotateSpeed = -0.1;
+    public static double rotateSpeed = 0.1;
     double x_offset, y_offset, heading_offset;
     PIDController xController, yControllerCoarse, yControllerFine, holdHeadingController, lockHeadingController;
     Camera camera;
@@ -55,8 +57,11 @@ public class B_LockOn extends Behavior {
     TaskSequence adjustArmPosition;
     B_IntakeSampleGrabLock sampleGrab = new B_IntakeSampleGrabLock();
     A_OpenClaw openClaw;
-
     boolean grabbing = false;
+    boolean foundBlock = false;
+    ElapsedTime detectionTimer;
+
+    double startAngle;
 
 
     public B_LockOn() {
@@ -81,6 +86,8 @@ public class B_LockOn extends Behavior {
 
         adjustArmPosition = new TaskSequence();
         adjustArmPosition.then(elbowUp, hingeUp, openClaw).setDebugName("AdjustArmPosition");
+
+        detectionTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     }
 
     @Override
@@ -89,6 +96,8 @@ public class B_LockOn extends Behavior {
         RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_CAMERA_SEARCH);
 
         grabbing = false;
+
+        startAngle = follower.getPose().getHeading();
 
 
         finished = false;
@@ -99,7 +108,7 @@ public class B_LockOn extends Behavior {
         yControllerFine.setSetPoint(0);
         xController.setTolerance(20);
         yControllerCoarse.setTolerance(30);
-        yControllerFine.setTolerance(15);
+        yControllerFine.setTolerance(20);
         follower.startTeleopDrive();
         angleList.clear();
         return true;
@@ -121,6 +130,7 @@ public class B_LockOn extends Behavior {
         yControllerCoarse.setPID(yCoeffsCoarse.p, yCoeffsCoarse.i, yCoeffsCoarse.d);
         yControllerFine.setPID(yCoeffsFine.p, yCoeffsFine.i, yCoeffsFine.d);
         holdHeadingController.setPID(holdHeadingCoeffs.p, holdHeadingCoeffs.i, holdHeadingCoeffs.d);
+        lockHeadingController.setPID(lockHeadingCoeffs.p, lockHeadingCoeffs.i, lockHeadingCoeffs.d);
 
         Block block = camera.getBlock();
         heading_offset = follower.getPose().getHeading() - Math.toRadians(270);
@@ -133,7 +143,17 @@ public class B_LockOn extends Behavior {
             return;
         }
 
+        if (Math.abs(Math.toDegrees(follower.getPose().getHeading() - start_heading)) > MAX_ROTATE_ANGLE) {
+
+        }
+
         if (block != null) {
+            if (!foundBlock) {
+                detectionTimer.reset();
+            }
+
+            foundBlock = true;
+
             x_offset = 213 - block.getX();
             y_offset = 105 - block.getY();
 
@@ -159,9 +179,9 @@ public class B_LockOn extends Behavior {
             }
 
             if (USE_STRAFE) {
-                follower.setTeleOpMovementVectors(yUpdate, xController.calculate(x_offset) + strafeF * Math.signum(x_offset), lockHeadingController.calculate(heading_offset));
+                follower.setTeleOpMovementVectors(xController.calculate(x_offset) + strafeF * Math.signum(x_offset), yUpdate, holdHeadingController.calculate(heading_offset));
             } else {
-                follower.setTeleOpMovementVectors(yUpdate, 0, lockHeadingController.calculate(heading_offset));
+                follower.setTeleOpMovementVectors(xController.calculate(x_offset) + strafeF * Math.signum(x_offset), 0, lockHeadingController.calculate(-y_offset));
             }
 
 //            follower.setTeleOpMovementVectors(xController.calculate(x_offset) + driveF * Math.signum(x_offset), yUpdate + strafeF * Math.signum(y_offset), holdHeadingController.calculate(heading_offset));
@@ -194,7 +214,7 @@ public class B_LockOn extends Behavior {
                 angleList.remove(0);
             }
 
-            if (xController.atSetPoint() && yControllerFine.atSetPoint() && follower.getVelocity().getMagnitude() < 0.1) {
+            if (xController.atSetPoint() && yControllerFine.atSetPoint() && follower.getVelocity().getMagnitude() < 0.1 || detectionTimer.time() > GRAB_TIMER_OVERRIDE) {
                 if (!grabbing) {
                     grabbing = true;
                     sampleGrab.start();
@@ -204,6 +224,7 @@ public class B_LockOn extends Behavior {
 
         } else {
             telem.addLine("No blocks detected.");
+            foundBlock = false;
             if (USE_STRAFE) {
                 follower.setTeleOpMovementVectors(0, strafeSpeed, lockHeadingController.calculate(heading_offset));
             } else {

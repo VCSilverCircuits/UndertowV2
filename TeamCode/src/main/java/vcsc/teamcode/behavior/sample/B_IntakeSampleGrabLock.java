@@ -47,13 +47,13 @@ public class B_IntakeSampleGrabLock extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.thenDelay(500).then(
+        _taskSequence.thenDelay(80).then(
                         rotateArmBack,
 //                        extendSlides,
                         elbowOut,
                         hingeBack
                 )
-                .thenDelay(230)
+                .thenDelay(100)
                 .then(clawClose)
                 .thenDelay(80);
     }

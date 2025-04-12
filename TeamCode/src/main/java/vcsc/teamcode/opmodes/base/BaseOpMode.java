@@ -3,7 +3,10 @@ package vcsc.teamcode.opmodes.base;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.util.Constants;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -53,12 +56,19 @@ public class BaseOpMode extends OpMode {
     WristTwistActuator wristTwistActuator;
 
     GamepadWrapper gw1, gw2;
+    List<LynxModule> allHubs;
 
     @Override
     public void init() {
         GlobalTelemetry.init(telemetry);
 
         telem = GlobalTelemetry.getInstance();
+
+        allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
+
 
         StateRegistry reg = StateRegistry.getInstance();
         reg.clearStates();
@@ -120,6 +130,10 @@ public class BaseOpMode extends OpMode {
 
     @Override
     public void loop() {
+        for (LynxModule hub : allHubs) {
+            hub.clearBulkCache();
+        }
+
         System.out.println("===================================");
         System.out.println("Overall States:");
         System.out.println("Robot Mode: " + robotState.getMode());

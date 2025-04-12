@@ -18,7 +18,10 @@ public class ClawActuator extends Actuator<ClawState> {
 
     @Override
     public void loop() {
-        servo.setPosition(ClawPose.MIN + (targetPosition * (ClawPose.MAX - ClawPose.MIN)));
+        double newPos = ClawPose.MIN + (targetPosition * (ClawPose.MAX - ClawPose.MIN));
+        if (servo.getPosition() != newPos) {
+            servo.setPosition(newPos);
+        }
     }
 
     @Override

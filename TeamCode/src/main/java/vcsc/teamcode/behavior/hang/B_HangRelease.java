@@ -28,8 +28,8 @@ public class B_HangRelease extends Behavior {
         // Create Task Sequence
         _taskSequence = new TaskSequence();
         _taskSequence.thenAsync(
-                rotateArmBack
-        ).thenDelay(300).thenAsync(rotateArmLv2).thenDelay(800).then(extendSlides);
+                rotateArmLv2
+        ).thenDelay(300).thenAsync(rotateArmBack).thenDelay(500).then(extendSlides);
     }
 
     @Override

@@ -62,7 +62,7 @@ public class B_ReleaseSampleAndStow extends Behavior {
         // Create Task Sequence
         _taskSequence = new TaskSequence();
         _taskSequence.then(openClaw)
-                .thenWaitUntil(() -> drivenDistance() > 2)
+                .thenWaitUntil(() -> drivenDistance() > 2 || follower.isLocalizationNAN())
                 .then(elbowStow, hingeStraight)
                 .thenAsync(retractSlides, twist)
                 .thenWaitUntil(() -> extState.getRealLength() < 30)

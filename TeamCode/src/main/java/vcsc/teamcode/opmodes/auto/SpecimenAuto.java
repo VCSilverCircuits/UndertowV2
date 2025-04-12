@@ -10,9 +10,12 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
+import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -23,6 +26,7 @@ import vcsc.core.abstracts.task.Task;
 import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
+import vcsc.teamcode.behavior.sample.B_DepositSampleLower;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
@@ -111,6 +115,7 @@ public class SpecimenAuto extends OpMode {
     /* These are our Paths and PathChains that we will define in buildPaths() */
     PathChain pushPop, intakeToBasket;
     TaskSequence auto = new TaskSequence();
+    List<LynxModule> allHubs;
     private Follower follower;
     private Timer opmodeTimer;
     private int specimenNum = 0;
@@ -238,6 +243,10 @@ public class SpecimenAuto extends OpMode {
 
 
     public void normalLoop() {
+        for (LynxModule hub : allHubs) {
+            hub.clearBulkCache();
+        }
+        
         follower.update();
         taskManager.loop();
         clawActuator.loop();
@@ -279,6 +288,10 @@ public class SpecimenAuto extends OpMode {
 
         telem = GlobalTelemetry.getInstance();
 
+        allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
         StateRegistry reg = StateRegistry.getInstance();
         clawState = new ClawState();
         clawActuator = new ClawActuator(hardwareMap);
@@ -369,7 +382,7 @@ public class SpecimenAuto extends OpMode {
                 .then(new B_GrabSpecimenAndStow())
                 .then(specimenLoop(4))
                 .then(intakeSpecimen())
-                // TODO: Go to janky pose here...
+                .thenAsync(new B_DepositSampleLower())
                 .thenFollowPath(follower, intakeToBasket)
                 .then(new B_ReleaseSampleAndStow())
                 .then(intakeSpecimen());

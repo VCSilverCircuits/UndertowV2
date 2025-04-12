@@ -36,7 +36,8 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
         DcMotorEx extensionRight = hardwareMap.get(DcMotorEx.class, "armExtensionRight");
         touchSensor = hardwareMap.get(TouchSensor.class, "slideLimitSensor");
         extensionLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        extensionCenter.setDirection(DcMotorSimple.Direction.REVERSE);
+//        extensionCenter.setDirection(DcMotorSimple.Direction.REVERSE);
+//        extensionRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motors = new DcMotorGroup(extensionLeft, extensionCenter, extensionRight);
         motors.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motors.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -65,7 +66,9 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
 //        } else {
 //            motors.setPower(power);
 //        }
-        motors.setPower(power);
+        if (motors.getPower() != power) {
+            motors.setPower(power);
+        }
 
     }
 
@@ -84,7 +87,10 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
 //        telemetry.addData("At Position", controller.atSetPoint());
 //        telemetry.addData("Output Power", outputPower);
 //        telemetry.addData("Current position", getPosition());
-        motors.setPower(Math.min(Math.abs(outputPower), MAX_EXTENSION_POWER) * Math.signum(outputPower));
+        double adjustedPower = Math.min(Math.abs(outputPower), MAX_EXTENSION_POWER) * Math.signum(outputPower);
+        if (motors.getPower() != adjustedPower) {
+            motors.setPower(adjustedPower);
+        }
     }
 
     @Override

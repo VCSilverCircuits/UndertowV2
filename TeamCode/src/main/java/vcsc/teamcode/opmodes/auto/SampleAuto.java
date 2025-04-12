@@ -9,9 +9,12 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
+import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -69,16 +72,23 @@ public class SampleAuto extends OpMode {
     /**
      * Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle.
      */
-    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315));
-    private final Pose scorePosePreload = new Pose(startPose.getX(), 125, Math.toRadians(270));
+    private final Pose scorePose = new Pose(15.5, 128.5, Math.toRadians(315));
+    private final Pose scorePose1 = new Pose(16, 132, Math.toRadians(-22));
+    //    private final Pose scorePose = new Pose(15, 134.0, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(18, 136, Math.toRadians(-10));
+    private final Pose scorePose3 = new Pose(19, 138, Math.toRadians(0));
+
+    private final Pose scorePosePreload = new Pose(6, 125, Math.toRadians(270));
     /**
      * Lowest (First) Sample from the Spike Mark
      */
-    private final Pose pickup1Pose = new Pose(33, 120.5, Math.toRadians(0));
+//    private final Pose pickup1Pose = new Pose(21, 120.5, Math.toRadians(0)); // 33
+    private final Pose pickup1Pose = new Pose(22, 128, Math.toRadians(-18));
     /**
      * Middle (Second) Sample from the Spike Mark
      */
-    private final Pose pickup2Pose = new Pose(33, 130, Math.toRadians(0));
+//    private final Pose pickup2Pose = new Pose(21, 130, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(22, 135, Math.toRadians(-10));
     /**
      * Highest (Third) Sample from the Spike Mark
      */
@@ -86,7 +96,7 @@ public class SampleAuto extends OpMode {
     /**
      * Park Pose for our robot, after we do all of the scoring.
      */
-    private final Pose submersible = new Pose(60, 105, Math.toRadians(270));
+    private final Pose submersible = new Pose(60, 102, Math.toRadians(270));
     private final Pose submersibleExit = new Pose(60, 105, Math.toRadians(270));
     /**
      * Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
@@ -122,6 +132,7 @@ public class SampleAuto extends OpMode {
     WristHingeActuator wristHingeActuator;
     WristTwistActuator wristTwistActuator;
     TaskSequence auto = new TaskSequence();
+    List<LynxModule> allHubs;
     private Follower follower;
     private Timer opmodeTimer;
     /* These are our Paths and PathChains that we will define in buildPaths() */
@@ -211,6 +222,10 @@ public class SampleAuto extends OpMode {
 
 
     public void normalLoop() {
+        for (LynxModule hub : allHubs) {
+            hub.clearBulkCache();
+        }
+
         follower.update();
         taskManager.loop();
         clawActuator.loop();
@@ -252,6 +267,11 @@ public class SampleAuto extends OpMode {
         GlobalTelemetry.init(telemetry);
 
         telem = GlobalTelemetry.getInstance();
+
+        allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
 
         StateRegistry reg = StateRegistry.getInstance();
         clawState = new ClawState();
@@ -304,7 +324,7 @@ public class SampleAuto extends OpMode {
         buildPaths();
 
         long DROP_DELAY = 100;
-        long PRE_GRAB_DELAY = 80;
+        long PRE_GRAB_DELAY = 100;
         long POST_GRAB_DELAY = 50;
 
 
@@ -315,7 +335,7 @@ public class SampleAuto extends OpMode {
                 // GRAB PICKUP 1
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup1")
                 .then(new B_ReleaseSampleAndPreGrabAutoShort(), new FollowPathTask(follower, grabPickup1))
-                .thenDelay(POST_GRAB_DELAY)
+                .thenDelay(PRE_GRAB_DELAY)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
                 .thenDelay(POST_GRAB_DELAY)
@@ -328,7 +348,7 @@ public class SampleAuto extends OpMode {
                 // GRAB PICKUP 2
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup2")
                 .then(new B_ReleaseSampleAndPreGrabAutoShort(), new FollowPathTask(follower, grabPickup2))
-                .thenDelay(POST_GRAB_DELAY)
+                .thenDelay(PRE_GRAB_DELAY)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
                 .thenDelay(POST_GRAB_DELAY)

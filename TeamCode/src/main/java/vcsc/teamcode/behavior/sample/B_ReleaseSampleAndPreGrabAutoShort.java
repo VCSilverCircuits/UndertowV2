@@ -46,21 +46,19 @@ public class B_ReleaseSampleAndPreGrabAutoShort extends Behavior {
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SAMPLE);
         A_SetClawPose openClaw = new A_SetClawPose(ClawPose.OPEN);
 
-        A_SetElbowPose elbowOutPreGrab = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_GRAB);
-        A_SetWristHingePose hingeBackPreGrab = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_GRAB);
+        A_SetElbowPose elbowOutPreGrab = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_STRAIGHT);
+        A_SetWristHingePose hingeBackPreGrab = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_STRAIGHT);
 
         A_SetArmExtensionPose retractSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SAMPLE);
-        A_SetArmExtensionLength extendSlides = new A_SetArmExtensionLength(5);
+        A_SetArmExtensionLength extendSlides = new A_SetArmExtensionLength(35);
         A_SetArmRotationPose rotateArmDown = new A_SetArmRotationPose(ArmRotationPose.STOW_SAMPLE);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(openClaw).then(elbowOutPreGrab, hingeStraight).then(
-//                retractSlides,
-                extendSlides,
+        _taskSequence.then(openClaw).then(elbowOutPreGrab, hingeStraight).then(retractSlides).then(
                 hingeBackPreGrab,
                 twist
-        ).then(rotateArmDown);
+        ).then(rotateArmDown).then(extendSlides);
     }
 
     @Override

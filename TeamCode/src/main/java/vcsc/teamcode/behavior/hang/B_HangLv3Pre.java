@@ -11,6 +11,7 @@ import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 
 public class B_HangLv3Pre extends Behavior {
     TaskSequence _taskSequence;
+
     public B_HangLv3Pre() {
         super();
         addRequirement(ArmExtensionState.class);
@@ -24,18 +25,28 @@ public class B_HangLv3Pre extends Behavior {
         // Create Task Sequence
         _taskSequence = new TaskSequence();
         _taskSequence.then(
-            rotateArmBack
+                rotateArmBack
         ).then(
-            extendSlides
+                extendSlides
         );
     }
+
+    @Override
+    public boolean start() {
+        boolean started = super.start();
+        if (started) {
+            _taskSequence.start();
+        }
+        return started;
+    }
+
     @Override
     public void loop() {
-
+        _taskSequence.loop();
     }
 
     @Override
     public boolean isFinished() {
-        return false;
+        return _taskSequence.isFinished();
     }
 }

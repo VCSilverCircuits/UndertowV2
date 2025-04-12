@@ -14,7 +14,6 @@ import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.claw.actions.A_SetClawPose;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
-import vcsc.teamcode.cmp.elbow.actions.A_SetElbowAngle;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
@@ -60,11 +59,11 @@ public class B_ReleaseSampleAndPreGrabAuto extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(openClaw).then(elbowHover, hingeStraight).then(
-                retractSlides,
-                hingeBackPreGrab,
-                twist
-        ).thenAsync(rotateArmDown)
+        _taskSequence.then(openClaw).then(elbowStraight, hingeStraight).then(
+                        retractSlides,
+//                hingeBackPreGrab,
+                        twist
+                ).thenAsync(rotateArmDown)
                 .thenWaitUntil(() -> rotState.getRealAngle() < 60)
                 .then(extendSlides);
     }

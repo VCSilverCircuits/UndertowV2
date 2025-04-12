@@ -12,6 +12,7 @@ public class RobotState extends State<RobotState> {
 
     GlobalPose mode = GlobalPose.STOW_SAMPLE;
 
+
     public RobotState() {
     }
 
