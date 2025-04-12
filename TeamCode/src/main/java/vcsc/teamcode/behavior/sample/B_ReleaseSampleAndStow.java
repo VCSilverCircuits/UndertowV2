@@ -11,7 +11,6 @@ import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
-import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationAngle;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 import vcsc.teamcode.cmp.claw.ClawPose;
 import vcsc.teamcode.cmp.claw.ClawState;
@@ -67,7 +66,9 @@ public class B_ReleaseSampleAndStow extends Behavior {
                 .then(elbowStow, hingeStraight)
                 .thenAsync(retractSlides, twist)
                 .thenWaitUntil(() -> extState.getRealLength() < 30)
-                .then(rotateArmDown, hingeBack);
+                .then(rotateArmDown, hingeBack)
+                .thenRunnable(() -> RobotState.getInstance().setMode(GlobalPose.STOW_SAMPLE))
+        ;
     }
 
     private double drivenDistance() {
@@ -79,7 +80,6 @@ public class B_ReleaseSampleAndStow extends Behavior {
     @Override
     public boolean start() {
         super.start();
-        RobotState.getInstance().setMode(GlobalPose.STOW_SAMPLE);
         initialPose = follower.getPose();
         return _taskSequence.start();
     }

@@ -34,10 +34,14 @@ public class B_LockOn extends Behavior {
     public static PIDCoefficients xCoeffs = new PIDCoefficients(0.0035, 0, 0.00001);
     public static PIDCoefficients yCoeffsCoarse = new PIDCoefficients(0.003, 0, 0.0001);
     public static PIDCoefficients yCoeffsFine = new PIDCoefficients(0.0018, 0, 0.0001);
-    public static PIDCoefficients headingCoeffs = new PIDCoefficients(1.3, 0, 0.0005);
+    public static PIDCoefficients holdHeadingCoeffs = new PIDCoefficients(1.3, 0, 0.0005);
+    public static PIDCoefficients lockHeadingCoeffs = new PIDCoefficients(0.05, 0, 0.0005);
+
+    public static boolean USE_STRAFE = false;
     public static double strafeSpeed = 0.15;
+    public static double rotateSpeed = -0.1;
     double x_offset, y_offset, heading_offset;
-    PIDController xController, yControllerCoarse, yControllerFine, headingController;
+    PIDController xController, yControllerCoarse, yControllerFine, holdHeadingController, lockHeadingController;
     Camera camera;
     Follower follower;
     ArrayList<Double> angleList;
@@ -62,7 +66,8 @@ public class B_LockOn extends Behavior {
         xController = new PIDController(xCoeffs.p, xCoeffs.i, xCoeffs.d);
         yControllerCoarse = new PIDController(yCoeffsCoarse.p, yCoeffsCoarse.i, yCoeffsCoarse.d);
         yControllerFine = new PIDController(yCoeffsFine.p, yCoeffsFine.i, yCoeffsFine.d);
-        headingController = new PIDController(headingCoeffs.p, headingCoeffs.i, headingCoeffs.d);
+        holdHeadingController = new PIDController(holdHeadingCoeffs.p, holdHeadingCoeffs.i, holdHeadingCoeffs.d);
+        lockHeadingController = new PIDController(lockHeadingCoeffs.p, lockHeadingCoeffs.i, lockHeadingCoeffs.d);
 
         angleList = new ArrayList<>();
 
@@ -115,7 +120,7 @@ public class B_LockOn extends Behavior {
         xController.setPID(xCoeffs.p, xCoeffs.i, xCoeffs.d);
         yControllerCoarse.setPID(yCoeffsCoarse.p, yCoeffsCoarse.i, yCoeffsCoarse.d);
         yControllerFine.setPID(yCoeffsFine.p, yCoeffsFine.i, yCoeffsFine.d);
-        headingController.setPID(headingCoeffs.p, headingCoeffs.i, headingCoeffs.d);
+        holdHeadingController.setPID(holdHeadingCoeffs.p, holdHeadingCoeffs.i, holdHeadingCoeffs.d);
 
         Block block = camera.getBlock();
         heading_offset = follower.getPose().getHeading() - Math.toRadians(270);
@@ -144,6 +149,7 @@ public class B_LockOn extends Behavior {
 
             double yUpdate;
 
+
             if (yControllerCoarse.atSetPoint()) {
                 yControllerCoarse.calculate(-y_offset);
                 yUpdate = yControllerFine.calculate(-y_offset);
@@ -152,7 +158,13 @@ public class B_LockOn extends Behavior {
                 yControllerFine.calculate(-y_offset);
             }
 
-            follower.setTeleOpMovementVectors(xController.calculate(x_offset) + driveF * Math.signum(x_offset), yUpdate + strafeF * Math.signum(y_offset), headingController.calculate(heading_offset));
+            if (USE_STRAFE) {
+                follower.setTeleOpMovementVectors(yUpdate, xController.calculate(x_offset) + strafeF * Math.signum(x_offset), lockHeadingController.calculate(heading_offset));
+            } else {
+                follower.setTeleOpMovementVectors(yUpdate, 0, lockHeadingController.calculate(heading_offset));
+            }
+
+//            follower.setTeleOpMovementVectors(xController.calculate(x_offset) + driveF * Math.signum(x_offset), yUpdate + strafeF * Math.signum(y_offset), holdHeadingController.calculate(heading_offset));
 
             double angle = block.getAngle();
             if (Math.abs(angle) > 85) {
@@ -182,16 +194,21 @@ public class B_LockOn extends Behavior {
                 angleList.remove(0);
             }
 
-            if (xController.atSetPoint() && yControllerFine.atSetPoint()) {
+            if (xController.atSetPoint() && yControllerFine.atSetPoint() && follower.getVelocity().getMagnitude() < 0.1) {
                 if (!grabbing) {
                     grabbing = true;
                     sampleGrab.start();
+                    camera.takeSnapshot("grab_" + System.currentTimeMillis() + "xo_" + x_offset + "yo_" + y_offset);
                 }
             }
 
         } else {
             telem.addLine("No blocks detected.");
-            follower.setTeleOpMovementVectors(0, strafeSpeed, headingController.calculate(heading_offset));
+            if (USE_STRAFE) {
+                follower.setTeleOpMovementVectors(0, strafeSpeed, lockHeadingController.calculate(heading_offset));
+            } else {
+                follower.setTeleOpMovementVectors(0, 0, rotateSpeed);
+            }
             angleList.clear();
         }
     }
