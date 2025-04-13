@@ -64,8 +64,8 @@ public class B_ReleaseSampleAndStow extends Behavior {
         _taskSequence.then(openClaw)
                 .thenWaitUntil(() -> drivenDistance() > 2 || follower.isLocalizationNAN())
                 .then(elbowStow, hingeStraight)
-                .thenAsync(retractSlides, twist)
-                .thenWaitUntil(() -> extState.getRealLength() < 30)
+                .then(retractSlides, twist)
+//                .thenWaitUntil(() -> extState.getRealLength() < 30)
                 .then(rotateArmDown, hingeBack)
                 .thenRunnable(() -> RobotState.getInstance().setMode(GlobalPose.STOW_SAMPLE))
         ;

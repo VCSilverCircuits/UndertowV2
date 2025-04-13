@@ -7,7 +7,6 @@ import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -28,7 +27,6 @@ import vcsc.teamcode.behavior.sample.B_DepositSampleUpperAuto;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleGrab;
 import vcsc.teamcode.behavior.sample.B_IntakeSampleStraight;
 import vcsc.teamcode.behavior.sample.B_LockOn;
-import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAuto;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAutoShort;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_StowSample;
@@ -43,6 +41,7 @@ import vcsc.teamcode.cmp.camera.Camera;
 import vcsc.teamcode.cmp.claw.ClawActuator;
 import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.claw.actions.A_CloseClaw;
+import vcsc.teamcode.cmp.claw.actions.A_OpenClaw;
 import vcsc.teamcode.cmp.elbow.ElbowActuator;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
@@ -72,11 +71,11 @@ public class SampleAuto extends OpMode {
     /**
      * Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle.
      */
-    private final Pose scorePose = new Pose(15.5, 128.5, Math.toRadians(315));
-    private final Pose scorePose1 = new Pose(16, 132, Math.toRadians(-22));
+    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315)); // NOT USED FOR ANYTHING I THINK
+    private final Pose scorePose1 = new Pose(14.5, 133.5, Math.toRadians(-22));
     //    private final Pose scorePose = new Pose(15, 134.0, Math.toRadians(0));
-    private final Pose scorePose2 = new Pose(18, 136, Math.toRadians(-10));
-    private final Pose scorePose3 = new Pose(19, 138, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(16.5, 137.5, Math.toRadians(-10));
+    private final Pose scorePose3 = new Pose(18, 139.5, Math.toRadians(0));
 
     private final Pose scorePosePreload = new Pose(6, 125, Math.toRadians(270));
     /**
@@ -112,6 +111,8 @@ public class SampleAuto extends OpMode {
     protected ElbowState elbowState;
     protected WristHingeState wristHingeState;
     protected WristTwistState wristTwistState;
+    Pose pose1 = new Pose(0, 00, 0);
+    Pose pose2 = new Pose(0, 00, 0);
     /**
      * Start Pose of our robot
      */
@@ -250,11 +251,11 @@ public class SampleAuto extends OpMode {
         normalLoop();
         auto.loop();
 
-        if (opmodeTimer.getElapsedTime() > 29500 && !over) {
+        if (opmodeTimer.getElapsedTime() > 29600 && !over) {
             over = true;
             taskManager.clearTasks();
             auto.cancel();
-            taskManager.runTask(new B_StowSample());
+            taskManager.runTask(new TaskSequence(new A_OpenClaw(), new B_StowSample()));
         }
 
         telemetry.addData("x", follower.getPose().getX());
@@ -317,20 +318,21 @@ public class SampleAuto extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         FollowerWrapper.setFollower(follower);
         buildPaths();
 
-        long DROP_DELAY = 100;
+        long DROP_DELAY = 50;
         long PRE_GRAB_DELAY = 100;
         long POST_GRAB_DELAY = 50;
 
+        follower.setMaxPower(0.8);
 
         auto.thenLog("[AUTO] DepositUpper & Go to scorePreload")
                 // SCORE PRELOAD
                 .then(new B_DepositSampleUpperAuto(), new FollowPathTask(follower, scorePreload))
+                .thenDelay(DROP_DELAY)
 
                 // GRAB PICKUP 1
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup1")
@@ -360,8 +362,9 @@ public class SampleAuto extends OpMode {
 
                 // GRAB PICKUP 3
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup3")
-                .then(new B_ReleaseSampleAndPreGrabAuto(), new FollowPathTask(follower, grabPickup3))
-                .thenDelay(500)
+                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, grabPickup3))
+                .then(new B_IntakeSampleStraight())
+                .thenDelay(80)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
                 .thenDelay(300)
@@ -371,28 +374,31 @@ public class SampleAuto extends OpMode {
                 .then(new B_DepositSampleUpperAuto(), new FollowPathTask(follower, scorePickup3))
                 .thenDelay(DROP_DELAY)
 
-                // PARK
+                // GO TO SUBMERSIBLE
                 .thenLog("[AUTO] (Stow then Intake) & Go to park")
-                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, park))
+                .then(new TaskSequence(new B_ReleaseSampleAndStow()), new FollowPathTask(follower, park))
+                .then(new B_IntakeSampleStraight())
 
                 // Intake from submersible
-                .then(new B_IntakeSampleStraight())
+//                .then(new B_IntakeSampleStraight())
                 .then(new B_LockOn())
                 .then(new B_StowSampleAfterIntake())
                 .thenAsync(new B_DepositSampleUpperAuto())
                 .thenFollowPath(follower, submersibleToScore)
                 .thenDelay(DROP_DELAY)
-                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, park))
-
+                .then(new TaskSequence(new B_ReleaseSampleAndStow()), new FollowPathTask(follower, park))
                 .then(new B_IntakeSampleStraight())
+
+//                .then(new B_IntakeSampleStraight())
                 .then(new B_LockOn())
                 .then(new B_StowSampleAfterIntake())
                 .thenAsync(new B_DepositSampleUpperAuto())
                 .thenFollowPath(follower, submersibleToScore)
                 .thenDelay(DROP_DELAY)
-                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, park))
-
+                .then(new TaskSequence(new B_ReleaseSampleAndStow()), new FollowPathTask(follower, park))
                 .then(new B_IntakeSampleStraight())
+
+//                .then(new B_IntakeSampleStraight())
                 .then(new B_LockOn())
                 .then(new B_StowSampleAfterIntake())
                 .thenAsync(new B_DepositSampleUpperAuto())
@@ -409,6 +415,9 @@ public class SampleAuto extends OpMode {
         armRotActuator.loop();
         clawActuator.loop();
         taskManager.loop();
+        for (LynxModule hub : allHubs) {
+            hub.clearBulkCache();
+        }
     }
 
     /**

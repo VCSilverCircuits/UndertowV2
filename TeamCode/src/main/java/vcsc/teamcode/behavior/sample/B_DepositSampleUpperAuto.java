@@ -13,10 +13,8 @@ import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
 import vcsc.teamcode.cmp.robot.RobotState;
-import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
 import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingeAngle;
-import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingePose;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistPose;
@@ -37,7 +35,7 @@ public class B_DepositSampleUpperAuto extends Behavior {
 
         // Establish needed actions
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.DEPOSIT_SAMPLE_UPPER);
-        A_SetWristHingeAngle hingeBack = new A_SetWristHingeAngle(0.7);
+        A_SetWristHingeAngle hingeBack = new A_SetWristHingeAngle(0.6);
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.DEPOSIT_SAMPLE_UPPER);
         A_SetWristHingeAngle hingeAway = new A_SetWristHingeAngle(0.35);
 

@@ -34,7 +34,7 @@ public class B_LockOn extends Behavior {
     public static final double MAX_ROTATE_ANGLE = 45;
     private static final double strafeF = 0.005;
     private static final double driveF = 0.005;
-    public static PIDCoefficients xCoeffs = new PIDCoefficients(0.0035, 0, 0.00001);
+    public static PIDCoefficients xCoeffs = new PIDCoefficients(0.0015, 0, 0.00001);
     public static PIDCoefficients yCoeffsCoarse = new PIDCoefficients(0.003, 0, 0.0001);
     public static PIDCoefficients yCoeffsFine = new PIDCoefficients(0.0018, 0, 0.0001);
     public static PIDCoefficients holdHeadingCoeffs = new PIDCoefficients(1.3, 0, 0.0005);

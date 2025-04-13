@@ -8,7 +8,6 @@ import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -246,7 +245,7 @@ public class SpecimenAuto extends OpMode {
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
-        
+
         follower.update();
         taskManager.loop();
         clawActuator.loop();
@@ -368,8 +367,7 @@ public class SpecimenAuto extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         FollowerWrapper.setFollower(follower);
         buildPaths();
@@ -394,6 +392,10 @@ public class SpecimenAuto extends OpMode {
     @Override
     public void init_loop() {
         taskManager.loop();
+
+        for (LynxModule hub : allHubs) {
+            hub.clearBulkCache();
+        }
 
         elbowActuator.loop();
         wristHingeActuator.loop();

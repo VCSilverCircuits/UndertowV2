@@ -7,6 +7,7 @@ import vcsc.core.abstracts.templates.poweredPIDF.PoweredPIDFState;
 
 public class ArmRotationState extends PoweredPIDFState<ArmRotationState, ArmRotationPose> {
     ArmRotationPose currentPose;
+    boolean disabled = false;
 
     public ArmRotationState() {
         this.power = 0;
@@ -18,6 +19,14 @@ public class ArmRotationState extends PoweredPIDFState<ArmRotationState, ArmRota
 
     public void setAngle(Action<ArmRotationState> action, double angle) {
         setTargetPosition(action, angle / DEGREES_PER_TICK);
+    }
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
     }
 
     public double getRealAngle() {

@@ -63,7 +63,7 @@ public enum GlobalPose implements RobotMode {
     ),
     DEPOSIT_SAMPLE_UPPER(
             71.0,
-            97.5,
+            93.0,
             0.45,
             0.55,
             0.38,
@@ -110,10 +110,10 @@ public enum GlobalPose implements RobotMode {
             1.0
     ),
     PRE_LV3_HANG(
-            30.0,
-            0.0,
-            0.38,
-            0.13,
+            50.0,
+            140.0,
+            0.9,
+            0.6,
             0.38,
             1.0
     );

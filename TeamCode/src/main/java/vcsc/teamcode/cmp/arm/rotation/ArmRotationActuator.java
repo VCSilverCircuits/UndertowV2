@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
+import vcsc.core.abstracts.state.State;
 import vcsc.core.abstracts.templates.poweredPIDF.PoweredPIDFActuator;
 import vcsc.core.util.DcMotorGroup;
 import vcsc.core.util.GlobalTelemetry;
@@ -23,6 +24,8 @@ public class ArmRotationActuator extends PoweredPIDFActuator<ArmRotationState, A
     public static final double DEGREES_PER_TICK = 360.0 / (TPR * MOTOR_GEAR_RATIO * DRIVE_GEAR_RATIO);
     DcMotorGroup motors;
     private double maxSpeed = 1.0;
+
+    private boolean disabled = false;
 
     public ArmRotationActuator(HardwareMap hardwareMap, PIDFCoefficients coefficients) {
         super(coefficients);
@@ -73,6 +76,10 @@ public class ArmRotationActuator extends PoweredPIDFActuator<ArmRotationState, A
 
     @Override
     protected void loopPower() {
+        if (disabled) {
+            motors.setPower(0);
+            return;
+        }
         if (motors.getPower() != power) {
             motors.setPower(power);
         }
@@ -80,7 +87,17 @@ public class ArmRotationActuator extends PoweredPIDFActuator<ArmRotationState, A
     }
 
     @Override
+    public void updateState(State<ArmRotationState> newState) {
+        super.updateState(newState);
+        disabled = ((ArmRotationState) newState).isDisabled();
+    }
+
+    @Override
     protected void loopPID() {
+        if (disabled) {
+            motors.setPower(0);
+            return;
+        }
         MultipleTelemetry telemetry = GlobalTelemetry.getInstance();
         double outputPower = controller.calculate(getPosition());
         telemetry.addData("ArmRotation Set point", controller.getSetPoint());

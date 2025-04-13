@@ -7,7 +7,6 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -27,12 +26,10 @@ import pedroPathing.constants.LConstants;
  */
 @Autonomous(name = "Triangle", group = "Examples")
 public class Triangle extends OpMode {
-    private Follower follower;
-
-    private final Pose startPose = new Pose(0,0, Math.toRadians(0));
+    private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
     private final Pose interPose = new Pose(24, -24, Math.toRadians(90));
     private final Pose endPose = new Pose(24, 24, Math.toRadians(45));
-
+    private Follower follower;
     private PathChain triangle;
 
     private Telemetry telemetryA;
@@ -58,8 +55,7 @@ public class Triangle extends OpMode {
      */
     @Override
     public void init() {
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
 
         triangle = follower.pathBuilder()

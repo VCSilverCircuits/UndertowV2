@@ -2,9 +2,9 @@ package vcsc.teamcode.opmodes.base;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
 
@@ -17,6 +17,7 @@ import vcsc.core.util.GlobalTelemetry;
 import vcsc.core.util.gamepad.BindingManager;
 import vcsc.core.util.gamepad.BindingSet;
 import vcsc.core.util.gamepad.GamepadWrapper;
+import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionActuator;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationActuator;
@@ -40,6 +41,7 @@ public class BaseOpMode extends OpMode {
     protected TaskManager taskManager = TaskManager.getInstance();
     protected BindingManager bindingManager = BindingManager.getInstance();
     protected RobotState robotState = RobotState.getInstance();
+    protected ElapsedTime matchTimer;
     protected ClawState clawState;
     protected ArmExtensionState armExtState;
     protected ArmRotationState armRotState;
@@ -54,6 +56,7 @@ public class BaseOpMode extends OpMode {
     ElbowActuator elbowActuator;
     WristHingeActuator wristHingeActuator;
     WristTwistActuator wristTwistActuator;
+    boolean rumbledEndGame = false, rumbledMatchEnd = false;
 
     GamepadWrapper gw1, gw2;
     List<LynxModule> allHubs;
@@ -68,6 +71,8 @@ public class BaseOpMode extends OpMode {
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
+
+        matchTimer = new ElapsedTime();
 
 
         StateRegistry reg = StateRegistry.getInstance();
@@ -104,8 +109,7 @@ public class BaseOpMode extends OpMode {
         gw1 = new GamepadWrapper(gamepad1);
         gw2 = new GamepadWrapper(gamepad2);
 
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         FollowerWrapper.setFollower(follower);
 
         bindingManager.setDefaultMode(GlobalPose.DEFAULT);
@@ -119,6 +123,7 @@ public class BaseOpMode extends OpMode {
     @Override
     public void start() {
         super.start();
+        matchTimer.reset();
         follower.startTeleopDrive();
     }
 
@@ -170,6 +175,30 @@ public class BaseOpMode extends OpMode {
                     -gamepad1.right_stick_x * robotState.getTurnSpeed(),
                     true
             );
+        }
+
+        if (Thread.currentThread().isInterrupted()) {
+            gamepad1.rumbleBlips(5);
+            gamepad2.rumbleBlips(5);
+            if (gamepad1.start) {
+                taskManager.runTask(new B_StowSample());
+                requestOpModeStop();
+            }
+        }
+
+        /*  ================
+            Both Controllers
+            ================ */
+
+        // ----- Rumbling -----
+        if (matchTimer.seconds() >= 90 && !rumbledEndGame) { // End game rumble
+            gamepad1.rumble(500);
+            gamepad2.rumble(500);
+            rumbledEndGame = true;
+        } else if (matchTimer.seconds() >= 120 && !rumbledMatchEnd) { // Match end 3 rumbles
+            gamepad1.rumbleBlips(3);
+            gamepad2.rumbleBlips(3);
+            rumbledMatchEnd = true;
         }
 
         follower.update();

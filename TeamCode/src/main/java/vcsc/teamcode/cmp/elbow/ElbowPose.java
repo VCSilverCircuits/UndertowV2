@@ -17,6 +17,7 @@ public enum ElbowPose implements RotatorPose {
     DEPOSIT_SPECIMEN(GlobalPose.DEPOSIT_SPECIMEN),
     HANG_PRE(GlobalPose.HANG_PRE),
     HANG_LV2_P2(GlobalPose.HANG_LV2_P2),
+    PRE_LV3_HANG(GlobalPose.PRE_LV3_HANG),
     HANG_RELEASE(GlobalPose.HANG_RELEASE);
 
     final Double angle;

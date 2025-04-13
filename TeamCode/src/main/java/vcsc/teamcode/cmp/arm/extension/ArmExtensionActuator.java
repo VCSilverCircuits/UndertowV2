@@ -25,7 +25,7 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
 
     public static final double PULLEY_DIAMETER = 26;
     public static final double CM_PER_TICK = PULLEY_DIAMETER * Math.PI / (10.0 * DRIVE_GEAR_RATIO * MOTOR_GEAR_RATIO * TPR);
-    public static final double MAX_EXTENSION_POWER = 1.0;
+    public static final double MAX_EXTENSION_POWER = 0.85;
     DcMotorGroup motors;
     TouchSensor touchSensor;
 
@@ -83,6 +83,7 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
         MultipleTelemetry telemetry = GlobalTelemetry.getInstance();
         // NOTE: Encoders for extension run backwards
         double outputPower = controller.calculate(getPosition());
+
 //        telemetry.addData("Run Position", controller.getSetPoint());
 //        telemetry.addData("At Position", controller.atSetPoint());
 //        telemetry.addData("Output Power", outputPower);

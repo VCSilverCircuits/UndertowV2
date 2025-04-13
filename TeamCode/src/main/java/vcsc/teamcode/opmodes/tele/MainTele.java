@@ -235,7 +235,9 @@ public class MainTele extends BaseOpMode {
     public void loop() {
         super.loop();
 
-        if ((RobotState.getInstance().getMode() == GlobalPose.INTAKE_SAMPLE_HOVER || RobotState.getInstance().getMode() == GlobalPose.INTAKE_SAMPLE_CAMERA_SEARCH) && Math.abs(gamepad2.right_stick_x) > 0) {
+        if ((RobotState.getInstance().getMode() == GlobalPose.INTAKE_SAMPLE_HOVER
+                || RobotState.getInstance().getMode() == GlobalPose.INTAKE_SAMPLE_CAMERA_SEARCH)
+                && Math.abs(gamepad2.right_stick_x) > 0) {
             if (!lockOn.isFinished()) {
                 TaskManager.getInstance().cancelTask(lockOn);
                 taskManager.runTask(new B_IntakeSampleHover());
