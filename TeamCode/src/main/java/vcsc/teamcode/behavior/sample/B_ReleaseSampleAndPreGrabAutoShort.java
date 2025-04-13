@@ -46,8 +46,8 @@ public class B_ReleaseSampleAndPreGrabAutoShort extends Behavior {
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SAMPLE);
         A_SetClawPose openClaw = new A_SetClawPose(ClawPose.OPEN);
 
-        A_SetElbowPose elbowOutPreGrab = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_STRAIGHT);
-        A_SetWristHingePose hingeBackPreGrab = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_STRAIGHT);
+        A_SetElbowPose elbowOutPreGrab = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_HOVER);
+        A_SetWristHingePose hingeBackPreGrab = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_HOVER);
 
         A_SetArmExtensionPose retractSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SAMPLE);
         A_SetArmExtensionLength extendSlides = new A_SetArmExtensionLength(35);

@@ -1,6 +1,7 @@
 package vcsc.teamcode.opmodes.auto;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -16,7 +17,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import java.util.List;
 
-import pedroPathing.constants.FConstants;
+import pedroPathing.constants.FConstantsSpecimenAuto;
 import pedroPathing.constants.LConstants;
 import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.abstracts.task.DelayTask;
@@ -41,6 +42,7 @@ import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 import vcsc.teamcode.cmp.claw.ClawActuator;
 import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.claw.actions.A_CloseClaw;
+import vcsc.teamcode.cmp.claw.actions.A_OpenClaw;
 import vcsc.teamcode.cmp.elbow.ElbowActuator;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
@@ -70,9 +72,9 @@ import vcsc.teamcode.config.GlobalConfig;
 @Autonomous(name = "Specimen Auto", group = "Auto Test")
 public class SpecimenAuto extends OpMode {
 
-    private static final double SCORE_X = 41;
+    private static final double SCORE_X = 40.75;
     private static final double SCORE_Y_INITIAL = 80;
-    private static final double SCORE_SPACING = -1.5;
+    private static final double SCORE_SPACING = -1;
     private static final double PUSH_X = 24;
     private static final double PRE_PUSH_X = 57;
     /**
@@ -80,12 +82,13 @@ public class SpecimenAuto extends OpMode {
      */
     private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
     private final Pose intakePose = new Pose(7, 33, Math.toRadians(0));
+    private final Pose preSprint = new Pose(8, 33, Math.toRadians(270));
     private final Pose push1Pose = new Pose(PUSH_X, 24, Math.toRadians(0));
     private final Pose push2Pose = new Pose(PUSH_X, 14, Math.toRadians(0));
     private final Pose prePush2Pose = new Pose(PRE_PUSH_X, 14, Math.toRadians(0));
     private final Pose push3Pose = new Pose(PUSH_X, 9.1, Math.toRadians(0));
     private final Pose prePush3Pose = new Pose(PRE_PUSH_X, 9.3, Math.toRadians(0));
-    private final Pose basketScorePose = new Pose(7, 115, Math.toRadians(90));
+    private final Pose basketScorePose = new Pose(8, 135, Math.toRadians(270));
     protected MultipleTelemetry telem;
     protected TaskManager taskManager = TaskManager.getInstance();
     protected RobotState robotState = RobotState.getInstance();
@@ -115,6 +118,9 @@ public class SpecimenAuto extends OpMode {
     PathChain pushPop, intakeToBasket;
     TaskSequence auto = new TaskSequence();
     List<LynxModule> allHubs;
+    PathChain sprint, sprintTurn;
+    PIDFController headingController;
+    boolean sprinting = false;
     private Follower follower;
     private Timer opmodeTimer;
     private int specimenNum = 0;
@@ -188,6 +194,12 @@ public class SpecimenAuto extends OpMode {
                 .build();
 
         intakeToBasket = linearInterpolateLine(intakePose, basketScorePose);
+
+        sprint = follower.pathBuilder()
+                .addPath(linearInterpolateLinePath(intakePose, preSprint))
+                .addPath(linearInterpolateLinePath(preSprint, basketScorePose)).build();
+
+        sprintTurn = linearInterpolateLine(intakePose, preSprint);
     }
 
     private PathChain linearInterpolateLine(Pose start, Pose end) {
@@ -255,16 +267,28 @@ public class SpecimenAuto extends OpMode {
         wristHingeActuator.loop();
         wristTwistActuator.loop();
 
+        System.out.println("===================================");
+        System.out.println("Overall States:");
+        System.out.println("Robot Mode: " + robotState.getMode());
+        System.out.println("Claw Pose: " + clawState.getPose());
+        System.out.println("Arm Extension Pose: " + armExtState.getTargetPose());
+        System.out.println("Ext actuator touch sensor: " + armExtActuator.isTouching());
+        System.out.println("Arm Rotation Pose: " + armRotState.getTargetPose());
+        System.out.println("Elbow Pose: " + elbowState.getPose());
+        System.out.println("Wrist Hinge Pose: " + wristHingeState.getPose());
+        System.out.println("Wrist Twist Pose: " + wristTwistState.getPose());
+        System.out.println("---------- Task Manager -------------");
+
         // Feedback to Driver Hub
         telemetry.addLine("Current tasks:");
         for (Task task : auto.getTasks()) {
             telemetry.addLine("     " + task.getClass().getSimpleName());
         }
 
-        if (opmodeTimer.getElapsedTime() > 29500 && !over) {
+        if (opmodeTimer.getElapsedTime() > 29750 && !over) {
             over = true;
-            taskManager.clearTasks();
-            taskManager.runTask(new B_StowSample());
+//            taskManager.clearTasks();
+            taskManager.runTask(new TaskSequence(new A_OpenClaw(), new B_StowSample()), true);
         }
     }
 
@@ -275,6 +299,11 @@ public class SpecimenAuto extends OpMode {
     public void loop() {
         normalLoop();
 //        auto.loop();
+
+        if (sprinting) {
+            follower.setTeleOpMovementVectors(-1, 0, headingController.calculate(follower.getPose().getHeading()));
+        }
+
 
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -292,6 +321,8 @@ public class SpecimenAuto extends OpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
         StateRegistry reg = StateRegistry.getInstance();
+        reg.clearStates();
+
         clawState = new ClawState();
         clawActuator = new ClawActuator(hardwareMap);
         clawState.registerActuator(clawActuator);
@@ -336,7 +367,7 @@ public class SpecimenAuto extends OpMode {
     public TaskSequence intakeSpecimen() {
         return new TaskSequence()
                 .thenAsync(new B_IntakeSpecimen(), new FollowPathTask(follower, getIntakePathChain()))
-                .thenWaitUntil(() -> follower.getPose().getX() < intakePose.getX() + 1 || !follower.isBusy())
+                .thenWaitUntil(() -> follower.getPose().getX() < intakePose.getX() + 1 && follower.getVelocity().getXComponent() < 0.2 || !follower.isBusy())
                 .thenAsync(new B_GrabSpecimenAndStow()).thenDelay(100);
     }
 
@@ -367,10 +398,12 @@ public class SpecimenAuto extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstantsSpecimenAuto.class, LConstants.class);
         follower.setStartingPose(startPose);
         FollowerWrapper.setFollower(follower);
         buildPaths();
+
+        headingController = new PIDFController(1, 0, 0.05, 0);
 
         auto.then(scoreSpecimen(startPose))
                 // Intake specimen feels like it shouldn't be necessary here, but
@@ -379,9 +412,20 @@ public class SpecimenAuto extends OpMode {
                 .thenDelay(150)
                 .then(new B_GrabSpecimenAndStow())
                 .then(specimenLoop(4))
-                .then(intakeSpecimen())
+                .then(new FollowPathTask(follower, sprintTurn))
+                .thenRunnable(() -> {
+                    headingController.setSetPoint(Math.toRadians(270));
+                    follower.startTeleopDrive();
+                    sprinting = true;
+                })
+//                .thenAsync(new FollowPathTask(follower, sprint))
+                .thenWaitUntil(() -> follower.getPose().getY() > 38)
                 .thenAsync(new B_DepositSampleLower())
-                .thenFollowPath(follower, intakeToBasket)
+                .thenWaitUntil(() -> follower.getPose().getY() > 130)
+                .thenRunnable(() -> {
+                    follower.setTeleOpMovementVectors(0, 0, 0);
+                    sprinting = false;
+                })
                 .then(new B_ReleaseSampleAndStow())
                 .then(intakeSpecimen());
     }
@@ -391,12 +435,29 @@ public class SpecimenAuto extends OpMode {
      **/
     @Override
     public void init_loop() {
-        taskManager.loop();
-
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
 
+        System.out.println("===================================");
+        System.out.println("Overall States:");
+        System.out.println("Robot Mode: " + robotState.getMode());
+        System.out.println("Claw Pose: " + clawState.getPose());
+        System.out.println("Arm Extension Pose: " + armExtState.getTargetPose());
+        System.out.println("Ext actuator touch sensor: " + armExtActuator.isTouching());
+        System.out.println("Arm Rotation Pose: " + armRotState.getTargetPose());
+        System.out.println("Elbow Pose: " + elbowState.getPose());
+        System.out.println("Wrist Hinge Pose: " + wristHingeState.getPose());
+        System.out.println("Wrist Twist Pose: " + wristTwistState.getPose());
+        System.out.println("---------- Task Manager -------------");
+
+        // Feedback to Driver Hub
+        telemetry.addLine("Current tasks:");
+        for (Task task : auto.getTasks()) {
+            telemetry.addLine("     " + task.getClass().getSimpleName());
+        }
+
+        taskManager.loop();
         elbowActuator.loop();
         wristHingeActuator.loop();
         wristTwistActuator.loop();
