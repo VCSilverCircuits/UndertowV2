@@ -288,7 +288,7 @@ public class SpecimenAuto extends OpMode {
         if (opmodeTimer.getElapsedTime() > 29750 && !over) {
             over = true;
 //            taskManager.clearTasks();
-            taskManager.runTask(new TaskSequence(new A_OpenClaw(), new B_StowSample()), true);
+            taskManager.runTask(new TaskSequence( new B_StowSample()), true);
         }
     }
 
@@ -416,17 +416,10 @@ public class SpecimenAuto extends OpMode {
                 .thenRunnable(() -> {
                     headingController.setSetPoint(Math.toRadians(270));
                     follower.startTeleopDrive();
-                    sprinting = true;
+                    sprinting = false;
                 })
 //                .thenAsync(new FollowPathTask(follower, sprint))
                 .thenWaitUntil(() -> follower.getPose().getY() > 38)
-                .thenAsync(new B_DepositSampleLower())
-                .thenWaitUntil(() -> follower.getPose().getY() > 130)
-                .thenRunnable(() -> {
-                    follower.setTeleOpMovementVectors(0, 0, 0);
-                    sprinting = false;
-                })
-                .then(new B_ReleaseSampleAndStow())
                 .then(intakeSpecimen());
     }
 

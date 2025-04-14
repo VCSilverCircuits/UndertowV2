@@ -275,7 +275,7 @@ public class SampleAuto extends OpMode {
 
         StateRegistry reg = StateRegistry.getInstance();
         reg.clearStates();
-        
+
         clawState = new ClawState();
         clawActuator = new ClawActuator(hardwareMap);
         clawState.registerActuator(clawActuator);
