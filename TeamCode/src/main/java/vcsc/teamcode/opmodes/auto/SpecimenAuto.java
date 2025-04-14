@@ -26,8 +26,6 @@ import vcsc.core.abstracts.task.Task;
 import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
-import vcsc.teamcode.behavior.sample.B_DepositSampleLower;
-import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
 import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
@@ -42,7 +40,6 @@ import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 import vcsc.teamcode.cmp.claw.ClawActuator;
 import vcsc.teamcode.cmp.claw.ClawState;
 import vcsc.teamcode.cmp.claw.actions.A_CloseClaw;
-import vcsc.teamcode.cmp.claw.actions.A_OpenClaw;
 import vcsc.teamcode.cmp.elbow.ElbowActuator;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
@@ -89,6 +86,7 @@ public class SpecimenAuto extends OpMode {
     private final Pose push3Pose = new Pose(PUSH_X, 9.1, Math.toRadians(0));
     private final Pose prePush3Pose = new Pose(PRE_PUSH_X, 9.3, Math.toRadians(0));
     private final Pose basketScorePose = new Pose(8, 135, Math.toRadians(270));
+    private final Pose parkPose = new Pose(7, 33, Math.toRadians(90));
     protected MultipleTelemetry telem;
     protected TaskManager taskManager = TaskManager.getInstance();
     protected RobotState robotState = RobotState.getInstance();
@@ -115,7 +113,7 @@ public class SpecimenAuto extends OpMode {
     WristHingeActuator wristHingeActuator;
     WristTwistActuator wristTwistActuator;
     /* These are our Paths and PathChains that we will define in buildPaths() */
-    PathChain pushPop, intakeToBasket;
+    PathChain pushPop, intakeToBasket, intakeToPark;
     TaskSequence auto = new TaskSequence();
     List<LynxModule> allHubs;
     PathChain sprint, sprintTurn;
@@ -200,6 +198,8 @@ public class SpecimenAuto extends OpMode {
                 .addPath(linearInterpolateLinePath(preSprint, basketScorePose)).build();
 
         sprintTurn = linearInterpolateLine(intakePose, preSprint);
+
+        intakeToPark = linearInterpolateLine(intakePose, parkPose);
     }
 
     private PathChain linearInterpolateLine(Pose start, Pose end) {
@@ -288,7 +288,7 @@ public class SpecimenAuto extends OpMode {
         if (opmodeTimer.getElapsedTime() > 29750 && !over) {
             over = true;
 //            taskManager.clearTasks();
-            taskManager.runTask(new TaskSequence( new B_StowSample()), true);
+            taskManager.runTask(new TaskSequence(new B_StowSample()), true);
         }
     }
 
@@ -412,14 +412,7 @@ public class SpecimenAuto extends OpMode {
                 .thenDelay(150)
                 .then(new B_GrabSpecimenAndStow())
                 .then(specimenLoop(4))
-                .then(new FollowPathTask(follower, sprintTurn))
-                .thenRunnable(() -> {
-                    headingController.setSetPoint(Math.toRadians(270));
-                    follower.startTeleopDrive();
-                    sprinting = false;
-                })
-//                .thenAsync(new FollowPathTask(follower, sprint))
-                .thenWaitUntil(() -> follower.getPose().getY() > 38)
+                .thenFollowPath(follower, intakeToPark)
                 .then(intakeSpecimen());
     }
 
