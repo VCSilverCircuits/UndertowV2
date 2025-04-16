@@ -35,7 +35,7 @@ public class B_HangLv2P2 extends Behavior {
         _taskSequence.then(slidesInPower)
                 .thenWaitUntil(
                         () -> extState.getRealLength() <= ArmExtensionPose.HANG_LV2_P2.getLength() || extState.isTouching()
-                ).then(slidesInStop);
+                );
     }
 
     @Override

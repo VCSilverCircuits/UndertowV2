@@ -12,6 +12,7 @@ import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPower;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
+import vcsc.teamcode.cmp.elbow.actions.A_SetElbowAngle;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
@@ -34,6 +35,9 @@ public class B_HangLv3Pre extends Behavior {
         A_SetWristHingePose wristHingeBack = new A_SetWristHingePose(WristHingePose.PRE_LV3_HANG);
         A_SetElbowPose elbowBack = new A_SetElbowPose(ElbowPose.PRE_LV3_HANG);
 
+        A_SetElbowAngle elbowStraight = new A_SetElbowAngle(0.75);
+        A_SetWristHingePose hingeStraight = new A_SetWristHingePose(WristHingePose.STRAIGHT);
+
         A_SetArmRotationPower rotateBackPower = new A_SetArmRotationPower(1);
         A_SetArmRotationPower rotateBackStop = new A_SetArmRotationPower(0);
 
@@ -47,7 +51,10 @@ public class B_HangLv3Pre extends Behavior {
                 ).then(rotateBackStop)
                 .then(
                         extendSlides
-                ).then(elbowBack, wristHingeBack);
+                )
+                .then(elbowStraight, hingeStraight)
+                .thenDelay(500)
+                .then(elbowBack, wristHingeBack);
     }
 
     @Override
