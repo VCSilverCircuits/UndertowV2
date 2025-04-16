@@ -1,29 +1,30 @@
 package pedroPathing.tuners_tests.automatic;
 
-import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
-import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
-import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
-import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 import static com.pedropathing.follower.FollowerConstants.leftFrontMotorDirection;
+import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.leftRearMotorDirection;
+import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightFrontMotorDirection;
+import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorDirection;
+import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.localization.PoseUpdater;
+import com.pedropathing.pathgen.MathFunctions;
+import com.pedropathing.pathgen.Vector;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import com.pedropathing.localization.PoseUpdater;
-import com.pedropathing.pathgen.MathFunctions;
-import com.pedropathing.pathgen.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,21 +48,18 @@ import pedroPathing.constants.LConstants;
  * @author Harrison Womack - 10158 Scott's Bots
  * @version 1.0, 3/13/2024
  */
+@Disabled
 @Config
 @Autonomous(name = "Lateral Zero Power Acceleration Tuner", group = "Automatic Tuners")
 public class LateralZeroPowerAccelerationTuner extends OpMode {
-    private ArrayList<Double> accelerations = new ArrayList<>();
-
+    public static double VELOCITY = 30;
+    private final ArrayList<Double> accelerations = new ArrayList<>();
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
     private DcMotorEx rightFront;
     private DcMotorEx rightRear;
     private List<DcMotorEx> motors;
-
     private PoseUpdater poseUpdater;
-
-    public static double VELOCITY = 30;
-
     private double previousVelocity;
 
     private long previousTimeNano;
@@ -162,7 +160,7 @@ public class LateralZeroPowerAccelerationTuner extends OpMode {
             for (Double acceleration : accelerations) {
                 average += acceleration;
             }
-            average /= (double) accelerations.size();
+            average /= accelerations.size();
 
             telemetryA.addData("lateral zero power acceleration (deceleration):", average);
             telemetryA.update();

@@ -1,11 +1,13 @@
 package vcsc.teamcode.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPower;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPower;
 import vcsc.teamcode.opmodes.base.BaseOpMode;
 
+@Disabled
 @TeleOp(name = "Arm Test", group = "Test")
 public class ArmTest extends BaseOpMode {
     @Override

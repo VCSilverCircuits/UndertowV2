@@ -10,7 +10,7 @@ public enum GlobalPose implements RobotMode {
             0.0,
             0.28,
             0.8,
-            0.38,
+            0.36,
             1.0
     ),
     STOW_SPECIMEN(
@@ -18,7 +18,7 @@ public enum GlobalPose implements RobotMode {
             60.0,
             0.5,
             0.5,
-            0.38,
+            0.36,
             1.0
     ),
     INTAKE_SAMPLE_STRAIGHT(
@@ -26,7 +26,7 @@ public enum GlobalPose implements RobotMode {
             0.0,
             0.4,
             0.46,
-            0.38,
+            0.36,
             1.0
     ),
     INTAKE_SAMPLE_CAMERA_SEARCH(
@@ -34,15 +34,15 @@ public enum GlobalPose implements RobotMode {
             0.0,
             0.47,
             0.42,
-            0.38,
+            0.36,
             1.0
     ),
     INTAKE_SAMPLE_HOVER(
             35.0,
             0.0,
-            0.4,
+            0.43,
             0.11,
-            0.38,
+            0.36,
             1.0
     ),
     INTAKE_SAMPLE_GRAB(
@@ -50,14 +50,14 @@ public enum GlobalPose implements RobotMode {
             0.0,
             0.31,
             0.20,
-            0.38,
+            0.36,
             0.0
     ),
     INTAKE_SPECIMEN(
             0.0,
-            52.0,
-            0.90,
-            0.43,
+            45.0,
+            0.93,
+            0.41,
             0.92,
             1.0
     ),
@@ -66,15 +66,15 @@ public enum GlobalPose implements RobotMode {
             94.5,
             0.45,
             0.55,
-            0.38,
+            0.36,
             null
     ),
     DEPOSIT_SAMPLE_LOWER(
-            35.0,
+            30.0,
             90.0,
             0.45,
             0.5,
-            0.38,
+            0.36,
             null
     ),
     DEPOSIT_SPECIMEN(
@@ -82,7 +82,7 @@ public enum GlobalPose implements RobotMode {
             65.0,
             0.15,
             0.70,
-            0.38,
+            0.36,
             null
     ),
     HANG_PRE(
@@ -90,7 +90,7 @@ public enum GlobalPose implements RobotMode {
             110.0,
             0.38,
             0.13,
-            0.38,
+            0.36,
             1.0
     ),
     HANG_LV2_P2(
@@ -98,7 +98,7 @@ public enum GlobalPose implements RobotMode {
             45.0,
             0.38,
             0.15,
-            0.38,
+            0.36,
             1.0
     ),
     HANG_RELEASE(
@@ -106,7 +106,7 @@ public enum GlobalPose implements RobotMode {
             50.0,
             0.38,
             0.15,
-            0.38,
+            0.36,
             1.0
     ),
     PRE_LV3_HANG(
@@ -114,7 +114,7 @@ public enum GlobalPose implements RobotMode {
             140.0,
             0.9,
             0.6,
-            0.38,
+            0.36,
             1.0
     );
     private final Double armExtensionLength;

@@ -96,9 +96,11 @@ public class B_LockOn extends Behavior {
         RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_CAMERA_SEARCH);
 
         grabbing = false;
+        foundBlock = false;
 
         startAngle = follower.getPose().getHeading();
 
+        detectionTimer.reset();
 
         finished = false;
         failure = false;
@@ -144,7 +146,7 @@ public class B_LockOn extends Behavior {
         }
 
         if (Math.abs(Math.toDegrees(follower.getPose().getHeading() - start_heading)) > MAX_ROTATE_ANGLE) {
-
+            
         }
 
         if (block != null) {
@@ -240,6 +242,8 @@ public class B_LockOn extends Behavior {
             sampleGrab.cancel();
         }
         finished = true;
+        grabbing = false;
+        foundBlock = false;
         follower.setTeleOpMovementVectors(0, 0, 0);
     }
 

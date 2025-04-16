@@ -53,6 +53,7 @@ import vcsc.teamcode.cmp.wrist.hinge.WristHingeActuator;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistActuator;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
+import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistAngle;
 import vcsc.teamcode.config.GlobalConfig;
 
 /**
@@ -65,7 +66,7 @@ import vcsc.teamcode.config.GlobalConfig;
  * @version 2.0, 11/28/2024
  */
 
-@Autonomous(name = "Sample Auto", group = "Auto Test")
+@Autonomous(name = "Sample Auto", group = "Auto", preselectTeleOp = "Tele")
 public class SampleAuto extends OpMode {
 
     private final Pose startPose = new Pose(6, 112, Math.toRadians(270));
@@ -92,7 +93,7 @@ public class SampleAuto extends OpMode {
     /**
      * Highest (Third) Sample from the Spike Mark
      */
-    private final Pose pickup3Pose = new Pose(22, 134.5, Math.toRadians(12));
+    private final Pose pickup3Pose = new Pose(21, 134.5, Math.toRadians(12));
     /**
      * Park Pose for our robot, after we do all of the scoring.
      */
@@ -338,7 +339,7 @@ public class SampleAuto extends OpMode {
 
                 // GRAB PICKUP 1
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup1")
-                .then(new B_ReleaseSampleAndPreGrabAutoShort(), new FollowPathTask(follower, grabPickup1))
+                .then(new B_ReleaseSampleAndPreGrabAutoShort(), new A_SetWristTwistAngle(0.38), new FollowPathTask(follower, grabPickup1))
                 .thenDelay(PRE_GRAB_DELAY)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
@@ -364,7 +365,7 @@ public class SampleAuto extends OpMode {
 
                 // GRAB PICKUP 3
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup3")
-                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, grabPickup3))
+                .then(new B_ReleaseSampleAndStow(), new A_SetWristTwistAngle(0.42), new FollowPathTask(follower, grabPickup3))
                 .then(new B_IntakeSampleHover())
                 .thenDelay(80)
                 .thenLog("[AUTO] Grab Sample")

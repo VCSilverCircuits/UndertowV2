@@ -1,10 +1,12 @@
 package vcsc.teamcode.opmodes.test;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
+@Disabled
 @Config
 @TeleOp(name = "Servo Test", group = "Test")
 public class ServoTest extends OpMode {

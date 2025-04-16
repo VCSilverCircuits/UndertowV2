@@ -27,8 +27,8 @@ import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.core.util.GlobalTelemetry;
 import vcsc.teamcode.behavior.sample.B_StowSample;
-import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPose;
-import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStow;
+import vcsc.teamcode.behavior.specimen.B_DepositSpecimenPoseAuto;
+import vcsc.teamcode.behavior.specimen.B_GrabSpecimenAndStowAuto;
 import vcsc.teamcode.behavior.specimen.B_IntakeSpecimen;
 import vcsc.teamcode.behavior.specimen.B_ReleaseSpecimenAndIntakeSpecimen;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionActuator;
@@ -66,7 +66,7 @@ import vcsc.teamcode.config.GlobalConfig;
  * @version 2.0, 11/28/2024
  */
 
-@Autonomous(name = "Specimen Auto", group = "Auto Test")
+@Autonomous(name = "Specimen Auto", group = "Auto", preselectTeleOp = "Tele")
 public class SpecimenAuto extends OpMode {
 
     private static final double SCORE_X = 40.75;
@@ -352,7 +352,7 @@ public class SpecimenAuto extends OpMode {
 
     public TaskSequence scoreSpecimen(Pose startPose) {
         DelayTask delay = new DelayTask(1200);
-        B_DepositSpecimenPose depositSpecimenPose = new B_DepositSpecimenPose();
+        B_DepositSpecimenPoseAuto depositSpecimenPose = new B_DepositSpecimenPoseAuto();
         FollowPathTask followPathTask = scoreSpecimenFollowPathTask(startPose);
         return new TaskSequence()
                 .thenAsync(followPathTask, depositSpecimenPose, delay)
@@ -368,7 +368,7 @@ public class SpecimenAuto extends OpMode {
         return new TaskSequence()
                 .thenAsync(new B_IntakeSpecimen(), new FollowPathTask(follower, getIntakePathChain()))
                 .thenWaitUntil(() -> follower.getPose().getX() < intakePose.getX() + 1 && follower.getVelocity().getXComponent() < 0.2 || !follower.isBusy())
-                .thenAsync(new B_GrabSpecimenAndStow()).thenDelay(100);
+                .thenAsync(new B_GrabSpecimenAndStowAuto()).thenDelay(100);
     }
 
     public TaskSequence specimenLoop(int count) {
@@ -410,7 +410,7 @@ public class SpecimenAuto extends OpMode {
                 // maybe the wait for movement isn't working in B_ReleaseSpecAndIntakeSpec
                 .then(new B_IntakeSpecimen(), new FollowPathTask(follower, pushPop))
                 .thenDelay(150)
-                .then(new B_GrabSpecimenAndStow())
+                .then(new B_GrabSpecimenAndStowAuto())
                 .then(specimenLoop(4))
                 .thenFollowPath(follower, intakeToPark)
                 .then(intakeSpecimen());

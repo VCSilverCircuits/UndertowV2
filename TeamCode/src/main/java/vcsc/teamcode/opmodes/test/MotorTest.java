@@ -1,14 +1,14 @@
 package vcsc.teamcode.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.util.DcMotorGroup;
-import vcsc.teamcode.cmp.claw.ClawState;
 
+@Disabled
 @TeleOp(name = "Motor Test", group = "Test")
 public class MotorTest extends OpMode {
     DcMotorEx zero, one, two, three;
@@ -16,6 +16,7 @@ public class MotorTest extends OpMode {
     DcMotorGroup motors;
     boolean deb = false;
     int motor = 0;
+
     @Override
     public void init() {
         zero = hardwareMap.get(DcMotorEx.class, "zero");

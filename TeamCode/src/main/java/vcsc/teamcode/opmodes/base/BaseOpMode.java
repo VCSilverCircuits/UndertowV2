@@ -205,4 +205,13 @@ public class BaseOpMode extends OpMode {
 
         telem.update();
     }
+
+    @Override
+    public void stop() {
+        super.stop();
+        follower.setTeleOpMovementVectors(0, 0, 0);
+        taskManager.clearTasks();
+        armExtState.cancelAction();
+        armRotState.cancelAction();
+    }
 }

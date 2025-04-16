@@ -14,7 +14,6 @@ import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistAngle;
 import vcsc.teamcode.config.GlobalPose;
 import vcsc.teamcode.opmodes.base.BaseOpMode;
 
-
 @Config
 @TeleOp(name = "SetPositionTest", group = "Test")
 public class SetPositionTest extends BaseOpMode {

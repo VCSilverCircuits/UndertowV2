@@ -20,10 +20,10 @@ import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistPose;
 import vcsc.teamcode.config.GlobalPose;
 
-public class B_DepositSpecimenPose extends Behavior {
+public class B_DepositSpecimenPoseAuto extends Behavior {
     TaskSequence _taskSequence;
 
-    public B_DepositSpecimenPose() {
+    public B_DepositSpecimenPoseAuto() {
         super();
 
         addRequirement(ElbowState.class);
