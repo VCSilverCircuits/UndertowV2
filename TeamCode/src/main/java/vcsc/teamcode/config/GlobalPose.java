@@ -55,9 +55,9 @@ public enum GlobalPose implements RobotMode {
     ),
     INTAKE_SPECIMEN(
             0.0,
-            45.0,
+            50.0,
             0.93,
-            0.41,
+            0.42,
             0.92,
             1.0
     ),
@@ -110,10 +110,10 @@ public enum GlobalPose implements RobotMode {
             1.0
     ),
     PRE_LV3_HANG(
-            50.0,
+            51.5,
             140.0,
             0.9,
-            0.6,
+            0.68,
             0.36,
             1.0
     );

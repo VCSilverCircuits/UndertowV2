@@ -7,8 +7,7 @@ import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.actions.A_SetArmExtensionPower;
-import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
-import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
+import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationAngle;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.config.GlobalPose;
 
@@ -23,7 +22,8 @@ public class B_HangLv3P2 extends Behavior {
 
         // Establish needed actions
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.HANG_LV2_P2);
-        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.HANG_LV2_P2);
+        A_SetArmRotationAngle rotateArmBack = new A_SetArmRotationAngle(30);
+        A_SetArmRotationAngle rotateArmFlat = new A_SetArmRotationAngle(50);
 
         A_SetArmExtensionPower slidesInPower = new A_SetArmExtensionPower(-1);
         A_SetArmExtensionPower slidesInStop = new A_SetArmExtensionPower(0);
@@ -32,7 +32,11 @@ public class B_HangLv3P2 extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(slidesInPower)
+        _taskSequence.then(slidesInPower, rotateArmBack)
+                .thenWaitUntil(
+                        () -> extState.getRealLength() <= 20
+                )
+                .then(rotateArmFlat)
                 .thenWaitUntil(
                         () -> extState.getRealLength() <= ArmExtensionPose.HANG_LV2_P2.getLength() || extState.isTouching()
                 ).then(slidesInStop);

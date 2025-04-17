@@ -14,6 +14,7 @@ import vcsc.teamcode.behavior.global.B_CancelAll;
 import vcsc.teamcode.behavior.hang.B_HangLv3Pre;
 import vcsc.teamcode.behavior.hang.B_HangPre;
 import vcsc.teamcode.behavior.hang.B_Hang_RetractAndRelease;
+import vcsc.teamcode.behavior.hang.B_Hang_RetractAndReleaseLv3;
 import vcsc.teamcode.behavior.sample.B_DepositSampleLower;
 import vcsc.teamcode.behavior.sample.B_DepositSampleUpper;
 import vcsc.teamcode.behavior.sample.B_IntakeSample;
@@ -191,6 +192,7 @@ public class MainTele extends BaseOpMode {
         GP2_defaultBindings.bindTask(GamepadButton.Y, new B_HangPre());
         GP2_defaultBindings.bindTask(GamepadButton.A, new B_Hang_RetractAndRelease());
         GP2_defaultBindings.bindTask(GamepadButton.X, new B_HangLv3Pre());
+        GP2_defaultBindings.bindTask(GamepadButton.B, new B_Hang_RetractAndReleaseLv3());
         GP2_defaultBindings.bindTask(GamepadButton.LEFT_TRIGGER, new A_ToggleClaw());
         GP2_defaultBindings.bindTask(GamepadButton.DPAD_LEFT, new A_FullyRetractSlides(0.7));
 
@@ -226,7 +228,6 @@ public class MainTele extends BaseOpMode {
         //endregion
 
         follower.setStartingPose(new Pose(0, 0, 0));
-        taskManager.runTask(new TaskSequence(new B_StowSample()).then(new A_FullyRetractSlides(0.75)));
 
         armRotationUpdater = new A_PoweredPIDFUpdater<>(ArmRotationState.class);
     }
@@ -280,6 +281,7 @@ public class MainTele extends BaseOpMode {
     @Override
     public void start() {
         super.start();
+        taskManager.runTask(new TaskSequence(new B_StowSample()).then(new A_FullyRetractSlides(0.75)));
     }
 
 

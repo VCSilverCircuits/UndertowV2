@@ -10,6 +10,8 @@ import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPower;
+import vcsc.teamcode.cmp.claw.ClawState;
+import vcsc.teamcode.cmp.claw.actions.A_CloseClaw;
 import vcsc.teamcode.cmp.elbow.ElbowPose;
 import vcsc.teamcode.cmp.elbow.ElbowState;
 import vcsc.teamcode.cmp.elbow.actions.A_SetElbowAngle;
@@ -27,6 +29,7 @@ public class B_HangLv3Pre extends Behavior {
         addRequirement(ArmRotationState.class);
         addRequirement(ElbowState.class);
         addRequirement(WristHingeState.class);
+        addRequirement(ClawState.class);
 
 
         // Establish needed actions
@@ -34,6 +37,8 @@ public class B_HangLv3Pre extends Behavior {
         A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.PRE_LV3_HANG);
         A_SetWristHingePose wristHingeBack = new A_SetWristHingePose(WristHingePose.PRE_LV3_HANG);
         A_SetElbowPose elbowBack = new A_SetElbowPose(ElbowPose.PRE_LV3_HANG);
+
+        A_CloseClaw closeClaw = new A_CloseClaw();
 
         A_SetElbowAngle elbowStraight = new A_SetElbowAngle(0.75);
         A_SetWristHingePose hingeStraight = new A_SetWristHingePose(WristHingePose.STRAIGHT);
@@ -45,16 +50,17 @@ public class B_HangLv3Pre extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(rotateBackPower)
+        _taskSequence.then(closeClaw, rotateBackPower)
                 .thenWaitUntil(
                         () -> armRotationState.getRealAngle() > 130.0
-                ).then(rotateBackStop)
+                )
                 .then(
                         extendSlides
                 )
                 .then(elbowStraight, hingeStraight)
-                .thenDelay(500)
-                .then(elbowBack, wristHingeBack);
+                .thenDelay(1500)
+                .then(elbowBack, wristHingeBack)
+                .then(rotateBackStop);
     }
 
     @Override
