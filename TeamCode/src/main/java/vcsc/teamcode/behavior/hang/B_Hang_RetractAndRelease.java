@@ -14,14 +14,15 @@ public class B_Hang_RetractAndRelease extends Behavior {
         B_HangLv2P2 hangLv2P2 = new B_HangLv2P2();
         B_HangRelease hangRelease = new B_HangRelease();
 
+
         addRequirement(hangLv2P2);
         addRequirement(hangRelease);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.thenAsync(
+        _taskSequence.then(
                 hangLv2P2
-        ).thenDelay(1700).then(hangRelease);
+        ).then(hangRelease);
     }
 
     @Override

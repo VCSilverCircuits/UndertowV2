@@ -11,6 +11,7 @@ public class ClawActuator extends Actuator<ClawState> {
     final double delay = 50;
     Servo servo;
     double targetPosition;
+    boolean hasPosition = false;
 
     public ClawActuator(HardwareMap hardwareMap) {
         servo = hardwareMap.get(ServoImplEx.class, "claw");
@@ -20,7 +21,9 @@ public class ClawActuator extends Actuator<ClawState> {
     public void loop() {
         double newPos = ClawPose.MIN + (targetPosition * (ClawPose.MAX - ClawPose.MIN));
 //        if (servo.getPosition() != newPos) {
-        servo.setPosition(newPos);
+        if (hasPosition) {
+            servo.setPosition(newPos);
+        }
 //        }
     }
 
@@ -28,6 +31,7 @@ public class ClawActuator extends Actuator<ClawState> {
     public void updateState(State<ClawState> newState) {
         ClawState clawState = (ClawState) newState;
         targetPosition = clawState.getPosition();
+        hasPosition = true;
     }
 
     public double getDelay() {

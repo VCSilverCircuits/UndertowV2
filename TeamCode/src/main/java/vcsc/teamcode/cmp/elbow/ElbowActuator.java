@@ -2,10 +2,7 @@ package vcsc.teamcode.cmp.elbow;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import vcsc.core.abstracts.power.PowerManager;
-import vcsc.core.abstracts.state.StateRegistry;
 import vcsc.core.abstracts.templates.rotator.RotatorActuator;
 
 public class ElbowActuator extends RotatorActuator<ElbowState, ElbowPose> {
@@ -19,8 +16,11 @@ public class ElbowActuator extends RotatorActuator<ElbowState, ElbowPose> {
 
     public void loop() {
         double rotPosition = angle; // Convert angle to a value between 0 and 1 for the servo
-        servo.setPosition(rotPosition);
-        servo2.setPosition(rotPosition);
+        if (hasPosition) {
+            servo.setPosition(rotPosition);
+            servo2.setPosition(rotPosition);
+        }
+
 
 //        PowerManager powerManager = StateRegistry.getInstance().getState(PowerManager.class);
 //

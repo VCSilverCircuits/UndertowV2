@@ -1,6 +1,7 @@
 package vcsc.teamcode.behavior.specimen;
 
 import vcsc.core.abstracts.behavior.Behavior;
+import vcsc.core.abstracts.task.DelayTask;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
@@ -43,6 +44,7 @@ public class B_GrabSpecimenAndStowAuto extends Behavior {
         A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.STOW_SPECIMEN);
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SPECIMEN);
         A_SetClawPose closeClaw = new A_SetClawPose(ClawPose.CLOSED);
+        DelayTask armRotateDelay = new DelayTask(100);
 
         A_SetArmRotationAngle rotateArmIntoWall = new A_SetArmRotationAngle(53 + 5);
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SPECIMEN);
@@ -50,8 +52,10 @@ public class B_GrabSpecimenAndStowAuto extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(rotateArmIntoWall).then(closeClaw)
-                .thenDelay(50)
+        _taskSequence.thenAsync(rotateArmIntoWall, armRotateDelay)
+                .thenWaitUntil(() -> rotateArmIntoWall.isFinished() || armRotateDelay.isFinished())
+                .then(closeClaw)
+                .thenDelay(250)
                 .then(elbowOut)
                 .thenDelay(20).then(
                         rotateArmBack,

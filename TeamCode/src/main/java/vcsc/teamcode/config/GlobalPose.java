@@ -56,7 +56,7 @@ public enum GlobalPose implements RobotMode {
     INTAKE_SPECIMEN(
             0.0,
             50.0,
-            0.93,
+            0.95,
             0.42,
             0.92,
             1.0
@@ -80,7 +80,7 @@ public enum GlobalPose implements RobotMode {
     DEPOSIT_SPECIMEN(
             27.0,
             65.0,
-            0.15,
+            0.17,
             0.70,
             0.36,
             null

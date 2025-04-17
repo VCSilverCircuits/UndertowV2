@@ -2,6 +2,7 @@ package vcsc.teamcode.behavior.hang;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.state.StateRegistry;
+import vcsc.core.abstracts.task.DelayTask;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
@@ -26,7 +27,10 @@ public class B_HangLv3P2 extends Behavior {
         A_SetArmRotationAngle rotateArmFlat = new A_SetArmRotationAngle(50);
 
         A_SetArmExtensionPower slidesInPower = new A_SetArmExtensionPower(-1);
+        A_SetArmExtensionPower slidesInPower2 = new A_SetArmExtensionPower(-0.8);
         A_SetArmExtensionPower slidesInStop = new A_SetArmExtensionPower(0);
+
+        DelayTask delay = new DelayTask(1700);
 
         ArmExtensionState extState = StateRegistry.getInstance().getState(ArmExtensionState.class);
 
@@ -38,7 +42,12 @@ public class B_HangLv3P2 extends Behavior {
                 )
                 .then(rotateArmFlat)
                 .thenWaitUntil(
-                        () -> extState.getRealLength() <= ArmExtensionPose.HANG_LV2_P2.getLength() || extState.isTouching()
+                        () -> extState.getRealLength() <= 10
+                ).then(slidesInStop)
+                .thenDelay(1500)
+                .then(slidesInPower2, delay)
+                .thenWaitUntil(
+                        () -> extState.getRealLength() <= ArmExtensionPose.HANG_LV2_P2.getLength() || extState.isTouching() || delay.isFinished()
                 ).then(slidesInStop);
     }
 

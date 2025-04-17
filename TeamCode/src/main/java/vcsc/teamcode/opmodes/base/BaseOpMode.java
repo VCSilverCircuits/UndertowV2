@@ -212,5 +212,7 @@ public class BaseOpMode extends OpMode {
         taskManager.clearTasks();
         armExtState.cancelAction();
         armRotState.cancelAction();
+        armExtState.brake();
+        armRotState.brake();
     }
 }

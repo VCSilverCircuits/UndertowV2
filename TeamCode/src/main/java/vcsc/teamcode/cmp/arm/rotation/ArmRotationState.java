@@ -36,4 +36,8 @@ public class ArmRotationState extends PoweredPIDFState<ArmRotationState, ArmRota
     public ArmRotationPose getPose() {
         return currentPose;
     }
+
+    public void brake() {
+        ((ArmRotationActuator) primaryActuator).brake();
+    }
 }

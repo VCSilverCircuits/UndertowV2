@@ -3,6 +3,7 @@ package vcsc.teamcode.opmodes.tele;
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import vcsc.core.abstracts.task.DelayTask;
 import vcsc.core.abstracts.task.LogTask;
 import vcsc.core.abstracts.task.TaskManager;
 import vcsc.core.abstracts.task.TaskSequence;
@@ -190,9 +191,9 @@ public class MainTele extends BaseOpMode {
         bindingManager.setGamepad2Bindings(GlobalPose.DEFAULT, GP2_defaultBindings);
 
         GP2_defaultBindings.bindTask(GamepadButton.Y, new B_HangPre());
-        GP2_defaultBindings.bindTask(GamepadButton.A, new B_Hang_RetractAndRelease());
-        GP2_defaultBindings.bindTask(GamepadButton.X, new B_HangLv3Pre());
-        GP2_defaultBindings.bindTask(GamepadButton.B, new B_Hang_RetractAndReleaseLv3());
+        GP2_defaultBindings.bindTask(GamepadButton.B, new B_Hang_RetractAndRelease());
+        GP2_defaultBindings.bindTask(GamepadButton.A, new B_HangLv3Pre());
+        GP2_defaultBindings.bindTask(GamepadButton.X, new B_Hang_RetractAndReleaseLv3());
         GP2_defaultBindings.bindTask(GamepadButton.LEFT_TRIGGER, new A_ToggleClaw());
         GP2_defaultBindings.bindTask(GamepadButton.DPAD_LEFT, new A_FullyRetractSlides(0.7));
 
@@ -270,7 +271,11 @@ public class MainTele extends BaseOpMode {
             if (emergencyRetract) {
                 armRotationUpdater.updatePower(0);
                 armRotationUpdater.cancel();
-                taskManager.runTask(new A_PoweredPIDFReset<ArmRotationState, ArmRotationPose>(ArmRotationState.class), true);
+                taskManager.runTask(
+                        new TaskSequence(
+                                new DelayTask(300),
+                                new A_PoweredPIDFReset<ArmRotationState, ArmRotationPose>(ArmRotationState.class)),
+                        true);
                 emergencyRetract = false;
             }
         }

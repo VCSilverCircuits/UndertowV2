@@ -13,7 +13,9 @@ public class WristTwistActuator extends RotatorActuator<WristTwistState, WristTw
     @Override
     public void loop() {
         double rotPosition = angle; // Convert angle to a value between 0 and 1 for the servo
-        servo.setPosition(angle);
+        if (hasPosition) {
+            servo.setPosition(angle);
+        }
     }
 
 }

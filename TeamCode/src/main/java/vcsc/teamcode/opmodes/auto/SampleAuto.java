@@ -76,24 +76,24 @@ public class SampleAuto extends OpMode {
     private final Pose scorePose = new Pose(15, 129, Math.toRadians(315)); // NOT USED FOR ANYTHING I THINK
     private final Pose scorePose1 = new Pose(12.25, 135.75, Math.toRadians(-22));
     //    private final Pose scorePose = new Pose(15, 134.0, Math.toRadians(0));
-    private final Pose scorePose2 = new Pose(14.25, 139.75, Math.toRadians(-10));
+    private final Pose scorePose2 = new Pose(13.5, 140.0, Math.toRadians(-10));
     private final Pose scorePose3 = new Pose(15.75, 141.75, Math.toRadians(0));
 
-    private final Pose scorePosePreload = new Pose(6, 125, Math.toRadians(270));
+    private final Pose scorePosePreload = new Pose(6, 129, Math.toRadians(270));
     /**
      * Lowest (First) Sample from the Spike Mark
      */
 //    private final Pose pickup1Pose = new Pose(21, 120.5, Math.toRadians(0)); // 33
-    private final Pose pickup1Pose = new Pose(22, 128, Math.toRadians(-18));
+    private final Pose pickup1Pose = new Pose(23, 128, Math.toRadians(-18));
     /**
      * Middle (Second) Sample from the Spike Mark
      */
 //    private final Pose pickup2Pose = new Pose(21, 130, Math.toRadians(0));
-    private final Pose pickup2Pose = new Pose(22, 135, Math.toRadians(-10));
+    private final Pose pickup2Pose = new Pose(22.3, 135, Math.toRadians(-10));
     /**
      * Highest (Third) Sample from the Spike Mark
      */
-    private final Pose pickup3Pose = new Pose(21, 134.5, Math.toRadians(12));
+    private final Pose pickup3Pose = new Pose(22.25, 134.5, Math.toRadians(12));
     /**
      * Park Pose for our robot, after we do all of the scoring.
      */
@@ -103,7 +103,7 @@ public class SampleAuto extends OpMode {
      * Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
      * The Robot will not go to this pose, it is used a control point for our bezier curve.
      */
-    private final Pose parkControlPose = new Pose(60, 135, Math.toRadians(270));
+    private final Pose parkControlPose = new Pose(69, 135, Math.toRadians(270));
     protected MultipleTelemetry telem;
     protected TaskManager taskManager = TaskManager.getInstance();
     protected RobotState robotState = RobotState.getInstance();
@@ -255,7 +255,11 @@ public class SampleAuto extends OpMode {
             over = true;
             taskManager.clearTasks();
             auto.cancel();
-            taskManager.runTask(new TaskSequence(new A_OpenClaw(), new B_StowSample()));
+            if (armExtState.getRealLength() > 60) {
+                taskManager.runTask(new TaskSequence(new A_OpenClaw(), new B_StowSample()));
+            } else {
+                taskManager.runTask(new TaskSequence(new B_StowSample()));
+            }
         }
 
         telemetry.addData("x", follower.getPose().getX());

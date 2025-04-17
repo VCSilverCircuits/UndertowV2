@@ -103,4 +103,8 @@ public class ArmExtensionActuator extends PoweredPIDFActuator<ArmExtensionState,
     public double getCurrent() {
         return motors.getCurrent(CurrentUnit.MILLIAMPS);
     }
+
+    public void brake() {
+        motors.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
 }

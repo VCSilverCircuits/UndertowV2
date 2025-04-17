@@ -28,5 +28,9 @@ public class ArmExtensionState extends PoweredPIDFState<ArmExtensionState, ArmEx
     public boolean isTouching() {
         return ((ArmExtensionActuator) primaryActuator).isTouching();
     }
+
+    public void brake() {
+        ((ArmExtensionActuator) primaryActuator).brake();
+    }
 }
 

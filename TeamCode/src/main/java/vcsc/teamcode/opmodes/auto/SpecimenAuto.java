@@ -78,7 +78,8 @@ public class SpecimenAuto extends OpMode {
      * Start Pose of our robot
      */
     private final Pose startPose = new Pose(7, 66, Math.toRadians(0));
-    private final Pose intakePose = new Pose(7, 33, Math.toRadians(0));
+    private final Pose intakePosePrePush = new Pose(12, 33, Math.toRadians(0));
+    private final Pose intakePosePostPush = new Pose(7, 33, Math.toRadians(0));
     private final Pose preSprint = new Pose(8, 33, Math.toRadians(270));
     private final Pose push1Pose = new Pose(PUSH_X, 24, Math.toRadians(0));
     private final Pose push2Pose = new Pose(PUSH_X, 14, Math.toRadians(0));
@@ -174,7 +175,7 @@ public class SpecimenAuto extends OpMode {
 
         Path push3 = linearInterpolateLinePath(prePush3Pose, push3Pose);
 
-        Path push3ToIntake = linearInterpolateLinePath(push3Pose, intakePose);
+        Path push3ToIntake = linearInterpolateLinePath(push3Pose, intakePosePrePush);
 
         pushPop = follower.pathBuilder()
                 .addPath(push1)
@@ -191,15 +192,15 @@ public class SpecimenAuto extends OpMode {
                 .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
-        intakeToBasket = linearInterpolateLine(intakePose, basketScorePose);
+        intakeToBasket = linearInterpolateLine(intakePosePostPush, basketScorePose);
 
         sprint = follower.pathBuilder()
-                .addPath(linearInterpolateLinePath(intakePose, preSprint))
+                .addPath(linearInterpolateLinePath(intakePosePrePush, preSprint))
                 .addPath(linearInterpolateLinePath(preSprint, basketScorePose)).build();
 
-        sprintTurn = linearInterpolateLine(intakePose, preSprint);
+        sprintTurn = linearInterpolateLine(intakePosePrePush, preSprint);
 
-        intakeToPark = linearInterpolateLine(intakePose, parkPose);
+        intakeToPark = linearInterpolateLine(intakePosePrePush, parkPose);
     }
 
     private PathChain linearInterpolateLine(Pose start, Pose end) {
@@ -234,13 +235,13 @@ public class SpecimenAuto extends OpMode {
     }
 
     public PathChain getSpecimenScorePathChain() {
-        return getSpecimenScorePathChain(specimenNum++, intakePose);
+        return getSpecimenScorePathChain(specimenNum++, intakePosePostPush);
     }
 
     public PathChain getIntakePathChain() {
         return follower.pathBuilder().addPath(new BezierLine(
                 getSpecimenScorePose(specimenNum),
-                intakePose
+                intakePosePrePush
         )).setConstantHeadingInterpolation(Math.toRadians(0)).build();
     }
 
@@ -361,14 +362,19 @@ public class SpecimenAuto extends OpMode {
     }
 
     public TaskSequence scoreSpecimen() {
-        return scoreSpecimen(intakePose);
+        return scoreSpecimen(intakePosePostPush);
     }
 
     public TaskSequence intakeSpecimen() {
         return new TaskSequence()
                 .thenAsync(new B_IntakeSpecimenAuto(), new FollowPathTask(follower, getIntakePathChain()))
-                .thenWaitUntil(() -> follower.getPose().getX() < intakePose.getX() + 0.8 && follower.getVelocity().getXComponent() < 0.2 || !follower.isBusy())
-                .thenAsync(new B_GrabSpecimenAndStowAuto()).thenDelay(100);
+                .thenWaitUntil(() -> follower.getPose().getX() < intakePosePrePush.getX() + 0.5 && follower.getPose().getY() > intakePosePrePush.getY() - 0.5 && follower.getVelocity().getXComponent() < 0.2 || !follower.isBusy())
+                .thenRunnable(() -> {
+                    follower.startTeleopDrive();
+                    follower.setTeleOpMovementVectors(-.2, 0, 0);
+                })
+                .thenDelay(500)
+                .thenAsync(new B_GrabSpecimenAndStowAuto()).thenDelay(250);
     }
 
     public TaskSequence specimenLoop(int count) {
@@ -391,8 +397,9 @@ public class SpecimenAuto extends OpMode {
         A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.DEPOSIT_SPECIMEN);
         A_SetWristHingePose wristHingeOut = new A_SetWristHingePose(WristHingePose.DEPOSIT_SPECIMEN);
         A_SetWristTwistPose wristTwistOut = new A_SetWristTwistPose(WristTwistPose.DEPOSIT_SPECIMEN);
-        taskManager.runTask(new TaskSequence(closeClaw, wristHingeOut)
-                .then(rotateSlidesUp, wristTwistOut)
+        taskManager.runTask(new TaskSequence(closeClaw)
+                .thenDelay(800)
+                .then(rotateSlidesUp, wristTwistOut, wristHingeOut)
                 .then(elbowOut)
         );
         opmodeTimer = new Timer();
@@ -408,8 +415,13 @@ public class SpecimenAuto extends OpMode {
         auto.then(scoreSpecimen(startPose))
                 // Intake specimen feels like it shouldn't be necessary here, but
                 // maybe the wait for movement isn't working in B_ReleaseSpecAndIntakeSpec
-                .then(new B_IntakeSpecimenAuto(), new FollowPathTask(follower, pushPop))
-                .thenDelay(150)
+                .thenAsync(new B_IntakeSpecimenAuto(), new FollowPathTask(follower, pushPop))
+                .thenWaitUntil(() -> follower.getPose().getX() < intakePosePrePush.getX() + 0.8 && follower.getPose().getY() > intakePosePrePush.getY() - 0.5 && follower.getVelocity().getXComponent() < 0.5 || !follower.isBusy())
+                .thenRunnable(() -> {
+                    follower.startTeleopDrive();
+                    follower.setTeleOpMovementVectors(-0.2, 0, 0);
+                })
+                .thenDelay(500)
                 .then(new B_GrabSpecimenAndStowAuto())
                 .then(specimenLoop(4))
                 .thenFollowPath(follower, intakeToPark)

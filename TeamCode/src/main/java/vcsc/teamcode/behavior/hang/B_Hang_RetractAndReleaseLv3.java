@@ -19,9 +19,9 @@ public class B_Hang_RetractAndReleaseLv3 extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.thenAsync(
+        _taskSequence.then(
                 hangLv3P2
-        ).thenDelay(1700).then(hangRelease);
+        ).then(hangRelease);
     }
 
     @Override

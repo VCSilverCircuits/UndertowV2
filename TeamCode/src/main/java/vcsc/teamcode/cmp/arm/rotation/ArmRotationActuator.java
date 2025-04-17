@@ -111,4 +111,8 @@ public class ArmRotationActuator extends PoweredPIDFActuator<ArmRotationState, A
             motors.setPower(adjustedPower);
         }
     }
+
+    public void brake() {
+        motors.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
 }

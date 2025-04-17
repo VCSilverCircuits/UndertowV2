@@ -2,6 +2,7 @@ package vcsc.teamcode.behavior.hang;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.state.StateRegistry;
+import vcsc.core.abstracts.task.DelayTask;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
@@ -28,13 +29,15 @@ public class B_HangLv2P2 extends Behavior {
         A_SetArmExtensionPower slidesInPower = new A_SetArmExtensionPower(-1);
         A_SetArmExtensionPower slidesInStop = new A_SetArmExtensionPower(0);
 
+        DelayTask delay = new DelayTask(1700);
+
         ArmExtensionState extState = StateRegistry.getInstance().getState(ArmExtensionState.class);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(slidesInPower)
+        _taskSequence.then(slidesInPower, delay)
                 .thenWaitUntil(
-                        () -> extState.getRealLength() <= ArmExtensionPose.HANG_LV2_P2.getLength() || extState.isTouching()
+                        () -> extState.getRealLength() <= ArmExtensionPose.HANG_LV2_P2.getLength() || extState.isTouching() || delay.isFinished()
                 );
     }
 
