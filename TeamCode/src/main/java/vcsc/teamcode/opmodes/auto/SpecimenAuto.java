@@ -352,7 +352,7 @@ public class SpecimenAuto extends OpMode {
     }
 
     public TaskSequence scoreSpecimen(Pose startPose) {
-        DelayTask delay = new DelayTask(1200);
+        DelayTask delay = new DelayTask(1000);
         B_DepositSpecimenPoseAuto depositSpecimenPose = new B_DepositSpecimenPoseAuto();
         FollowPathTask followPathTask = scoreSpecimenFollowPathTask(startPose);
         return new TaskSequence()
@@ -374,7 +374,7 @@ public class SpecimenAuto extends OpMode {
                     follower.setTeleOpMovementVectors(-.2, 0, 0);
                 })
                 .thenDelay(500)
-                .thenAsync(new B_GrabSpecimenAndStowAuto()).thenDelay(250);
+                .then(new B_GrabSpecimenAndStowAuto()).thenDelay(100);
     }
 
     public TaskSequence specimenLoop(int count) {
@@ -423,6 +423,7 @@ public class SpecimenAuto extends OpMode {
                 })
                 .thenDelay(500)
                 .then(new B_GrabSpecimenAndStowAuto())
+                .thenDelay(100)
                 .then(specimenLoop(4))
                 .thenFollowPath(follower, intakeToPark)
                 .then(intakeSpecimen());

@@ -146,7 +146,7 @@ public class B_LockOn extends Behavior {
         }
 
         if (Math.abs(Math.toDegrees(follower.getPose().getHeading() - start_heading)) > MAX_ROTATE_ANGLE) {
-            
+
         }
 
         if (block != null) {
@@ -239,6 +239,7 @@ public class B_LockOn extends Behavior {
     protected void end() {
         super.end();
         if (!sampleGrab.isFinished()) {
+            camera.takeSnapshot("grab_" + System.currentTimeMillis() + "xo_" + x_offset + "yo_" + y_offset);
             sampleGrab.cancel();
         }
         finished = true;
@@ -255,6 +256,7 @@ public class B_LockOn extends Behavior {
     @Override
     public void cancel() {
         super.cancel();
+        camera.takeSnapshot("grab_" + System.currentTimeMillis() + "xo_" + x_offset + "yo_" + y_offset);
         end();
         adjustArmPosition.cancel();
     }

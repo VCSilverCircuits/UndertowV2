@@ -42,5 +42,9 @@ public class B_Hang_RetractAndRelease extends Behavior {
         return _taskSequence.isFinished();
     }
 
-
+    @Override
+    public void cancel() {
+        super.cancel();
+        _taskSequence.cancel();
+    }
 }

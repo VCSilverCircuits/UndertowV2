@@ -42,13 +42,13 @@ public class B_HangLv3P2 extends Behavior {
                 )
                 .then(rotateArmFlat)
                 .thenWaitUntil(
-                        () -> extState.getRealLength() <= 10
-                ).then(slidesInStop)
-                .thenDelay(1500)
-                .then(slidesInPower2, delay)
-                .thenWaitUntil(
-                        () -> extState.getRealLength() <= ArmExtensionPose.HANG_LV2_P2.getLength() || extState.isTouching() || delay.isFinished()
+                        () -> extState.getRealLength() <= 15
                 ).then(slidesInStop);
+//                .thenDelay(1500)
+//                .then(slidesInPower2, delay)
+//                .thenWaitUntil(
+//                        () -> extState.getRealLength() <= ArmExtensionPose.HANG_LV2_P2.getLength() || extState.isTouching() || delay.isFinished()
+//                ).then(slidesInStop);
     }
 
     @Override

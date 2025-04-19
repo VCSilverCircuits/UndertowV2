@@ -214,6 +214,7 @@ public class MainTele extends BaseOpMode {
 
         */
 
+
         BindingSet GP2_intakeSampleBindings = new BindingSet(GP2_defaultBindings);
         GP2_intakeSampleBindings.bindTask(GamepadButton.RIGHT_BUMPER, new B_IntakeSampleHover());
         GP2_intakeSampleBindings.bindTask(GamepadButton.LEFT_BUMPER, new B_IntakeSampleGrab());

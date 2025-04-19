@@ -35,7 +35,7 @@ public class B_HangLv2P2 extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(slidesInPower, delay)
+        _taskSequence.thenAsync(slidesInPower, delay)
                 .thenWaitUntil(
                         () -> extState.getRealLength() <= ArmExtensionPose.HANG_LV2_P2.getLength() || extState.isTouching() || delay.isFinished()
                 );

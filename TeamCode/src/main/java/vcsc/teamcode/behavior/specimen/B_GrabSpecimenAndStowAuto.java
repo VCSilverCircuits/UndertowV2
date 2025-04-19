@@ -57,7 +57,7 @@ public class B_GrabSpecimenAndStowAuto extends Behavior {
                 .then(closeClaw)
                 .thenDelay(250)
                 .then(elbowOut)
-                .thenDelay(20).then(
+                .thenDelay(80).then(
                         rotateArmBack,
                         extendSlides,
                         hingeBack,

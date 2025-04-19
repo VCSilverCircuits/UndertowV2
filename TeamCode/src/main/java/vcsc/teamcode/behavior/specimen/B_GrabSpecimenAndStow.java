@@ -44,7 +44,7 @@ public class B_GrabSpecimenAndStow extends Behavior {
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SPECIMEN);
         A_SetClawPose closeClaw = new A_SetClawPose(ClawPose.CLOSED);
 
-        A_SetArmRotationAngle rotateArmIntoWall  = new A_SetArmRotationAngle(ArmRotationPose.INTAKE_SPECIMEN.getAngle() + 2);
+        A_SetArmRotationAngle rotateArmIntoWall = new A_SetArmRotationAngle(ArmRotationPose.INTAKE_SPECIMEN.getAngle() + 2);
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.STOW_SPECIMEN);
         A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.STOW_SPECIMEN);
 
@@ -53,12 +53,12 @@ public class B_GrabSpecimenAndStow extends Behavior {
         _taskSequence.then(closeClaw)
                 .thenDelay(50)
                 .then(elbowOut)
-                .thenDelay(20).then(
-                    rotateArmBack,
-                    extendSlides,
-                    hingeBack,
-                    twist
-        );
+                .thenDelay(80).then(
+                        rotateArmBack,
+                        extendSlides,
+                        hingeBack,
+                        twist
+                );
     }
 
     @Override
