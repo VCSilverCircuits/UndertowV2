@@ -55,9 +55,9 @@ public class B_GrabSpecimenAndStowAuto extends Behavior {
         _taskSequence.thenAsync(rotateArmIntoWall, armRotateDelay)
                 .thenWaitUntil(() -> rotateArmIntoWall.isFinished() || armRotateDelay.isFinished())
                 .then(closeClaw)
-                .thenDelay(250)
+                .thenDelay(100)
                 .then(elbowOut)
-                .thenDelay(80).then(
+                .thenDelay(100).then(
                         rotateArmBack,
                         extendSlides,
                         hingeBack,
