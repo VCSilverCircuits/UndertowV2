@@ -3,9 +3,9 @@ package vcsc.teamcode.cmp.claw;
 import vcsc.teamcode.config.GlobalPose;
 
 public enum ClawPose {
-    OPEN(1.0),
+    OPEN(0.14),
     MOSTLY_CLOSED(0.108),
-    CLOSED(0.0),
+    CLOSED(-0.36),
     STOW_SAMPLE(GlobalPose.STOW_SAMPLE),
     STOW_SPECIMEN(GlobalPose.STOW_SPECIMEN),
     INTAKE_SAMPLE_STRAIGHT(GlobalPose.INTAKE_SAMPLE_STRAIGHT),
