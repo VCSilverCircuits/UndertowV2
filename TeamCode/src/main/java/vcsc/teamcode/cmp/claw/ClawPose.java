@@ -3,9 +3,9 @@ package vcsc.teamcode.cmp.claw;
 import vcsc.teamcode.config.GlobalPose;
 
 public enum ClawPose {
-    OPEN(0.14),
-    MOSTLY_CLOSED(0.108),
-    CLOSED(-0.36),
+    OPEN(0.9),
+    MOSTLY_CLOSED(0.32), // idk bro what this is, we never use it
+    CLOSED(0.02), // This is basically mostly closed at this point
     STOW_SAMPLE(GlobalPose.STOW_SAMPLE),
     STOW_SPECIMEN(GlobalPose.STOW_SPECIMEN),
     INTAKE_SAMPLE_STRAIGHT(GlobalPose.INTAKE_SAMPLE_STRAIGHT),
@@ -20,8 +20,8 @@ public enum ClawPose {
     HANG_LV2_P2(GlobalPose.HANG_LV2_P2),
     HANG_RELEASE(GlobalPose.HANG_RELEASE);
 
-    public static final double MIN = 0.45;
-    public static final double MAX = 0.9;
+    public static final double MIN = 0.25;
+    public static final double MAX = 0.5;
 
 
     final Double pos;
