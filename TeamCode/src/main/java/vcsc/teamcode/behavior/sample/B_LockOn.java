@@ -41,7 +41,7 @@ public class B_LockOn extends Behavior {
     public static PIDCoefficients lockHeadingCoeffs = new PIDCoefficients(0.002, 0, 0.0);
     public static boolean USE_STRAFE = false;
     public static double strafeSpeed = 0.15;
-    public static double rotateSpeed = 0.1;
+    public static double rotateSpeed = 0.075;
     double x_offset, y_offset, heading_offset;
     PIDController xController, yControllerCoarse, yControllerFine, holdHeadingController, lockHeadingController;
     Camera camera;

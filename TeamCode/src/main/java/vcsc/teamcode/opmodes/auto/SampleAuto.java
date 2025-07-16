@@ -286,7 +286,7 @@ public class SampleAuto extends OpMode {
         clawState.registerActuator(clawActuator);
 
         armExtState = new ArmExtensionState();
-        armExtActuator = new ArmExtensionActuator(hardwareMap, new PIDFCoefficients(0.015, 0, 0, 0));
+        armExtActuator = new ArmExtensionActuator(hardwareMap, new PIDFCoefficients(0.01, 0, 0, 0));
         armExtState.registerActuator(armExtActuator);
 
         armRotState = new ArmRotationState();
