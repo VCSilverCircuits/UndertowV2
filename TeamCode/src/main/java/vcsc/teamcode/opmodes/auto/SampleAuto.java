@@ -73,7 +73,7 @@ public class SampleAuto extends OpMode {
     /**
      * Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle.
      */
-    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315)); // NOT USED FOR ANYTHING I THINK
+    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315));
     private final Pose scorePose1 = new Pose(12.25, 135.75, Math.toRadians(-22));
     //    private final Pose scorePose = new Pose(15, 134.0, Math.toRadians(0));
     private final Pose scorePose2 = new Pose(13.5, 140.0, Math.toRadians(-10));
