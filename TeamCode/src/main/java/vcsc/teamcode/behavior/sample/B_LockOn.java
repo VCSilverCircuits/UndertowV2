@@ -30,15 +30,16 @@ import vcsc.teamcode.config.GlobalPose;
 
 @Config
 public class B_LockOn extends Behavior {
-    public static final double GRAB_TIMER_OVERRIDE = 1800;
+    public static final double DETECTION_TIMER_OVERRIDE = 1800;
+    public static final double GRAB_TIMER_OVERRIDE = 3000;
     public static final double MAX_ROTATE_ANGLE = 45;
     private static final double strafeF = 0.005;
     private static final double driveF = 0.005;
-    public static PIDCoefficients xCoeffs = new PIDCoefficients(0.0015, 0, 0.00001);
+    public static PIDCoefficients xCoeffs = new PIDCoefficients(0.00125, 0, 0.00001); // This one
     public static PIDCoefficients yCoeffsCoarse = new PIDCoefficients(0.003, 0, 0.0001);
     public static PIDCoefficients yCoeffsFine = new PIDCoefficients(0.0018, 0, 0.0001);
     public static PIDCoefficients holdHeadingCoeffs = new PIDCoefficients(1.3, 0, 0.0005);
-    public static PIDCoefficients lockHeadingCoeffs = new PIDCoefficients(0.002, 0, 0.0);
+    public static PIDCoefficients lockHeadingCoeffs = new PIDCoefficients(0.0018, 0, 0.0); // This one
     public static boolean USE_STRAFE = false;
     public static double strafeSpeed = 0.15;
     public static double rotateSpeed = 0.075;
@@ -60,6 +61,7 @@ public class B_LockOn extends Behavior {
     boolean grabbing = false;
     boolean foundBlock = false;
     ElapsedTime detectionTimer;
+    ElapsedTime grabTimer;
 
     double startAngle;
 
@@ -88,6 +90,7 @@ public class B_LockOn extends Behavior {
         adjustArmPosition.then(elbowUp, hingeUp, openClaw).setDebugName("AdjustArmPosition");
 
         detectionTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        grabTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     }
 
     @Override
@@ -101,6 +104,7 @@ public class B_LockOn extends Behavior {
         startAngle = follower.getPose().getHeading();
 
         detectionTimer.reset();
+        grabTimer.reset();
 
         finished = false;
         failure = false;
@@ -216,7 +220,7 @@ public class B_LockOn extends Behavior {
                 angleList.remove(0);
             }
 
-            if (xController.atSetPoint() && yControllerFine.atSetPoint() && follower.getVelocity().getMagnitude() < 0.1 || detectionTimer.time() > GRAB_TIMER_OVERRIDE) {
+            if (xController.atSetPoint() && yControllerFine.atSetPoint() && follower.getVelocity().getMagnitude() < 0.1 || detectionTimer.time() > DETECTION_TIMER_OVERRIDE || grabTimer.time() > GRAB_TIMER_OVERRIDE) {
                 if (!grabbing) {
                     grabbing = true;
                     sampleGrab.start();
