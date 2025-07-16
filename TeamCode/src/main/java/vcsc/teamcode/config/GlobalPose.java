@@ -70,10 +70,10 @@ public enum GlobalPose implements RobotMode {
             null
     ),
     DEPOSIT_SAMPLE_LOWER(
-            30.0,
+            22.0,
             90.0,
             0.45,
-            0.5,
+            0.55,
             0.36,
             null
     ),
