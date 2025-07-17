@@ -31,7 +31,7 @@ import vcsc.teamcode.config.GlobalPose;
 @Config
 public class B_LockOn extends Behavior {
     public static final double DETECTION_TIMER_OVERRIDE = 1800;
-    public static final double GRAB_TIMER_OVERRIDE = 3000;
+    public static final double GRAB_TIMER_OVERRIDE = 2000;
     public static final double MAX_ROTATE_ANGLE = 45;
     private static final double strafeF = 0.005;
     private static final double driveF = 0.005;

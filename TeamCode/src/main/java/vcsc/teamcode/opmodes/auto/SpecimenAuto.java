@@ -86,7 +86,7 @@ public class SpecimenAuto extends OpMode {
     private final Pose prePush2Pose = new Pose(PRE_PUSH_X, 14, Math.toRadians(0));
     private final Pose push3Pose = new Pose(PUSH_X, 9.1, Math.toRadians(0));
     private final Pose prePush3Pose = new Pose(PRE_PUSH_X, 9.3, Math.toRadians(0));
-    private final Pose basketScorePose = new Pose(8, 135, Math.toRadians(270));
+    private final Pose basketScorePose = new Pose(8, 131, Math.toRadians(270));
     private final Pose parkPose = new Pose(7, 33, Math.toRadians(90));
     protected MultipleTelemetry telem;
     protected TaskManager taskManager = TaskManager.getInstance();

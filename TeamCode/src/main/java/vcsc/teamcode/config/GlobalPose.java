@@ -38,7 +38,7 @@ public enum GlobalPose implements RobotMode {
             0.9
     ),
     INTAKE_SAMPLE_HOVER(
-            35.0,
+            39.0,
             0.0,
             0.43,
             0.11,
@@ -78,7 +78,7 @@ public enum GlobalPose implements RobotMode {
             null
     ),
     DEPOSIT_SPECIMEN(
-            27.0,
+            29.0,
             65.0,
             0.17,
             0.70,
@@ -110,7 +110,7 @@ public enum GlobalPose implements RobotMode {
             0.9
     ),
     PRE_LV3_HANG(
-            51.5,
+            53.5,
             140.0,
             0.9,
             0.68,

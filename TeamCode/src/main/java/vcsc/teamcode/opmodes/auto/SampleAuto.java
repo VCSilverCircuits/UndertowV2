@@ -32,11 +32,13 @@ import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndPreGrabAutoShort;
 import vcsc.teamcode.behavior.sample.B_ReleaseSampleAndStow;
 import vcsc.teamcode.behavior.sample.B_StowSample;
 import vcsc.teamcode.behavior.sample.B_StowSampleAfterIntake;
+import vcsc.teamcode.behavior.specimen.B_StowSpecimen;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionActuator;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationActuator;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
+import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationAngle;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_SetArmRotationPose;
 import vcsc.teamcode.cmp.camera.Camera;
 import vcsc.teamcode.cmp.claw.ClawActuator;
@@ -84,7 +86,7 @@ public class SampleAuto extends OpMode {
      * Lowest (First) Sample from the Spike Mark
      */
 //    private final Pose pickup1Pose = new Pose(21, 120.5, Math.toRadians(0)); // 33
-    private final Pose pickup1Pose = new Pose(23, 128, Math.toRadians(-18));
+    private final Pose pickup1Pose = new Pose(23, 128, Math.toRadians(-20));
     /**
      * Middle (Second) Sample from the Spike Mark
      */
@@ -93,7 +95,7 @@ public class SampleAuto extends OpMode {
     /**
      * Highest (Third) Sample from the Spike Mark
      */
-    private final Pose pickup3Pose = new Pose(22.25, 134.5, Math.toRadians(12));
+    private final Pose pickup3Pose = new Pose(27.78, 123.16, Math.toRadians(49));
     /**
      * Park Pose for our robot, after we do all of the scoring.
      */
@@ -256,7 +258,7 @@ public class SampleAuto extends OpMode {
             taskManager.clearTasks();
             auto.cancel();
             if (armExtState.getRealLength() > 60) {
-                taskManager.runTask(new TaskSequence(new A_OpenClaw(), new B_StowSample()));
+                taskManager.runTask(new TaskSequence(new A_OpenClaw(), new B_StowSpecimen()));
             } else {
                 taskManager.runTask(new TaskSequence(new B_StowSample()));
             }
@@ -329,8 +331,8 @@ public class SampleAuto extends OpMode {
         FollowerWrapper.setFollower(follower);
         buildPaths();
 
-        long DROP_DELAY = 80;
-        long PRE_GRAB_DELAY = 100;
+        long DROP_DELAY = 100;
+        long PRE_GRAB_DELAY = 80;
         long POST_GRAB_DELAY = 50;
 
         follower.setMaxPower(0.8);
@@ -372,6 +374,7 @@ public class SampleAuto extends OpMode {
                 .then(new B_ReleaseSampleAndStow(), new A_SetWristTwistAngle(0.42), new FollowPathTask(follower, grabPickup3))
                 .then(new B_IntakeSampleHover())
                 .thenDelay(80)
+                .then(new A_SetWristTwistAngle(0.55))
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
                 .thenDelay(300)
