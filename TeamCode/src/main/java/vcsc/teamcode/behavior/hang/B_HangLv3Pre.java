@@ -50,12 +50,15 @@ public class B_HangLv3Pre extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(closeClaw, rotateBackPower)
+        _taskSequence.then(closeClaw, rotateBackPower, rotateBackPower)
                 .thenWaitUntil(
-                        () -> armRotationState.getRealAngle() > 130.0
+                        () -> armRotationState.getRealAngle() > 110.0
                 )
                 .then(
                         extendSlides
+                )
+                .thenWaitUntil(
+                        () -> armRotationState.getRealAngle() > 130.0
                 )
                 .then(elbowStraight, hingeStraight)
                 .thenDelay(1500)

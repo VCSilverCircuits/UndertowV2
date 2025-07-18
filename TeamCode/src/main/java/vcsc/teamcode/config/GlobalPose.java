@@ -103,14 +103,14 @@ public enum GlobalPose implements RobotMode {
     ),
     HANG_RELEASE(
             6.0,
-            50.0,
+            80.0,
             0.38,
             0.15,
             0.36,
             0.9
     ),
     PRE_LV3_HANG(
-            53.5,
+            53.0,
             140.0,
             0.9,
             0.68,

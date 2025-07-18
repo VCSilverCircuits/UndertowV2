@@ -39,7 +39,7 @@ public class B_LockOn extends Behavior {
     public static PIDCoefficients yCoeffsCoarse = new PIDCoefficients(0.003, 0, 0.0001);
     public static PIDCoefficients yCoeffsFine = new PIDCoefficients(0.0018, 0, 0.0001);
     public static PIDCoefficients holdHeadingCoeffs = new PIDCoefficients(1.3, 0, 0.0005);
-    public static PIDCoefficients lockHeadingCoeffs = new PIDCoefficients(0.0018, 0, 0.0); // This one
+    public static PIDCoefficients lockHeadingCoeffs = new PIDCoefficients(0.0015, 0, 0.0); // This one
     public static boolean USE_STRAFE = false;
     public static double strafeSpeed = 0.15;
     public static double rotateSpeed = 0.075;
