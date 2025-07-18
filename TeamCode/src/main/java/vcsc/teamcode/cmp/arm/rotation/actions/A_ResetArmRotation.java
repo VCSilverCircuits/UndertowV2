@@ -26,7 +26,7 @@ public class A_ResetArmRotation extends A_SetArmRotationPower {
     public void loop() {
         if (!finished) {
             System.out.println("[A_ResetArmRotation::loop] Trying to rotate slides down....");
-            if (resetTimer.time() < RESET_DELAY) {
+            if (resetTimer.time() > RESET_DELAY) {
                 System.out.println("[A_ResetArmRotation::loop] Slides rotated down, ending.");
                 end();
             }
