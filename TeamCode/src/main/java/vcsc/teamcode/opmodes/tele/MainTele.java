@@ -32,6 +32,7 @@ import vcsc.teamcode.behavior.specimen.B_ReleaseSpecimenAndStow;
 import vcsc.teamcode.cmp.arm.extension.actions.A_FullyRetractSlides;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
+import vcsc.teamcode.cmp.arm.rotation.actions.A_ResetArmRotation;
 import vcsc.teamcode.cmp.claw.actions.A_ToggleClaw;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
@@ -287,7 +288,7 @@ public class MainTele extends BaseOpMode {
     @Override
     public void start() {
         super.start();
-        taskManager.runTask(new TaskSequence(new B_StowSample()).then(new A_FullyRetractSlides(0.75)));
+        taskManager.runTask(new TaskSequence(new B_StowSample()).then(new A_FullyRetractSlides(0.75), new A_ResetArmRotation(0.3)));
     }
 
 
