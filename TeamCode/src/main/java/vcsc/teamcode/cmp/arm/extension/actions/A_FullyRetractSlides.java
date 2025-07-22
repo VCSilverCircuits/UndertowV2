@@ -28,14 +28,23 @@ public class A_FullyRetractSlides extends A_SetArmExtensionPower {
     }
 
     @Override
+    public void cancel() {
+        end();
+    }
+
+    @Override
     public boolean isFinished() {
         return finished;
     }
 
     @Override
     protected void end() {
-        state.setPower(this, 0);
-        state.reset(this);
+        try {
+            state.setPower(this, 0);
+            state.reset(this);
+        } catch (IllegalStateException e) {
+            System.out.println("[A_FullyRetractSlides::end] Failed to reset state: " + e.getMessage());
+        }
         finished = true;
         super.end();
     }

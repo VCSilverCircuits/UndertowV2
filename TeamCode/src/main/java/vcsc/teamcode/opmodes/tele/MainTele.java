@@ -49,10 +49,18 @@ public class MainTele extends BaseOpMode {
     B_LockOn lockOn;
 
     A_PoweredPIDFUpdater<ArmRotationState, ArmRotationPose> armRotationUpdater;
+    TaskSequence startup = new TaskSequence();
 
     @Override
     public void init() {
         super.init();
+
+        // Startup Sequence
+        startup = new TaskSequence(new B_StowSample())
+                .then(
+                        new A_FullyRetractSlides(0.75),
+                        new A_ResetArmRotation(0.3)
+                );
 
 
         //region Controller 1
@@ -288,7 +296,7 @@ public class MainTele extends BaseOpMode {
     @Override
     public void start() {
         super.start();
-        taskManager.runTask(new TaskSequence(new B_StowSample()).then(new A_FullyRetractSlides(0.75), new A_ResetArmRotation(0.3)));
+        taskManager.runTask(startup);
     }
 
 
