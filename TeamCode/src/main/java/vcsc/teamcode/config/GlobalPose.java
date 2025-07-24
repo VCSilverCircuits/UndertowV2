@@ -19,7 +19,7 @@ public enum GlobalPose implements RobotMode {
             0.5,
             0.5,
             0.36,
-            0.02
+            0.11
     ),
     INTAKE_SAMPLE_STRAIGHT(
             35.0,
@@ -51,7 +51,7 @@ public enum GlobalPose implements RobotMode {
             0.31,
             0.20,
             0.36,
-            0.02
+            0.11
     ),
     INTAKE_SPECIMEN(
             0.0,
@@ -78,8 +78,8 @@ public enum GlobalPose implements RobotMode {
             null
     ),
     DEPOSIT_SPECIMEN(
-            29.0,
-            65.0,
+            27.0,
+            68.0,
             0.17,
             0.70,
             0.36,
@@ -87,7 +87,7 @@ public enum GlobalPose implements RobotMode {
     ),
     HANG_PRE(
             44.0,
-            110.0,
+            115.0,
             0.38,
             0.13,
             0.36,

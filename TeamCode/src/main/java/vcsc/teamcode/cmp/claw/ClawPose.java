@@ -5,7 +5,7 @@ import vcsc.teamcode.config.GlobalPose;
 public enum ClawPose {
     OPEN(0.9),
     MOSTLY_CLOSED(0.32), // idk bro what this is, we never use it
-    CLOSED(0.02), // This is basically mostly closed at this point
+    CLOSED(0.11), // This is basically mostly closed at this point
     STOW_SAMPLE(GlobalPose.STOW_SAMPLE),
     STOW_SPECIMEN(GlobalPose.STOW_SPECIMEN),
     INTAKE_SAMPLE_STRAIGHT(GlobalPose.INTAKE_SAMPLE_STRAIGHT),

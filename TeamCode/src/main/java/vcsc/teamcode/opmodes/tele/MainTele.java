@@ -33,6 +33,9 @@ import vcsc.teamcode.cmp.arm.extension.actions.A_FullyRetractSlides;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationPose;
 import vcsc.teamcode.cmp.arm.rotation.ArmRotationState;
 import vcsc.teamcode.cmp.arm.rotation.actions.A_ResetArmRotation;
+import vcsc.teamcode.cmp.claw.ClawPose;
+import vcsc.teamcode.cmp.claw.actions.A_CloseClaw;
+import vcsc.teamcode.cmp.claw.actions.A_SetClawPose;
 import vcsc.teamcode.cmp.claw.actions.A_ToggleClaw;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
@@ -58,6 +61,7 @@ public class MainTele extends BaseOpMode {
         // Startup Sequence
         startup = new TaskSequence(new B_StowSample())
                 .then(
+                        new A_SetClawPose(ClawPose.CLOSED),
                         new A_FullyRetractSlides(0.75),
                         new A_ResetArmRotation(0.3)
                 );
