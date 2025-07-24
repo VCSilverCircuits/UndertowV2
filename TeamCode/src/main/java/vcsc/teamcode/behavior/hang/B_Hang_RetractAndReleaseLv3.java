@@ -21,7 +21,7 @@ public class B_Hang_RetractAndReleaseLv3 extends Behavior {
         _taskSequence = new TaskSequence();
         _taskSequence.then(
                 hangLv3P2
-        );//.then(hangRelease);
+        ).then(hangRelease);
     }
 
     @Override

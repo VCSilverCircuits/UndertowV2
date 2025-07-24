@@ -29,7 +29,7 @@ public class B_HangLv2P2 extends Behavior {
         A_SetArmExtensionPower slidesInPower = new A_SetArmExtensionPower(-1);
         A_SetArmExtensionPower slidesInStop = new A_SetArmExtensionPower(0);
 
-        DelayTask delay = new DelayTask(1700);
+        DelayTask delay = new DelayTask(750);
 
         ArmExtensionState extState = StateRegistry.getInstance().getState(ArmExtensionState.class);
 
@@ -37,7 +37,7 @@ public class B_HangLv2P2 extends Behavior {
         _taskSequence = new TaskSequence();
         _taskSequence.thenAsync(slidesInPower, delay)
                 .thenWaitUntil(
-                        () -> extState.getRealLength() <= ArmExtensionPose.HANG_LV2_P2.getLength() || extState.isTouching() || delay.isFinished()
+                        () -> extState.getRealLength() <= 5 || extState.isTouching() || (delay.isFinished() && extState.getRealLength() <= 10)
                 );
     }
 

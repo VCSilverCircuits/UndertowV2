@@ -2,6 +2,7 @@ package vcsc.teamcode.behavior.hang;
 
 import vcsc.core.abstracts.behavior.Behavior;
 import vcsc.core.abstracts.state.StateRegistry;
+import vcsc.core.abstracts.task.DelayTask;
 import vcsc.core.abstracts.task.TaskSequence;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionPose;
 import vcsc.teamcode.cmp.arm.extension.ArmExtensionState;
@@ -40,6 +41,8 @@ public class B_HangLv3Pre extends Behavior {
 
         A_CloseClaw closeClaw = new A_CloseClaw();
 
+        DelayTask delay = new DelayTask(1700);
+
         A_SetElbowAngle elbowStraight = new A_SetElbowAngle(0.75);
         A_SetWristHingePose hingeStraight = new A_SetWristHingePose(WristHingePose.STRAIGHT);
 
@@ -50,7 +53,7 @@ public class B_HangLv3Pre extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(closeClaw, rotateBackPower, rotateBackPower)
+        _taskSequence.then(closeClaw, rotateBackPower)
                 .thenWaitUntil(
                         () -> armRotationState.getRealAngle() > 110.0
                 )

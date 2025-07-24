@@ -75,7 +75,7 @@ public class SampleAuto extends OpMode {
     /**
      * Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle.
      */
-    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315));
+    private final Pose scorePose = new Pose(13.4, 130.7, Math.toRadians(315));
     private final Pose scorePose1 = new Pose(12.25, 135.75, Math.toRadians(-22));
     //    private final Pose scorePose = new Pose(15, 134.0, Math.toRadians(0));
     private final Pose scorePose2 = new Pose(13.5, 140.0, Math.toRadians(-10));
@@ -371,13 +371,12 @@ public class SampleAuto extends OpMode {
 
                 // GRAB PICKUP 3
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup3")
-                .then(new B_ReleaseSampleAndStow(), new A_SetWristTwistAngle(0.42), new FollowPathTask(follower, grabPickup3))
-                .then(new B_IntakeSampleHover())
-                .thenDelay(80)
-                .then(new A_SetWristTwistAngle(0.55))
+                .then(new B_ReleaseSampleAndStow(), new FollowPathTask(follower, grabPickup3))
+                .then(new B_IntakeSampleHover(), new A_SetWristTwistAngle(0.55))
+                .thenDelay(PRE_GRAB_DELAY)
                 .thenLog("[AUTO] Grab Sample")
                 .then(new B_IntakeSampleGrab())
-                .thenDelay(300)
+                .thenDelay(POST_GRAB_DELAY)
 
                 // SCORE PICKUP 3
                 .thenLog("[AUTO] Deposit Upper & Go to scorePickup3")

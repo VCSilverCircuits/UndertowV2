@@ -24,25 +24,29 @@ public class B_HangLv3P2 extends Behavior {
         // Establish needed actions
         A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.HANG_LV2_P2);
         A_SetArmRotationAngle rotateArmBack = new A_SetArmRotationAngle(30);
-        A_SetArmRotationAngle rotateArmFlat = new A_SetArmRotationAngle(50);
+        A_SetArmRotationAngle rotateArmFlat = new A_SetArmRotationAngle(80);
 
-        A_SetArmExtensionPower slidesInPower = new A_SetArmExtensionPower(-1);
-        A_SetArmExtensionPower slidesInPower2 = new A_SetArmExtensionPower(-0.8);
+        A_SetArmExtensionPower slidesInFullPower = new A_SetArmExtensionPower(-1);
+        A_SetArmExtensionPower slidesInPowerLow = new A_SetArmExtensionPower(-0.8);
         A_SetArmExtensionPower slidesInStop = new A_SetArmExtensionPower(0);
 
-        DelayTask delay = new DelayTask(1700);
+        DelayTask delay = new DelayTask(2500);
 
         ArmExtensionState extState = StateRegistry.getInstance().getState(ArmExtensionState.class);
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(slidesInPower, rotateArmBack)
+        _taskSequence.then(slidesInFullPower, rotateArmBack)
                 .thenWaitUntil(
                         () -> extState.getRealLength() <= 20
                 )
+                .then(slidesInPowerLow)
                 .then(rotateArmFlat)
+                .thenDelay(250)
+                .then(slidesInFullPower)
+                .thenAsync(delay)
                 .thenWaitUntil(
-                        () -> extState.getRealLength() <= 15
+                        () -> extState.getRealLength() <= 5 || extState.isTouching() || (delay.isFinished() && extState.getRealLength() <= 7.5)
                 ).then(slidesInStop);
 //                .thenDelay(1500)
 //                .then(slidesInPower2, delay)
