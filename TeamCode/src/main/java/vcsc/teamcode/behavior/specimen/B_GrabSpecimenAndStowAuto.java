@@ -19,6 +19,7 @@ import vcsc.teamcode.cmp.elbow.actions.A_SetElbowPose;
 import vcsc.teamcode.cmp.robot.RobotState;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingePose;
 import vcsc.teamcode.cmp.wrist.hinge.WristHingeState;
+import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingeAngle;
 import vcsc.teamcode.cmp.wrist.hinge.actions.A_SetWristHingePose;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistPose;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
@@ -44,6 +45,7 @@ public class B_GrabSpecimenAndStowAuto extends Behavior {
         A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.STOW_SPECIMEN);
         A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.STOW_SPECIMEN);
         A_SetClawPose closeClaw = new A_SetClawPose(ClawPose.CLOSED);
+        A_SetWristHingeAngle wristHingeUp = new A_SetWristHingeAngle(0.38);
         DelayTask armRotateDelay = new DelayTask(100);
 
         A_SetArmRotationAngle rotateArmIntoWall = new A_SetArmRotationAngle(53 + 5);
@@ -52,7 +54,7 @@ public class B_GrabSpecimenAndStowAuto extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.thenAsync(rotateArmIntoWall, armRotateDelay)
+        _taskSequence.thenAsync(rotateArmIntoWall, armRotateDelay, wristHingeUp)
                 .thenWaitUntil(() -> rotateArmIntoWall.isFinished() || armRotateDelay.isFinished())
                 .then(closeClaw)
                 .thenDelay(250)
