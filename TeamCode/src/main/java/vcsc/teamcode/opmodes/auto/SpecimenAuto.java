@@ -69,10 +69,10 @@ import vcsc.teamcode.config.GlobalConfig;
 @Autonomous(name = "Specimen Auto", group = "Auto", preselectTeleOp = "Tele")
 public class SpecimenAuto extends OpMode {
 
-    private static final double SCORE_X = 40.75;
+    private static final double SCORE_X = 38.75;
     private static final double SCORE_Y_INITIAL = 80;
     private static final double SCORE_SPACING = -1;
-    private static final double PUSH_X = 24;
+    private static final double PUSH_X = 22;
     private static final double PRE_PUSH_X = 57;
     /**
      * Start Pose of our robot
@@ -352,7 +352,7 @@ public class SpecimenAuto extends OpMode {
     }
 
     public TaskSequence scoreSpecimen(Pose startPose) {
-        DelayTask delay = new DelayTask(1000);
+        DelayTask delay = new DelayTask(800);
         B_DepositSpecimenPoseAuto depositSpecimenPose = new B_DepositSpecimenPoseAuto();
         FollowPathTask followPathTask = scoreSpecimenFollowPathTask(startPose);
         return new TaskSequence()
@@ -371,9 +371,9 @@ public class SpecimenAuto extends OpMode {
                 .thenWaitUntil(() -> follower.getPose().getX() < intakePosePrePush.getX() + 0.5 && follower.getPose().getY() > intakePosePrePush.getY() - 0.5 && follower.getVelocity().getXComponent() < 0.2 || !follower.isBusy())
                 .thenRunnable(() -> {
                     follower.startTeleopDrive();
-                    follower.setTeleOpMovementVectors(-.2, 0, 0);
+                    follower.setTeleOpMovementVectors(-.4, 0, 0);
                 })
-                .thenDelay(500)
+                .thenDelay(200)
                 .then(new B_GrabSpecimenAndStowAuto()).thenDelay(100);
     }
 
@@ -421,7 +421,7 @@ public class SpecimenAuto extends OpMode {
                     follower.startTeleopDrive();
                     follower.setTeleOpMovementVectors(-0.2, 0, 0);
                 })
-                .thenDelay(500)
+                .thenDelay(600)
                 .then(new B_GrabSpecimenAndStowAuto())
                 .thenDelay(100)
                 .then(specimenLoop(4))

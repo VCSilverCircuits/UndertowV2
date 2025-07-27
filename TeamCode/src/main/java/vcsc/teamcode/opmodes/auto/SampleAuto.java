@@ -332,6 +332,7 @@ public class SampleAuto extends OpMode {
         buildPaths();
 
         long DROP_DELAY = 100;
+        long PRELOAD_DROP_DELAY = 0;
         long PRE_GRAB_DELAY = 80;
         long POST_GRAB_DELAY = 50;
 
@@ -340,8 +341,8 @@ public class SampleAuto extends OpMode {
         auto.thenLog("[AUTO] DepositUpper & Go to scorePreload")
                 // SCORE PRELOAD
                 .thenAsync(new B_DepositSampleUpperAuto(), new FollowPathTask(follower, scorePreload))
-                .thenWaitUntil(() -> follower.getPose().getY() > 123 && armExtState.idle() || !follower.isBusy())
-                .thenDelay(DROP_DELAY)
+                .thenWaitUntil(() -> follower.getPose().getY() > 120 && armExtState.idle() || !follower.isBusy())
+                .thenDelay(PRELOAD_DROP_DELAY)
 
                 // GRAB PICKUP 1
                 .thenLog("[AUTO] (Stow then Intake) & Go to grabPickup1")
