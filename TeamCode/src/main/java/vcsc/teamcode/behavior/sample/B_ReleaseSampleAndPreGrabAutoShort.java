@@ -55,7 +55,9 @@ public class B_ReleaseSampleAndPreGrabAutoShort extends Behavior {
 
         // Create Task Sequence
         _taskSequence = new TaskSequence();
-        _taskSequence.then(openClaw).then(elbowOutPreGrab, hingeStraight).then(retractSlides).then(
+        _taskSequence.then(openClaw)
+                .thenDelay(300)
+                .then(elbowOutPreGrab, hingeStraight).then(retractSlides).then(
                 hingeBackPreGrab,
                 twist
         ).then(rotateArmDown).then(extendSlides);

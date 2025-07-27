@@ -57,6 +57,7 @@ import vcsc.teamcode.cmp.wrist.twist.WristTwistActuator;
 import vcsc.teamcode.cmp.wrist.twist.WristTwistState;
 import vcsc.teamcode.cmp.wrist.twist.actions.A_SetWristTwistAngle;
 import vcsc.teamcode.config.GlobalConfig;
+import vcsc.teamcode.config.GlobalPose;
 
 /**
  * This is an example auto that showcases movement and control of two servos autonomously.
@@ -75,7 +76,7 @@ public class SampleAuto extends OpMode {
     /**
      * Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle.
      */
-    private final Pose scorePose = new Pose(13.4, 130.7, Math.toRadians(315));
+    private final Pose scorePose = new Pose(13 , 130, Math.toRadians(315));
     private final Pose scorePose1 = new Pose(12.25, 135.75, Math.toRadians(-22));
     //    private final Pose scorePose = new Pose(15, 134.0, Math.toRadians(0));
     private final Pose scorePose2 = new Pose(13.5, 140.0, Math.toRadians(-10));
@@ -331,8 +332,8 @@ public class SampleAuto extends OpMode {
         FollowerWrapper.setFollower(follower);
         buildPaths();
 
-        long DROP_DELAY = 100;
-        long PRELOAD_DROP_DELAY = 0;
+        long DROP_DELAY = 150;
+        long PRELOAD_DROP_DELAY = 300;
         long PRE_GRAB_DELAY = 80;
         long POST_GRAB_DELAY = 50;
 
@@ -341,7 +342,7 @@ public class SampleAuto extends OpMode {
         auto.thenLog("[AUTO] DepositUpper & Go to scorePreload")
                 // SCORE PRELOAD
                 .thenAsync(new B_DepositSampleUpperAuto(), new FollowPathTask(follower, scorePreload))
-                .thenWaitUntil(() -> follower.getPose().getY() > 120 && armExtState.idle() || !follower.isBusy())
+                .thenWaitUntil(() -> follower.getPose().getY() > 120 && armExtState.getRealLength() > GlobalPose.DEPOSIT_SAMPLE_UPPER.getArmExtensionLength() - 5 || !follower.isBusy())
                 .thenDelay(PRELOAD_DROP_DELAY)
 
                 // GRAB PICKUP 1

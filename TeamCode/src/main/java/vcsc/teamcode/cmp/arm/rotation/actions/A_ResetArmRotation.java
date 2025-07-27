@@ -7,7 +7,7 @@ public class A_ResetArmRotation extends A_SetArmRotationPower {
     boolean finished = true;
     boolean finishedMovement = true;
     double MOVEMENT_DELAY = 600;
-    double RESET_DELAY = 80;
+    double RESET_DELAY = 150;
     ElapsedTime movementTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     ElapsedTime resetTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
