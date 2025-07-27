@@ -62,6 +62,26 @@ public class B_IntakeSampleGrabLock extends Behavior {
     public boolean start() {
         super.start();
         RobotState.getInstance().setMode(GlobalPose.INTAKE_SAMPLE_GRAB);
+
+        // Establish needed actions
+        A_SetElbowPose elbowOut = new A_SetElbowPose(ElbowPose.INTAKE_SAMPLE_GRAB);
+        A_SetWristHingePose hingeBack = new A_SetWristHingePose(WristHingePose.INTAKE_SAMPLE_GRAB);
+        A_SetWristTwistPose twist = new A_SetWristTwistPose(WristTwistPose.INTAKE_SAMPLE_GRAB);
+        A_SetClawPose clawClose = new A_SetClawPose(ClawPose.INTAKE_SAMPLE_GRAB);
+
+        A_SetArmExtensionPose extendSlides = new A_SetArmExtensionPose(ArmExtensionPose.INTAKE_SAMPLE_GRAB);
+        A_SetArmRotationPose rotateArmBack = new A_SetArmRotationPose(ArmRotationPose.INTAKE_SAMPLE_GRAB);
+
+        _taskSequence = new TaskSequence();
+        _taskSequence.thenDelay(80).then(
+                        rotateArmBack,
+//                        extendSlides,
+                        elbowOut,
+                        hingeBack
+                )
+                .thenDelay(100)
+                .then(clawClose)
+                .thenDelay(80);
         return _taskSequence.start();
     }
 
