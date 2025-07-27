@@ -70,7 +70,7 @@ import vcsc.teamcode.config.GlobalConfig;
 
 @Autonomous(name = "Sample Auto", group = "Auto", preselectTeleOp = "Tele")
 public class SampleAuto extends OpMode {
-
+//coment
     private final Pose startPose = new Pose(6, 112, Math.toRadians(270));
     /**
      * Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle.
