@@ -20,4 +20,4 @@ UndertowV2 is a robot built for the FTC IntoTheDeep challenge, programmed using 
 ## Quickstart:
 You can find the quick start to the Pedro Pathing library [here](https://github.com/Pedro-Pathing/Quickstart)
 ## Contact
-For any questions or inquiries, please contact the VCSC team coder at dallin@vcsilvercircuts.com
+For any questions or inquiries, please contact the VCSC team at hello@vcsilvercircuts.com
